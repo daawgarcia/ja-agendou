@@ -1,0 +1,26 @@
+<%- include('../partials/header', { title: 'Login' }) %>
+<div class="auth-page">
+  <div class="auth-card">
+    <img src="/images/logo-ja-agendou.png" alt="Já Agendou!" class="logo" />
+    <h1>Acesse sua plataforma</h1>
+    <p class="auth-text">Gestão exclusiva por clínica com segurança e isolamento de dados.</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/login" class="grid-form">
+      <div>
+        <label>E-mail</label>
+        <input type="email" name="email" placeholder="seuemail@clinica.com" required />
+      </div>
+      <div>
+        <label>Senha</label>
+        <input type="password" name="senha" placeholder="Digite sua senha" required />
+      </div>
+      <button type="submit" class="btn btn-block">Entrar</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

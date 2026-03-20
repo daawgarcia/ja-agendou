@@ -1,0 +1,15 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="/images/logo-ja-agendou.png" alt="Já Agendou!" class="logo-small" />
+    <span class="brand-text">Já Agendou!</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="/pacientes" class="nav-link">Pacientes</a>
+    <a href="/agendamentos" class="nav-link">Agendamentos</a>
+    <% if (user && user.perfil === 'super_admin') { %>
+      <a href="/clinicas" class="nav-link">Clínicas</a>
+    <% } %>
+  </nav>
+</aside>

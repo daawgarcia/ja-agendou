@@ -1,0 +1,75 @@
+<%- include('../partials/header', { title: 'Pacientes' }) %>
+<%- include('../partials/sidebar') %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Pacientes', subtitle: 'Cadastre e gerencie os pacientes da sua clínica.' }) %>
+
+  <section class="card form-card">
+    <h3><%= editPaciente ? 'Editar paciente' : 'Novo paciente' %></h3>
+    <form method="POST" action="<%= editPaciente ? '/pacientes/' + editPaciente.id + '?_method=PUT' : '/pacientes' %>" class="grid-form grid-2">
+      <div>
+        <label>Nome</label>
+        <input type="text" name="nome" value="<%= editPaciente?.nome || '' %>" required />
+      </div>
+      <div>
+        <label>Telefone</label>
+        <input type="text" name="telefone" value="<%= editPaciente?.telefone || '' %>" />
+      </div>
+      <div>
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= editPaciente?.email || '' %>" />
+      </div>
+      <div>
+        <label>Data de nascimento</label>
+        <input type="date" name="data_nascimento" value="<%= editPaciente?.data_nascimento || '' %>" />
+      </div>
+      <div class="full-width">
+        <label>Observações</label>
+        <textarea name="observacoes" rows="4"><%= editPaciente?.observacoes || '' %></textarea>
+      </div>
+      <div class="form-actions full-width">
+        <button type="submit" class="btn"><%= editPaciente ? 'Atualizar paciente' : 'Salvar paciente' %></button>
+        <% if (editPaciente) { %>
+          <a href="/pacientes" class="btn btn-outline">Cancelar</a>
+        <% } %>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Lista de pacientes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>E-mail</th>
+          <th>Nascimento</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!pacientes.length) { %>
+          <tr><td colspan="5">Nenhum paciente cadastrado.</td></tr>
+        <% } %>
+        <% pacientes.forEach(paciente => { %>
+          <tr>
+            <td><%= paciente.nome %></td>
+            <td><%= paciente.telefone || '-' %></td>
+            <td><%= paciente.email || '-' %></td>
+            <td><%= paciente.data_nascimento || '-' %></td>
+            <td class="actions-cell">
+              <a href="/pacientes/<%= paciente.id %>/editar" class="btn btn-outline btn-small">Editar</a>
+              <% if (user.perfil !== 'recepcao') { %>
+                <form method="POST" action="/pacientes/<%= paciente.id %>?_method=DELETE" onsubmit="return confirm('Excluir paciente?');">
+                  <button type="submit" class="btn btn-danger btn-small">Excluir</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

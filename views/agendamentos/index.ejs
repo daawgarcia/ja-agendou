@@ -1,0 +1,90 @@
+<%- include('../partials/header', { title: 'Agendamentos' }) %>
+<%- include('../partials/sidebar') %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Agendamentos', subtitle: 'Gerencie a agenda da clínica com segurança.' }) %>
+
+  <section class="card form-card">
+    <h3><%= editAgendamento ? 'Editar agendamento' : 'Novo agendamento' %></h3>
+    <form method="POST" action="<%= editAgendamento ? '/agendamentos/' + editAgendamento.id + '?_method=PUT' : '/agendamentos' %>" class="grid-form grid-2">
+      <div>
+        <label>Paciente</label>
+        <select name="paciente_id" required>
+          <option value="">Selecione o paciente</option>
+          <% pacientes.forEach(paciente => { %>
+            <option value="<%= paciente.id %>" <%= editAgendamento && Number(editAgendamento.paciente_id) === Number(paciente.id) ? 'selected' : '' %>><%= paciente.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>Data</label>
+        <input type="date" name="data" value="<%= editAgendamento?.data || '' %>" required />
+      </div>
+      <div>
+        <label>Hora início</label>
+        <input type="time" name="hora_inicio" value="<%= editAgendamento?.hora_inicio || '' %>" required />
+      </div>
+      <div>
+        <label>Hora fim</label>
+        <input type="time" name="hora_fim" value="<%= editAgendamento?.hora_fim || '' %>" required />
+      </div>
+      <div>
+        <label>Status</label>
+        <select name="status">
+          <% ['agendado','confirmado','concluido','cancelado'].forEach(st => { %>
+            <option value="<%= st %>" <%= editAgendamento?.status === st ? 'selected' : '' %>><%= st %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="full-width">
+        <label>Observações</label>
+        <textarea name="observacoes" rows="4"><%= editAgendamento?.observacoes || '' %></textarea>
+      </div>
+      <div class="form-actions full-width">
+        <button type="submit" class="btn"><%= editAgendamento ? 'Atualizar agendamento' : 'Salvar agendamento' %></button>
+        <% if (editAgendamento) { %>
+          <a href="/agendamentos" class="btn btn-outline">Cancelar</a>
+        <% } %>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Lista de agendamentos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Início</th>
+          <th>Fim</th>
+          <th>Paciente</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!agendamentos.length) { %>
+          <tr><td colspan="6">Nenhum agendamento cadastrado.</td></tr>
+        <% } %>
+        <% agendamentos.forEach(item => { %>
+          <tr>
+            <td><%= item.data_formatada %></td>
+            <td><%= item.hora_inicio %></td>
+            <td><%= item.hora_fim %></td>
+            <td><%= item.paciente_nome %></td>
+            <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
+            <td class="actions-cell">
+              <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-small">Editar</a>
+              <% if (user.perfil !== 'recepcao') { %>
+                <form method="POST" action="/agendamentos/<%= item.id %>?_method=DELETE" onsubmit="return confirm('Excluir agendamento?');">
+                  <button type="submit" class="btn btn-danger btn-small">Excluir</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

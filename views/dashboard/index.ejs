@@ -1,0 +1,54 @@
+<%- include('../partials/header', { title: 'Dashboard' }) %>
+<%- include('../partials/sidebar') %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Dashboard', subtitle: 'Visão rápida da operação da clínica.' }) %>
+
+  <section class="cards cards-3">
+    <div class="card stat-card">
+      <span>Pacientes cadastrados</span>
+      <h2><%= stats.pacientes %></h2>
+    </div>
+    <div class="card stat-card">
+      <span>Agendamentos hoje</span>
+      <h2><%= stats.agendamentosHoje %></h2>
+    </div>
+    <div class="card stat-card success-card">
+      <span>Confirmados hoje</span>
+      <h2><%= stats.confirmadosHoje %></h2>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-header">
+      <h3>Próximos agendamentos</h3>
+      <a href="/agendamentos" class="btn btn-outline btn-small">Ver agenda</a>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Início</th>
+          <th>Fim</th>
+          <th>Paciente</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!proximosAgendamentos.length) { %>
+          <tr><td colspan="5">Nenhum agendamento futuro encontrado.</td></tr>
+        <% } %>
+        <% proximosAgendamentos.forEach(item => { %>
+          <tr>
+            <td><%= item.data_formatada %></td>
+            <td><%= item.hora_inicio_formatada %></td>
+            <td><%= item.hora_fim_formatada %></td>
+            <td><%= item.paciente_nome %></td>
+            <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
