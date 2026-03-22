@@ -1,27 +1,41 @@
 <%- include('../partials/header', { title: 'Clínicas' }) %>
 <%- include('../partials/sidebar') %>
+
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Clínicas', subtitle: 'Área exclusiva do super admin para gerenciar clientes.' }) %>
 
   <section class="card form-card">
     <h3><%= editClinica ? 'Editar clínica' : 'Nova clínica' %></h3>
+
     <form method="POST" action="<%= editClinica ? '/clinicas/' + editClinica.id + '?_method=PUT' : '/clinicas' %>" class="grid-form grid-2">
+
       <div>
         <label>Nome</label>
         <input type="text" name="nome" value="<%= editClinica?.nome || '' %>" required />
       </div>
+
       <div>
         <label>Slug</label>
         <input type="text" name="slug" value="<%= editClinica?.slug || '' %>" placeholder="clinica-exemplo" required />
       </div>
+
       <div>
-        <label>E-mail</label>
-        <input type="email" name="email" value="<%= editClinica?.email || '' %>" />
+        <label>E-mail (login)</label>
+        <input type="email" name="email" value="<%= editClinica?.email || '' %>" required />
       </div>
+
       <div>
         <label>Telefone</label>
         <input type="text" name="telefone" value="<%= editClinica?.telefone || '' %>" />
       </div>
+
+      <% if (!editClinica) { %>
+      <div>
+        <label>Senha inicial</label>
+        <input type="password" name="senha" placeholder="Senha do administrador" required />
+      </div>
+      <% } %>
+
       <div>
         <label>Status</label>
         <select name="status">
@@ -29,17 +43,23 @@
           <option value="inativo" <%= editClinica?.status === 'inativo' ? 'selected' : '' %>>inativo</option>
         </select>
       </div>
+
       <div class="form-actions full-width">
-        <button type="submit" class="btn"><%= editClinica ? 'Atualizar clínica' : 'Salvar clínica' %></button>
+        <button type="submit" class="btn">
+          <%= editClinica ? 'Atualizar clínica' : 'Salvar clínica' %>
+        </button>
+
         <% if (editClinica) { %>
           <a href="/clinicas" class="btn btn-outline">Cancelar</a>
         <% } %>
       </div>
+
     </form>
   </section>
 
   <section class="card">
     <h3>Lista de clínicas</h3>
+
     <table>
       <thead>
         <tr>
@@ -52,26 +72,39 @@
           <th>Ações</th>
         </tr>
       </thead>
+
       <tbody>
         <% if (!clinicas.length) { %>
-          <tr><td colspan="7">Nenhuma clínica cadastrada.</td></tr>
+          <tr>
+            <td colspan="7">Nenhuma clínica cadastrada.</td>
+          </tr>
         <% } %>
+
         <% clinicas.forEach(clinica => { %>
           <tr>
             <td><%= clinica.nome %></td>
             <td><%= clinica.slug %></td>
             <td><%= clinica.email || '-' %></td>
             <td><%= clinica.telefone || '-' %></td>
-            <td><span class="badge badge-<%= clinica.status %>"><%= clinica.status %></span></td>
+            <td>
+              <span class="badge badge-<%= clinica.status %>">
+                <%= clinica.status %>
+              </span>
+            </td>
             <td><%= clinica.created_at_formatado %></td>
             <td>
-              <a href="/clinicas/<%= clinica.id %>/editar" class="btn btn-outline btn-small">Editar</a>
+              <a href="/clinicas/<%= clinica.id %>/editar" class="btn btn-outline btn-small">
+                Editar
+              </a>
             </td>
           </tr>
         <% }) %>
       </tbody>
+
     </table>
   </section>
+
 </main>
+
 </body>
 </html>
