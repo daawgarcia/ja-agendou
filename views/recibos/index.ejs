@@ -55,7 +55,7 @@
           <h3>Prévia do recibo</h3>
           <% if(previewRecibo){ %>
             <div style="border:1px solid var(--border);border-radius:6px;padding:16px;font-size:13px">
-              <p style="margin-bottom:6px"><strong>Paciente:</strong> <%= previewRecibo.paciente_nome||'-' %></p>
+              <p style="margin-bottom:6px"><strong>Paciente:</strong> <%= previewRecibo.paciente_nome || (previewRecibo.paciente && previewRecibo.paciente.nome) || '-' %></p>
               <p style="margin-bottom:6px"><strong>Valor:</strong> R$ <%= Number(previewRecibo.valor||0).toFixed(2) %></p>
               <p style="margin-bottom:6px"><strong>Data:</strong> <%= previewRecibo.data_fmt||previewRecibo.data_recibo %></p>
               <p style="margin-bottom:6px"><strong>Referente a:</strong> <%= previewRecibo.descricao||'-' %></p>

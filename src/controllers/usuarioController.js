@@ -5,8 +5,7 @@ async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
   try {
     const [usuarios] = await pool.execute(
-      `SELECT id, nome, email, perfil, status,
-              DATE_FORMAT(created_at, '%d/%m/%Y %H:%i') AS criado_em
+      `SELECT id, nome, email, perfil, status
        FROM usuarios
        WHERE clinica_id = ?
        ORDER BY id ASC`,

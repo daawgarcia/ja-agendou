@@ -68,14 +68,10 @@
 
         <div class="card">
           <h3>Importar Excel / CSV</h3>
-          <form method="POST" action="/pacientes/importar" enctype="multipart/form-data">
-            <label>Arquivo</label>
-            <input type="file" name="arquivo" accept=".csv,.xls,.xlsx" style="margin-bottom:12px" />
-            <div class="form-actions">
-              <button type="submit" class="btn btn-sm">Processar e importar</button>
-            </div>
-          </form>
-          <p style="font-size:12px;color:#6b7280;margin-top:10px">Colunas aceitas: nome, telefone, email, nascimento, convenio, endereco, sexo, cpf, rg, responsavel, observacoes.</p>
+          <p style="font-size:12px;color:#6b7280;line-height:1.6;">
+            A importação em lote está temporariamente indisponível nesta versão.
+            Para evitar erro de rota, o cadastro está funcionando apenas pelo formulário manual.
+          </p>
         </div>
       </div>
 

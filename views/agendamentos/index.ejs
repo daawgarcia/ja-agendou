@@ -102,10 +102,10 @@
         <!-- FECHAR AGENDA -->
         <div class="card">
           <h3>Fechar agenda do dentista</h3>
-          <div class="form-grid">
+          <form method="POST" action="/dentistas/fechamentos" class="form-grid">
             <div>
               <label>Dentista</label>
-              <select id="fechar-dentista">
+              <select name="dentista_id" required>
                 <option value="">Selecione o dentista</option>
                 <% (dentistas||[]).forEach(function(d){ %>
                   <option value="<%= d.id %>"><%= d.nome %></option>
@@ -114,12 +114,12 @@
             </div>
             <div>
               <label>Data</label>
-              <input type="date" id="fechar-data" value="<%= new Date().toISOString().slice(0,10) %>" />
+              <input type="date" name="data_fechamento" value="<%= new Date().toISOString().slice(0,10) %>" required />
             </div>
-          </div>
-          <div style="margin-top:12px">
-            <button class="btn btn-sm" onclick="fecharAgenda()">Fechar agenda</button>
-          </div>
+            <div class="form-actions full">
+              <button class="btn btn-sm" type="submit">Fechar agenda</button>
+            </div>
+          </form>
           <p style="font-size:12px;color:#6b7280;margin-top:10px">Agenda fechada bloqueia novos agendamentos e também a edição dos agendamentos existentes daquele dentista na data escolhida.</p>
         </div>
 

@@ -147,9 +147,9 @@ async function enviarEmailsNovoAgendamento(clinicaId, agendamentoId) {
 
 async function list(req, res) {
   const clinicaId = req.session.user.clinica_id;
+  const busca = (req.query.busca || '').trim();
   try {
-    const [agendamentos] = await pool.execute(
-      `SELECT a.id,
+    let agendamentoQuery = `SELECT a.id,
               DATE_FORMAT(a.data, '%Y-%m-%d') AS data,
               DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
               TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
@@ -162,14 +162,22 @@ async function list(req, res) {
        INNER JOIN pacientes p ON p.id = a.paciente_id
        LEFT JOIN dentistas d ON d.id = a.dentista_id
        LEFT JOIN servicos s ON s.id = a.servico_id
-       WHERE a.clinica_id = ?
-       ORDER BY a.data DESC, a.hora_inicio ASC`,
-      [clinicaId]
-    );
-    const [pacientes] = await pool.execute('SELECT id, nome FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
-    const [dentistas] = await pool.execute('SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
+       WHERE a.clinica_id = ?`;
+    const agendamentoParams = [clinicaId];
+
+    if (busca) {
+      agendamentoQuery += ' AND (p.nome LIKE ? OR COALESCE(p.telefone, \"\") LIKE ? OR COALESCE(d.nome, \"\") LIKE ?)';
+      const pattern = `%${busca}%`;
+      agendamentoParams.push(pattern, pattern, pattern);
+    }
+
+    agendamentoQuery += ' ORDER BY a.data DESC, a.hora_inicio ASC';
+
+    const [agendamentos] = await pool.execute(agendamentoQuery, agendamentoParams);
+    const [pacientes] = await pool.execute('SELECT id, nome, COALESCE(telefone, \"\") AS telefone FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
+    const [dentistas] = await pool.execute('SELECT id, nome, COALESCE(email, \"\") AS email FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
     const [servicos] = await pool.execute('SELECT id, nome, valor_padrao FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
-    return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: null });
+    return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: null, busca });
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', { title: 'Erro ao listar agendamentos', message: 'Nao foi possivel carregar os agendamentos.' });
@@ -438,8 +446,8 @@ async function editForm(req, res) {
        ORDER BY a.data DESC, a.hora_inicio ASC`,
       [clinicaId]
     );
-    const [pacientes] = await pool.execute('SELECT id, nome FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
-    const [dentistas] = await pool.execute('SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
+    const [pacientes] = await pool.execute('SELECT id, nome, COALESCE(telefone, \"\") AS telefone FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
+    const [dentistas] = await pool.execute('SELECT id, nome, COALESCE(email, \"\") AS email FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
     const [servicos] = await pool.execute('SELECT id, nome, valor_padrao FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
     const [rows] = await pool.execute(
       `SELECT id, paciente_id, dentista_id, servico_id, procedimento, valor_estimado,
@@ -451,7 +459,7 @@ async function editForm(req, res) {
       [id, clinicaId]
     );
     if (!rows.length) return res.redirect('/agendamentos');
-    return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: rows[0] });
+    return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: rows[0], busca: '' });
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', { title: 'Erro ao editar agendamento', message: 'Nao foi possivel carregar o agendamento.' });
