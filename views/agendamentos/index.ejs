@@ -87,12 +87,13 @@
           <th>Servico</th>
           <th>Valor</th>
           <th>Status</th>
+          <th>Lembrete</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         <% if (!agendamentos.length) { %>
-          <tr><td colspan="9">Nenhum agendamento cadastrado.</td></tr>
+          <tr><td colspan="10">Nenhum agendamento cadastrado.</td></tr>
         <% } %>
         <% agendamentos.forEach(item => { %>
           <tr>
@@ -104,6 +105,14 @@
             <td><%= item.servico_nome || item.procedimento || '-' %></td>
             <td>R$ <%= Number(item.valor_estimado || 0).toFixed(2) %></td>
             <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
+            <td>
+              <% if (item.lembrete_enviado_fmt) { %>
+                <span class="badge badge-concluido">Enviado</span>
+                <div class="muted-inline" style="margin-top:4px;font-size:12px;"><%= item.lembrete_enviado_fmt %></div>
+              <% } else { %>
+                <span class="badge badge-agendado">Pendente</span>
+              <% } %>
+            </td>
             <td class="actions-cell">
               <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-small">Editar</a>
               <%
@@ -113,6 +122,11 @@
               %>
               <% if (_tel.length >= 12) { %>
                 <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">💬 WPP</a>
+              <% } %>
+              <% if (!item.lembrete_enviado_fmt) { %>
+                <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-enviado">
+                  <button type="submit" class="btn btn-small">Marcar lembrete</button>
+                </form>
               <% } %>
               <form method="POST" action="/agendamentos/mover" class="grid-form" style="display:flex;gap:6px;align-items:center;">
                 <input type="hidden" name="agendamento_id" value="<%= item.id %>" />

@@ -1,5 +1,13 @@
 ﻿const pool = require('../config/db');
 
+function parseDateISO(value) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const now = new Date();
+    return now.toISOString().slice(0, 10);
+  }
+  return value;
+}
+
 async function list(req, res) {
   const clinicaId = req.session.user.clinica_id;
   try {
@@ -9,6 +17,7 @@ async function list(req, res) {
               DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
               TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
               TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
+              DATE_FORMAT(a.lembrete_enviado_em, '%d/%m %H:%i') AS lembrete_enviado_fmt,
               a.status, a.observacoes, a.dentista_id, a.servico_id, a.procedimento, a.valor_estimado,
               p.nome AS paciente_nome, p.id AS paciente_id, COALESCE(p.telefone,'') AS telefone,
               d.nome AS dentista_nome, s.nome AS servico_nome
@@ -27,6 +36,93 @@ async function list(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', { title: 'Erro ao listar agendamentos', message: 'Nao foi possivel carregar os agendamentos.' });
+  }
+}
+
+async function lembretes(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const dataSelecionada = parseDateISO(req.query.data);
+
+  try {
+    const [agendamentos] = await pool.execute(
+      `SELECT a.id,
+              DATE_FORMAT(a.data, '%Y-%m-%d') AS data,
+              DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
+              TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
+              TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
+              a.status,
+              a.observacoes,
+              a.lembrete_enviado_em,
+              DATE_FORMAT(a.lembrete_enviado_em, '%d/%m/%Y %H:%i') AS lembrete_enviado_fmt,
+              p.nome AS paciente_nome,
+              COALESCE(p.telefone, '') AS telefone,
+              COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
+              COALESCE(s.nome, a.procedimento, 'Sem procedimento') AS servico_nome
+       FROM agendamentos a
+       INNER JOIN pacientes p ON p.id = a.paciente_id
+       LEFT JOIN dentistas d ON d.id = a.dentista_id
+       LEFT JOIN servicos s ON s.id = a.servico_id
+       WHERE a.clinica_id = ?
+         AND a.data = ?
+         AND a.status IN ('agendado', 'confirmado')
+       ORDER BY a.hora_inicio ASC`,
+      [clinicaId, dataSelecionada]
+    );
+
+    const pendentes = agendamentos.filter((item) => !item.lembrete_enviado_em).length;
+    const enviados = agendamentos.length - pendentes;
+
+    return res.render('agendamentos/lembretes', {
+      dataSelecionada,
+      agendamentos,
+      resumo: {
+        total: agendamentos.length,
+        pendentes,
+        enviados,
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro nos lembretes',
+      message: 'Nao foi possivel carregar os lembretes de WhatsApp.'
+    });
+  }
+}
+
+async function marcarLembreteEnviado(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const { id } = req.params;
+  try {
+    await pool.execute(
+      'UPDATE agendamentos SET lembrete_enviado_em = NOW() WHERE id = ? AND clinica_id = ?',
+      [id, clinicaId]
+    );
+    return res.redirect(req.get('referer') || '/agendamentos/lembretes');
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao marcar lembrete',
+      message: 'Nao foi possivel marcar este lembrete como enviado.'
+    });
+  }
+}
+
+async function limparLembreteEnviado(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const { id } = req.params;
+  try {
+    await pool.execute(
+      'UPDATE agendamentos SET lembrete_enviado_em = NULL WHERE id = ? AND clinica_id = ?',
+      [id, clinicaId]
+    );
+    return res.redirect(req.get('referer') || '/agendamentos/lembretes');
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao limpar lembrete',
+      message: 'Nao foi possivel reabrir este lembrete.'
+    });
   }
 }
 
@@ -143,4 +239,14 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { list, create, editForm, update, remove, moverData };
+module.exports = {
+  list,
+  lembretes,
+  marcarLembreteEnviado,
+  limparLembreteEnviado,
+  create,
+  editForm,
+  update,
+  remove,
+  moverData,
+};
