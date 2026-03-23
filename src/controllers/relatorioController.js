@@ -11,15 +11,15 @@ async function index(req, res) {
     );
     let query = `
       SELECT DATE_FORMAT(a.data, '%Y-%m') AS mes,
-             d.nome AS dentista_nome,
-             COUNT(*) AS total_atendidos,
-             SUM(CASE WHEN a.status != 'cancelado' THEN a.valor_estimado ELSE 0 END) AS valor_total
-      FROM agendamentos a
-      LEFT JOIN dentistas d ON d.id = a.dentista_id
-      WHERE a.clinica_id = ? AND DATE_FORMAT(a.data, '%Y-%m') = ?`;
+                  COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
+                  COUNT(*) AS total_atendidos,
+                  COALESCE(SUM(CASE WHEN a.status != 'cancelado' THEN a.valor_estimado ELSE 0 END), 0) AS valor_total
+                FROM agendamentos a
+                LEFT JOIN dentistas d ON d.id = a.dentista_id
+                WHERE a.clinica_id = ? AND DATE_FORMAT(a.data, '%Y-%m') = ?`;
     const params = [clinicaId, mesAno];
     if (dentistaId) { query += ' AND a.dentista_id = ?'; params.push(dentistaId); }
-    query += ' GROUP BY d.id, mes ORDER BY valor_total DESC';
+    query += ' GROUP BY d.id, d.nome ORDER BY valor_total DESC';
     const [porDentista] = await pool.execute(query, params);
 
     const [[receitaMes]] = await pool.execute(

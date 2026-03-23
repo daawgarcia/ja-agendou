@@ -1,8 +1,9 @@
-<%- include('../partials/header', { title: 'Dashboard' }) %>
+﻿<%- include('../partials/header', { title: 'Dashboard' }) %>
 <%- include('../partials/sidebar') %>
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Dashboard', subtitle: 'Visão rápida da operação da clínica.' }) %>
 
+  <!-- KPI Cards -->
   <section class="cards cards-4">
     <div class="card stat-card">
       <span>Pacientes cadastrados</span>
@@ -22,60 +23,189 @@
     </div>
   </section>
 
-  <section class="card">
+  <!-- Agenda com tabs Hoje / Semana / Mês -->
+  <section class="card agenda-card">
     <div class="section-header">
-      <h3>Próximos agendamentos</h3>
-      <a href="/agendamentos" class="btn btn-outline btn-small">Ver agenda</a>
+      <h3>Agenda</h3>
+      <div class="tab-group">
+        <button class="tab-btn active" data-tab="hoje">Hoje</button>
+        <button class="tab-btn" data-tab="semana">Semana</button>
+        <button class="tab-btn" data-tab="mes">Mês</button>
+      </div>
+      <a href="/agendamentos" class="btn btn-small">+ Novo agendamento</a>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Início</th>
-          <th>Fim</th>
-          <th>Paciente</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (!proximosAgendamentos.length) { %>
-          <tr><td colspan="5">Nenhum agendamento futuro encontrado.</td></tr>
-        <% } %>
-        <% proximosAgendamentos.forEach(item => { %>
+
+    <!-- TAB HOJE -->
+    <div id="tab-hoje" class="tab-panel active">
+      <%
+        var agendHoje = (agendamentosMes || []).filter(function(a){ return a.data === hojeISO; });
+      %>
+      <% if (!agendHoje.length) { %>
+        <p class="empty-msg">Nenhum agendamento para hoje.</p>
+      <% } else { %>
+        <div class="agenda-list">
+          <% agendHoje.forEach(function(a){ %>
+            <%
+              var tel = (a.telefone || '').replace(/\D/g,'');
+              if (tel.length === 11 || tel.length === 10) tel = '55' + tel;
+              var wppMsg = encodeURIComponent('Olá ' + a.paciente_nome + ', lembrando do seu agendamento para hoje (' + a.data_fmt + ') às ' + a.hora_inicio + '. Aguardamos você! - Já Agendou');
+            %>
+            <div class="agenda-item status-<%= a.status %>">
+              <div class="agenda-hora">
+                <strong><%= a.hora_inicio %></strong>
+                <span><%= a.hora_fim %></span>
+              </div>
+              <div class="agenda-info">
+                <strong><%= a.paciente_nome %></strong>
+                <% if (a.servico_nome) { %><span><%= a.servico_nome %></span><% } %>
+                <% if (a.dentista_nome) { %><span class="muted"><%= a.dentista_nome %></span><% } %>
+              </div>
+              <div class="agenda-actions">
+                <span class="badge badge-<%= a.status %>"><%= a.status %></span>
+                <% if (tel.length >= 12) { %>
+                  <a href="https://wa.me/<%= tel %>?text=<%= wppMsg %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small"> WhatsApp</a>
+                <% } %>
+                <a href="/agendamentos/<%= a.id %>/editar" class="btn btn-outline btn-small">Editar</a>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- TAB SEMANA -->
+    <div id="tab-semana" class="tab-panel">
+      <%
+        var hojeDate = new Date(hojeISO + 'T00:00:00');
+        var diaSemana = hojeDate.getDay();
+        var inicioSemana = new Date(hojeDate);
+        inicioSemana.setDate(hojeDate.getDate() - diaSemana);
+        var diasSemana = [];
+        for (var i = 0; i < 7; i++) {
+          var d = new Date(inicioSemana);
+          d.setDate(inicioSemana.getDate() + i);
+          var dISO = d.toISOString().split('T')[0];
+          var dFmt = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+          var agsDia = (agendamentosMes || []).filter(function(a){ return a.data === dISO; });
+          diasSemana.push({ iso: dISO, fmt: dFmt, ags: agsDia, isHoje: dISO === hojeISO });
+        }
+      %>
+      <div class="semana-grid">
+        <% diasSemana.forEach(function(dia){ %>
+          <div class="semana-col<%= dia.isHoje ? ' semana-hoje' : '' %>">
+            <div class="semana-header"><%= dia.fmt %></div>
+            <% if (!dia.ags.length) { %>
+              <div class="semana-vazio">Livre</div>
+            <% } else { %>
+              <% dia.ags.forEach(function(ag){ %>
+                <%
+                  var tel2 = (ag.telefone || '').replace(/\D/g,'');
+                  if (tel2.length === 11 || tel2.length === 10) tel2 = '55' + tel2;
+                  var msg2 = encodeURIComponent('Olá ' + ag.paciente_nome + ', lembrando do seu agendamento para ' + ag.data_fmt + ' às ' + ag.hora_inicio + '. - Já Agendou');
+                %>
+                <div class="semana-item status-<%= ag.status %>">
+                  <strong><%= ag.hora_inicio %></strong>
+                  <span><%= ag.paciente_nome %></span>
+                  <% if (ag.servico_nome) { %><small><%= ag.servico_nome %></small><% } %>
+                  <div style="display:flex;gap:4px;margin-top:4px;">
+                    <% if (tel2.length >= 12) { %>
+                      <a href="https://wa.me/<%= tel2 %>?text=<%= msg2 %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small" style="padding:3px 7px;font-size:11px;"></a>
+                    <% } %>
+                    <a href="/agendamentos/<%= ag.id %>/editar" class="btn btn-outline btn-small" style="padding:3px 7px;font-size:11px;"></a>
+                  </div>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- TAB MÊS -->
+    <div id="tab-mes" class="tab-panel">
+      <%
+        var agora = new Date(hojeISO + 'T00:00:00');
+        var anoAtual = agora.getFullYear();
+        var mesAtual = agora.getMonth();
+        var diasNoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
+        var primeiroDia = new Date(anoAtual, mesAtual, 1).getDay();
+        var nomeMes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      %>
+      <div class="mes-titulo"><%= nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) %></div>
+      <table class="mes-grid">
+        <thead>
           <tr>
-            <td><%= item.data_formatada %></td>
-            <td><%= item.hora_inicio_formatada %></td>
-            <td><%= item.hora_fim_formatada %></td>
-            <td><%= item.paciente_nome %></td>
-            <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
+            <% ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(function(n){ %><th><%= n %></th><% }); %>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% var celulas = []; %>
+          <% for (var sp = 0; sp < primeiroDia; sp++) { celulas.push(null); } %>
+          <% for (var dia3 = 1; dia3 <= diasNoMes; dia3++) { celulas.push(dia3); } %>
+          <% while (celulas.length % 7 !== 0) { celulas.push(null); } %>
+          <% for (var row = 0; row < celulas.length / 7; row++) { %>
+            <tr>
+              <% for (var col = 0; col < 7; col++) { %>
+                <% var diaNum = celulas[row * 7 + col]; %>
+                <% if (!diaNum) { %>
+                  <td class="mes-vazio"></td>
+                <% } else { %>
+                  <%
+                    var mesStr2 = String(mesAtual + 1).padStart(2,'0');
+                    var diaStr2 = String(diaNum).padStart(2,'0');
+                    var dISO3 = anoAtual + '-' + mesStr2 + '-' + diaStr2;
+                    var agsDia3 = (agendamentosMes || []).filter(function(a){ return a.data === dISO3; });
+                    var isHoje3 = dISO3 === hojeISO;
+                  %>
+                  <td class="mes-dia<%= isHoje3 ? ' mes-dia-hoje' : '' %>">
+                    <span class="mes-num"><%= diaNum %></span>
+                    <% agsDia3.slice(0, 3).forEach(function(a){ %>
+                      <div class="mes-evento status-<%= a.status %>"><%= a.hora_inicio %> <%= a.paciente_nome.split(' ')[0] %></div>
+                    <% }); %>
+                    <% if (agsDia3.length > 3) { %>
+                      <div class="mes-mais">+<%= agsDia3.length - 3 %> mais</div>
+                    <% } %>
+                  </td>
+                <% } %>
+              <% } %>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
   </section>
 
+  <!-- Aniversariantes -->
   <section class="card">
     <h3>Aniversariantes do mês</h3>
     <table>
       <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Data</th>
-        </tr>
+        <tr><th>Nome</th><th>Data</th></tr>
       </thead>
       <tbody>
         <% if (!aniversariantes || !aniversariantes.length) { %>
           <tr><td colspan="2">Nenhum aniversariante neste mês.</td></tr>
         <% } %>
-        <% (aniversariantes || []).forEach(item => { %>
+        <% (aniversariantes || []).forEach(function(item){ %>
           <tr>
             <td><%= item.nome %></td>
             <td><%= item.data_nasc_fmt %></td>
           </tr>
-        <% }) %>
+        <% }); %>
       </tbody>
     </table>
   </section>
 </main>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
 </body>
 </html>

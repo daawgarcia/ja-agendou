@@ -19,45 +19,57 @@ async function index(req, res) {
       [clinicaId]
     );
 
-    const [proximosAgendamentos] = await pool.execute(
-      `SELECT a.id, DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
-              TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio_formatada,
-              TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim_formatada,
-              a.status, p.nome AS paciente_nome
+    // Agendamentos do mês completo (para agenda dia/semana/mês)
+    const [agendamentosMes] = await pool.execute(
+      `SELECT a.id,
+              DATE_FORMAT(a.data, '%Y-%m-%d') AS data,
+              DATE_FORMAT(a.data, '%d/%m/%Y') AS data_fmt,
+              TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
+              TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
+              a.status, a.observacoes,
+              p.nome AS paciente_nome,
+              COALESCE(p.telefone, '') AS telefone,
+              COALESCE(d.nome, '') AS dentista_nome,
+              COALESCE(s.nome, a.procedimento, '') AS servico_nome
        FROM agendamentos a
        INNER JOIN pacientes p ON p.id = a.paciente_id
+       LEFT JOIN dentistas d ON d.id = a.dentista_id
+       LEFT JOIN servicos s ON s.id = a.servico_id
        WHERE a.clinica_id = ?
-         AND (a.data > CURDATE() OR (a.data = CURDATE() AND a.hora_inicio >= CURTIME()))
-       ORDER BY a.data ASC, a.hora_inicio ASC
-       LIMIT 8`,
+         AND YEAR(a.data) = YEAR(CURDATE())
+         AND MONTH(a.data) = MONTH(CURDATE())
+       ORDER BY a.data ASC, a.hora_inicio ASC`,
       [clinicaId]
     );
 
-      const [aniversariantes] = await pool.execute(
-        `SELECT id, nome, DATE_FORMAT(data_nascimento, '%d/%m') AS data_nasc_fmt
-         FROM pacientes
-         WHERE clinica_id = ? AND MONTH(data_nascimento) = MONTH(CURDATE())
-         ORDER BY DAY(data_nascimento) ASC LIMIT 5`,
-        [clinicaId]
-      );
+    const [aniversariantes] = await pool.execute(
+      `SELECT id, nome, DATE_FORMAT(data_nascimento, '%d/%m') AS data_nasc_fmt
+       FROM pacientes
+       WHERE clinica_id = ? AND MONTH(data_nascimento) = MONTH(CURDATE())
+       ORDER BY DAY(data_nascimento) ASC LIMIT 5`,
+      [clinicaId]
+    );
 
-      const [[receitaMes]] = await pool.execute(
-        `SELECT COALESCE(SUM(valor), 0) AS total
-         FROM recibos
-         WHERE clinica_id = ? AND MONTH(data_recibo) = MONTH(CURDATE()) AND YEAR(data_recibo) = YEAR(CURDATE())`,
-        [clinicaId]
-      );
+    const [[receitaMes]] = await pool.execute(
+      `SELECT COALESCE(SUM(valor), 0) AS total
+       FROM recibos
+       WHERE clinica_id = ? AND MONTH(data_recibo) = MONTH(CURDATE()) AND YEAR(data_recibo) = YEAR(CURDATE())`,
+      [clinicaId]
+    );
 
-      return res.render('dashboard/index', {
-        stats: {
-          pacientes: pacientesCount.total,
-          agendamentosHoje: agendamentosHojeCount.total,
-          confirmadosHoje: confirmadosHojeCount.total,
-          receitaMes: receitaMes.total,
-        },
-        proximosAgendamentos,
-        aniversariantes,
-      });
+    const hojeISO = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    return res.render('dashboard/index', {
+      stats: {
+        pacientes: pacientesCount.total,
+        agendamentosHoje: agendamentosHojeCount.total,
+        confirmadosHoje: confirmadosHojeCount.total,
+        receitaMes: receitaMes.total,
+      },
+      agendamentosMes,
+      aniversariantes,
+      hojeISO,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', {

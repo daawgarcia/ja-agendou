@@ -10,7 +10,7 @@ async function list(req, res) {
               TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
               TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
               a.status, a.observacoes, a.dentista_id, a.servico_id, a.procedimento, a.valor_estimado,
-              p.nome AS paciente_nome, p.id AS paciente_id,
+              p.nome AS paciente_nome, p.id AS paciente_id, COALESCE(p.telefone,'') AS telefone,
               d.nome AS dentista_nome, s.nome AS servico_nome
        FROM agendamentos a
        INNER JOIN pacientes p ON p.id = a.paciente_id
@@ -18,7 +18,7 @@ async function list(req, res) {
        LEFT JOIN servicos s ON s.id = a.servico_id
        WHERE a.clinica_id = ?
        ORDER BY a.data DESC, a.hora_inicio ASC`,
-      [clinicaId]
+      [clinicaId]  
     );
     const [pacientes] = await pool.execute('SELECT id, nome FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
     const [dentistas] = await pool.execute('SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
