@@ -1,0 +1,77 @@
+﻿<%- include('../partials/header', { title: 'Usuários' }) %>
+<%- include('../partials/sidebar', { currentPage: 'usuarios' }) %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Usuários', subtitle: 'Cadastre novos acessos para secretária e equipe.' }) %>
+  <div class="page-body">
+
+    <% if(locals.query?.erro==='email_duplicado'){ %>
+      <div class="alert alert-error">E-mail já cadastrado. Use outro e-mail.</div>
+    <% } %>
+    <% if(locals.query?.erro==='campos_obrigatorios'){ %>
+      <div class="alert alert-error">Preencha todos os campos obrigatórios.</div>
+    <% } %>
+
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <h3>Novo usuário</h3>
+          <form method="POST" action="/usuarios" class="form-grid">
+            <div class="full">
+              <label>Nome completo</label>
+              <input type="text" name="nome" required />
+            </div>
+            <div>
+              <label>E-mail</label>
+              <input type="email" name="email" required />
+            </div>
+            <div>
+              <label>Senha</label>
+              <input type="password" name="senha" required minlength="6" />
+            </div>
+            <div>
+              <label>Perfil</label>
+              <select name="perfil">
+                <option value="recepcao">Secretária</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn">Criar usuário</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Usuários cadastrados</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(!usuarios.length){ %>
+                <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:20px">Nenhum usuário cadastrado.</td></tr>
+              <% } %>
+              <% usuarios.forEach(function(u){ %>
+                <tr class="<%= u.status==='inativo'?'row-cancelado':'' %>">
+                  <td><%= u.nome %></td>
+                  <td><%= u.email %></td>
+                  <td><%= u.perfil==='admin'?'admin':'secretaria' %></td>
+                  <td><%= u.criado_em||'-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

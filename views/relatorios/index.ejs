@@ -1,58 +1,102 @@
-<%- include('../partials/header', { title: 'Relatorios' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Relatórios' }) %>
+<%- include('../partials/sidebar', { currentPage: 'relatorios' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Relatorios Financeiros', subtitle: 'Receita e produtividade por dentista e periodo.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Relatórios', subtitle: 'Exporte agenda, visão financeira e produtividade por dentista.' }) %>
+  <div class="page-body">
 
-  <section class="card">
-    <h3>Filtros</h3>
-    <form method="GET" action="/relatorios" class="grid-form grid-3">
+    <!-- FILTER BAR -->
+    <form method="GET" action="/relatorios" class="filter-bar">
       <div>
-        <label>Mes</label>
-        <input type="month" name="mes" value="<%= mesAno || '' %>" required />
+        <label>De</label>
+        <input type="date" name="de" value="<%= locals.filtros?.de || '' %>" />
+      </div>
+      <div>
+        <label>Até</label>
+        <input type="date" name="ate" value="<%= locals.filtros?.ate || '' %>" />
       </div>
       <div>
         <label>Dentista</label>
         <select name="dentista_id">
           <option value="">Todos</option>
-          <% dentistas.forEach(d => { %>
-            <option value="<%= d.id %>" <%= String(dentistaId || '') === String(d.id) ? 'selected' : '' %>><%= d.nome %></option>
+          <% (dentistas||[]).forEach(function(d){ %>
+            <option value="<%= d.id %>" <%= String(dentistaId||'')=== String(d.id)?'selected':'' %>><%= d.nome %></option>
           <% }) %>
         </select>
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn">Gerar</button>
-      </div>
+      <button type="submit" class="btn btn-sm">Filtrar</button>
     </form>
-  </section>
 
-  <section class="card">
-    <h3>Resumo</h3>
-    <div class="kpi-grid">
-      <div class="kpi-card"><span>Receita do periodo</span><strong>R$ <%= Number(stats?.receitaMes || 0).toFixed(2) %></strong></div>
-      <div class="kpi-card"><span>Agendados</span><strong><%= Number(stats?.agendados || 0) %></strong></div>
-      <div class="kpi-card"><span>Cancelados</span><strong><%= Number(stats?.cancelados || 0) %></strong></div>
+    <!-- EXPORT ACTIONS -->
+    <div class="kpi-row" style="margin-bottom:20px">
+      <div class="kpi-card" style="cursor:pointer" onclick="location.href='/relatorios?export=agenda&de=<%= locals.filtros?.de||'' %>&ate=<%= locals.filtros?.ate||'' %>'">
+        <span style="color:var(--primary);font-weight:600"> Exportar agenda</span>
+        <strong style="font-size:14px">CSV</strong>
+      </div>
+      <div class="kpi-card" style="cursor:pointer" onclick="location.href='/relatorios?export=dentista&de=<%= locals.filtros?.de||'' %>&ate=<%= locals.filtros?.ate||'' %>'">
+        <span style="color:var(--primary);font-weight:600"> Relatório por dentista</span>
+        <strong style="font-size:14px">CSV</strong>
+      </div>
+      <div class="kpi-card" style="cursor:pointer" onclick="location.href='/relatorios?export=pacientes'">
+        <span style="color:var(--primary);font-weight:600"> Exportar pacientes</span>
+        <strong style="font-size:14px">CSV</strong>
+      </div>
+      <div class="kpi-card" style="cursor:pointer" onclick="location.href='/relatorios?export=financeiro&de=<%= locals.filtros?.de||'' %>&ate=<%= locals.filtros?.ate||'' %>'">
+        <span style="color:var(--primary);font-weight:600"> Exportar financeiro</span>
+        <strong style="font-size:14px">CSV</strong>
+      </div>
     </div>
-  </section>
 
-  <section class="card">
-    <h3>Detalhamento</h3>
-    <table>
-      <thead><tr><th>Dentista</th><th>Detalhe</th><th>Detalhe</th><th>Atendimentos</th><th>Valor total</th><th>Mes</th></tr></thead>
-      <tbody>
-        <% if (!porDentista.length) { %><tr><td colspan="6">Nenhum resultado para o filtro.</td></tr><% } %>
-        <% porDentista.forEach(l => { %>
+    <!-- KPI SUMMARY -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span>Recebido no período</span>
+        <strong>R$ <%= Number(stats?.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Recibos emitidos</span>
+        <strong><%= Number(stats?.recibosEmitidos||0) %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Ticket médio</span>
+        <strong>R$ <%= Number(stats?.ticketMedio||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Período</span>
+        <strong style="font-size:16px"><%= locals.filtros?.de ? (locals.filtros.de.slice(8)+'/'+locals.filtros.de.slice(5,7)) : '--' %> a <%= locals.filtros?.ate ? (locals.filtros.ate.slice(8)+'/'+locals.filtros.ate.slice(5,7)) : '--' %></strong>
+      </div>
+    </div>
+
+    <!-- TABLE BY DENTIST -->
+    <div class="card">
+      <h3>Resumo por dentista</h3>
+      <table>
+        <thead>
           <tr>
-            <td><%= l.dentista_nome || '-' %></td>
-            <td>-</td>
-            <td>-</td>
-            <td><%= Number(l.total_atendidos || 0) %> atendimentos</td>
-            <td>R$ <%= Number(l.valor_total || 0).toFixed(2) %></td>
-            <td><%= l.mes || '-' %></td>
+            <th>Dentista</th>
+            <th>Agendamentos</th>
+            <th>Confirmados</th>
+            <th>Atendidos</th>
+            <th>Valor estimado</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+        </thead>
+        <tbody>
+          <% if(!(porDentista||[]).length){ %>
+            <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:20px">Nenhum resultado. Aplique um filtro de período.</td></tr>
+          <% } %>
+          <% (porDentista||[]).forEach(function(l){ %>
+            <tr>
+              <td><%= l.dentista_nome||'-' %></td>
+              <td><%= Number(l.total||0) %></td>
+              <td><%= Number(l.confirmados||0) %></td>
+              <td><%= Number(l.total_atendidos||0) %></td>
+              <td>R$ <%= Number(l.valor_total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </main>
 </body>
 </html>

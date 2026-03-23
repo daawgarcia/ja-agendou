@@ -1,55 +1,63 @@
-<%- include('../partials/header', { title: 'Servicos' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Serviços' }) %>
+<%- include('../partials/sidebar', { currentPage: 'servicos' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Servicos', subtitle: 'Gerencie os procedimentos e valores padrao.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Serviços', subtitle: 'Cadastre serviços padrão e defina o valor sugerido para facilitar os lançamentos da agenda.' }) %>
+  <div class="page-body">
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <h3><%= editServico ? 'Editar serviço' : 'Novo serviço' %></h3>
+          <form method="POST" action="<%= editServico ? '/servicos/' + editServico.id + '?_method=PUT' : '/servicos' %>" class="form-grid">
+            <div class="full">
+              <label>Nome do serviço</label>
+              <input type="text" name="nome" value="<%= editServico?.nome||'' %>" required />
+            </div>
+            <div>
+              <label>Valor padrão (R$)</label>
+              <input type="number" step="0.01" min="0" name="valor_padrao" value="<%= editServico?.valor_padrao||'0' %>" />
+            </div>
+            <div>
+              <label>Status</label>
+              <select name="ativo">
+                <option value="1" <%= !editServico||Number(editServico.ativo)===1?'selected':'' %>>Ativo</option>
+                <option value="0" <%= editServico&&Number(editServico.ativo)===0?'selected':'' %>>Inativo</option>
+              </select>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn"><%= editServico ? 'Atualizar serviço' : 'Salvar serviço' %></button>
+              <% if(editServico){ %><a href="/servicos" class="btn btn-outline">Limpar</a><% } else { %><button type="reset" class="btn btn-outline">Limpar</button><% } %>
+            </div>
+          </form>
+        </div>
+      </div>
 
-  <section class="card form-card">
-    <h3><%= editServico ? 'Editar servico' : 'Novo servico' %></h3>
-    <form method="POST" action="<%= editServico ? '/servicos/' + editServico.id + '?_method=PUT' : '/servicos' %>" class="grid-form grid-2">
       <div>
-        <label>Nome</label>
-        <input type="text" name="nome" value="<%= editServico?.nome || '' %>" required />
+        <div class="card">
+          <h3>Serviços cadastrados</h3>
+          <table>
+            <thead>
+              <tr><th>Serviço</th><th>Valor padrão</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody>
+              <% if(!servicos.length){ %>
+                <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:20px">Nenhum serviço cadastrado.</td></tr>
+              <% } %>
+              <% servicos.forEach(function(s){ %>
+                <tr>
+                  <td><%= s.nome %></td>
+                  <td>R$ <%= Number(s.valor_padrao||0).toFixed(2) %></td>
+                  <td><span class="badge <%= Number(s.ativo)?'badge-green':'badge-gray' %>"><%= Number(s.ativo)?'Ativo':'Inativo' %></span></td>
+                  <td>
+                    <a href="/servicos/<%= s.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div>
-        <label>Valor padrao</label>
-        <input type="number" step="0.01" min="0" name="valor_padrao" value="<%= editServico?.valor_padrao || '' %>" />
-      </div>
-      <div>
-        <label>Status</label>
-        <select name="ativo">
-          <option value="1" <%= !editServico || Number(editServico.ativo) === 1 ? 'selected' : '' %>>Ativo</option>
-          <option value="0" <%= editServico && Number(editServico.ativo) === 0 ? 'selected' : '' %>>Inativo</option>
-        </select>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn"><%= editServico ? 'Atualizar servico' : 'Salvar servico' %></button>
-        <% if (editServico) { %><a href="/servicos" class="btn btn-outline">Cancelar</a><% } %>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h3>Lista de servicos</h3>
-    <table>
-      <thead><tr><th>Nome</th><th>Valor padrao</th><th>Status</th><th>Acoes</th></tr></thead>
-      <tbody>
-        <% if (!servicos.length) { %><tr><td colspan="4">Nenhum servico cadastrado.</td></tr><% } %>
-        <% servicos.forEach(s => { %>
-          <tr>
-            <td><%= s.nome %></td>
-            <td>R$ <%= Number(s.valor_padrao || 0).toFixed(2) %></td>
-            <td><%= Number(s.ativo) ? 'Ativo' : 'Inativo' %></td>
-            <td class="actions-cell">
-              <a href="/servicos/<%= s.id %>/editar" class="btn btn-outline btn-small">Editar</a>
-              <form method="POST" action="/servicos/<%= s.id %>?_method=DELETE" onsubmit="return confirm('Excluir servico?');">
-                <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+    </div>
+  </div>
 </main>
 </body>
 </html>

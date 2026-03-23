@@ -1,90 +1,79 @@
-<%- include('../partials/header', { title: 'Historico' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Histórico' }) %>
+<%- include('../partials/sidebar', { currentPage: 'historico' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Historico', subtitle: 'Registre evolucao, ocorrencias e observacoes dos pacientes.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Histórico', subtitle: 'Registro dos atendimentos clínicos e observações.' }) %>
+  <div class="page-body">
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <h3>Novo registro</h3>
+          <form method="POST" action="/historico" class="form-grid">
+            <div class="full">
+              <label>Paciente</label>
+              <select name="paciente_id" required>
+                <option value="">Selecione</option>
+                <% pacientes.forEach(function(p){ %>
+                  <option value="<%= p.id %>"><%= p.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>Data</label>
+              <input type="date" name="data_evento" value="<%= new Date().toISOString().slice(0,10) %>" required />
+            </div>
+            <div>
+              <label>Tipo</label>
+              <input type="text" name="tipo_evento" placeholder="Ex.: Retorno, limpeza" />
+            </div>
+            <div>
+              <label>Dentista</label>
+              <input type="text" name="profissional" />
+            </div>
+            <div>
+              <label>Status</label>
+              <input type="text" name="status_historico" placeholder="Ex.: Concluído" />
+            </div>
+            <div class="full">
+              <label>Descrição</label>
+              <textarea name="descricao" rows="4"></textarea>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn">Salvar histórico</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-  <section class="card form-card">
-    <h3>Novo registro</h3>
-    <form method="POST" action="/historico" class="grid-form grid-2">
       <div>
-        <label>Paciente</label>
-        <select name="paciente_id" required>
-          <option value="">Selecione</option>
-          <% pacientes.forEach(p => { %>
-            <option value="<%= p.id %>"><%= p.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Data</label>
-        <input type="date" name="data_evento" required />
-      </div>
-      <div>
-        <label>Tipo</label>
-        <input type="text" name="tipo_evento" placeholder="Ex.: atendimento, retorno" />
-      </div>
-      <div>
-        <label>Profissional</label>
-        <input type="text" name="profissional" />
-      </div>
-      <div>
-        <label>Status</label>
-        <input type="text" name="status_historico" placeholder="Ex.: aberto, concluido" />
-      </div>
-      <div class="full-width">
-        <label>Descricao</label>
-        <textarea name="descricao" rows="4"></textarea>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn">Salvar historico</button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h3>Filtro</h3>
-    <form method="GET" action="/historico" class="grid-form grid-3">
-      <div>
-        <label>Paciente</label>
-        <select name="paciente_id">
-          <option value="">Todos</option>
-          <% pacientes.forEach(p => { %>
-            <option value="<%= p.id %>" <%= String(pacienteId || '') === String(p.id) ? 'selected' : '' %>><%= p.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-outline">Aplicar filtro</button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h3>Registros</h3>
-    <table>
-      <thead><tr><th>Data</th><th>Paciente</th><th>Tipo</th><th>Profissional</th><th>Status</th><th>Acoes</th></tr></thead>
-      <tbody>
-        <% if (!itens.length) { %><tr><td colspan="6">Nenhum registro encontrado.</td></tr><% } %>
-        <% itens.forEach(h => { %>
-          <tr>
-            <td><%= h.data_evento %></td>
-            <td><%= h.paciente_nome %></td>
-            <td><%= h.tipo_evento || '-' %></td>
-            <td><%= h.profissional || '-' %></td>
-            <td><%= h.status_historico || '-' %></td>
-            <td>
-              <form method="POST" action="/historico/<%= h.id %>?_method=DELETE" onsubmit="return confirm('Excluir registro?');">
-                <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-              </form>
-            </td>
-          </tr>
-          <% if (h.descricao) { %>
-            <tr><td colspan="6"><strong>Descricao:</strong> <%= h.descricao %></td></tr>
+        <div class="card">
+          <h3>Últimos registros</h3>
+          <% if(!itens||!itens.length){ %>
+            <div class="empty-state"><p>Nenhum registro encontrado.</p></div>
           <% } %>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Paciente</th><th>Tipo</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% (itens||[]).forEach(function(h){ %>
+                <tr>
+                  <td><%= h.data_evento %></td>
+                  <td><%= h.paciente_nome %></td>
+                  <td><%= h.tipo_evento||'-' %></td>
+                  <td><%= h.status_historico||'-' %></td>
+                  <td>
+                    <form method="POST" action="/historico/<%= h.id %>?_method=DELETE" onsubmit="return confirm('Excluir registro?');">
+                      <button type="submit" class="btn btn-red btn-sm">Excluir</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 </body>
 </html>

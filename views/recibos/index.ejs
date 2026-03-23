@@ -1,79 +1,103 @@
-<%- include('../partials/header', { title: 'Recibos' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Recibos' }) %>
+<%- include('../partials/sidebar', { currentPage: 'recibos' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Recibos', subtitle: 'Emissao e controle de recibos financeiros.' }) %>
-
-  <section class="card form-card">
-    <h3>Novo recibo</h3>
-    <form method="POST" action="/recibos" class="grid-form grid-2">
+  <%- include('../partials/topbar', { pageTitle: 'Recibos', subtitle: 'Emissão de recibo no modelo duplicado com assinatura.' }) %>
+  <div class="page-body">
+    <div class="two-col">
       <div>
-        <label>Paciente</label>
-        <select name="paciente_id" required>
-          <option value="">Selecione</option>
-          <% pacientes.forEach(p => { %>
-            <option value="<%= p.id %>"><%= p.nome %></option>
+        <div class="card">
+          <h3>Emitir recibo</h3>
+          <form method="POST" action="/recibos" class="form-grid" id="recibo-form">
+            <div class="full">
+              <label>Paciente</label>
+              <select name="paciente_id" id="recibo-paciente" required>
+                <option value="">Selecione</option>
+                <% pacientes.forEach(function(p){ %>
+                  <option value="<%= p.id %>" data-cpf="<%= p.cpf||'' %>"><%= p.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>Data</label>
+              <input type="date" name="data_recibo" value="<%= new Date().toISOString().slice(0,10) %>" required />
+            </div>
+            <div>
+              <label>Valor (R$)</label>
+              <input type="number" step="0.01" min="0" name="valor" id="recibo-valor" required />
+            </div>
+            <div>
+              <label>CPF do pagador</label>
+              <input type="text" name="documento_pagador" id="recibo-cpf" placeholder="000.000.000-00" />
+            </div>
+            <div class="full">
+              <label>Referente a</label>
+              <input type="text" name="descricao" required placeholder="Ex.: Tratamento Odontológico" />
+            </div>
+            <div class="full">
+              <label>Observações</label>
+              <textarea name="observacoes" rows="3"></textarea>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn">Gerar recibo</button>
+              <% if(previewRecibo){ %>
+                <a href="/recibos/<%= previewRecibo.id %>/imprimir" target="_blank" class="btn btn-outline">Imprimir / PDF</a>
+              <% } %>
+            </div>
+          </form>
+          <% if(!previewRecibo){ %>
+            <p style="font-size:12px;color:#9ca3af;margin-top:10px">Selecione um paciente para ver os dados.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Prévia do recibo</h3>
+          <% if(previewRecibo){ %>
+            <div style="border:1px solid var(--border);border-radius:6px;padding:16px;font-size:13px">
+              <p style="margin-bottom:6px"><strong>Paciente:</strong> <%= previewRecibo.paciente_nome||'-' %></p>
+              <p style="margin-bottom:6px"><strong>Valor:</strong> R$ <%= Number(previewRecibo.valor||0).toFixed(2) %></p>
+              <p style="margin-bottom:6px"><strong>Data:</strong> <%= previewRecibo.data_fmt||previewRecibo.data_recibo %></p>
+              <p style="margin-bottom:6px"><strong>Referente a:</strong> <%= previewRecibo.descricao||'-' %></p>
+              <% if(previewRecibo.documento_pagador){ %><p><strong>CPF:</strong> <%= previewRecibo.documento_pagador %></p><% } %>
+            </div>
+          <% } else { %>
+            <p style="color:#9ca3af;font-size:13px">Depois de gerar o recibo, a prévia aparece aqui.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMOS RECIBOS -->
+    <div class="card">
+      <h3>Últimos recibos</h3>
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Paciente</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr>
+        </thead>
+        <tbody>
+          <% if(!recibos.length){ %>
+            <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:20px">Nenhum recibo emitido.</td></tr>
+          <% } %>
+          <% recibos.forEach(function(r){ %>
+            <tr>
+              <td><%= r.data_fmt||r.data_recibo %></td>
+              <td><a href="#" style="color:var(--primary)"><%= r.paciente_nome %></a></td>
+              <td><%= r.descricao||'-' %></td>
+              <td>R$ <%= Number(r.valor||0).toFixed(2) %></td>
+              <td>
+                <a href="/recibos/<%= r.id %>/imprimir" target="_blank" class="btn btn-outline btn-sm">PDF</a>
+              </td>
+            </tr>
           <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Data</label>
-        <input type="date" name="data_recibo" required />
-      </div>
-      <div>
-        <label>Valor</label>
-        <input type="number" step="0.01" min="0" name="valor" required />
-      </div>
-      <div>
-        <label>Documento do pagador</label>
-        <input type="text" name="documento_pagador" />
-      </div>
-      <div class="full-width">
-        <label>Descricao</label>
-        <textarea name="descricao" rows="3" required></textarea>
-      </div>
-      <div class="full-width">
-        <label>Observacoes</label>
-        <textarea name="observacoes" rows="3"></textarea>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn">Emitir recibo</button>
-      </div>
-    </form>
-  </section>
-
-  <% if (previewRecibo) { %>
-    <section class="card">
-      <h3>Recibo gerado</h3>
-      <p><strong>Paciente:</strong> <%= previewRecibo.paciente.nome %></p>
-      <p><strong>Valor:</strong> R$ <%= Number(previewRecibo.valor).toFixed(2) %></p>
-      <p><strong>Data:</strong> <%= previewRecibo.data_recibo %></p>
-      <a href="/recibos/<%= previewRecibo.id %>/imprimir" class="btn" target="_blank">Imprimir</a>
-    </section>
-  <% } %>
-
-  <section class="card">
-    <h3>Recibos emitidos</h3>
-    <table>
-      <thead><tr><th>Data</th><th>Paciente</th><th>Valor</th><th>Descricao</th><th>Acoes</th></tr></thead>
-      <tbody>
-        <% if (!recibos.length) { %><tr><td colspan="5">Nenhum recibo emitido.</td></tr><% } %>
-        <% recibos.forEach(r => { %>
-          <tr>
-            <td><%= r.data_recibo %></td>
-            <td><%= r.paciente_nome %></td>
-            <td>R$ <%= Number(r.valor || 0).toFixed(2) %></td>
-            <td><%= r.descricao %></td>
-            <td class="actions-cell">
-              <a href="/recibos/<%= r.id %>/imprimir" class="btn btn-outline btn-small" target="_blank">Imprimir</a>
-              <form method="POST" action="/recibos/<%= r.id %>?_method=DELETE" onsubmit="return confirm('Excluir recibo?');">
-                <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>
+<script>
+  var rPac=document.getElementById('recibo-paciente'),rCpf=document.getElementById('recibo-cpf');
+  if(rPac&&rCpf){ rPac.addEventListener('change',function(){ var o=rPac.options[rPac.selectedIndex]; if(!rCpf.value) rCpf.value=o?o.getAttribute('data-cpf')||'':''; }); }
+</script>
 </body>
 </html>

@@ -17,6 +17,7 @@ const servicoRoutes = require('./src/routes/servicoRoutes');
 const historicoRoutes = require('./src/routes/historicoRoutes');
 const reciboRoutes = require('./src/routes/reciboRoutes');
 const relatorioRoutes = require('./src/routes/relatorioRoutes');
+const usuarioRoutes = require('./src/routes/usuarioRoutes');
 const { attachUserToViews } = require('./src/middlewares/auth');
 
 const app = express();
@@ -60,6 +61,7 @@ app.use('/servicos', servicoRoutes);
 app.use('/historico', historicoRoutes);
 app.use('/recibos', reciboRoutes);
 app.use('/relatorios', relatorioRoutes);
+app.use('/usuarios', usuarioRoutes);
 
 app.use((req, res) => {
   res.status(404).render('partials/error', {

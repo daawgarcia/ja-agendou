@@ -1,110 +1,75 @@
-<%- include('../partials/header', { title: 'Dentistas' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Dentistas' }) %>
+<%- include('../partials/sidebar', { currentPage: 'dentistas' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Dentistas', subtitle: 'Cadastre profissionais e controle fechamentos de agenda.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Dentistas', subtitle: 'Cadastre os dentistas uma única vez para usar o nome e o e-mail padronizados na agenda.' }) %>
+  <div class="page-body">
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <h3><%= editDentista ? 'Editar dentista' : 'Novo dentista' %></h3>
+          <form method="POST" action="<%= editDentista ? '/dentistas/' + editDentista.id + '?_method=PUT' : '/dentistas' %>" class="form-grid">
+            <div class="full">
+              <label>Nome do dentista</label>
+              <input type="text" name="nome" value="<%= editDentista?.nome||'' %>" required />
+            </div>
+            <div>
+              <label>E-mail</label>
+              <input type="email" name="email" value="<%= editDentista?.email||'' %>" />
+            </div>
+            <div>
+              <label>Status</label>
+              <select name="ativo">
+                <option value="1" <%= !editDentista||Number(editDentista.ativo)===1?'selected':'' %>>Ativo</option>
+                <option value="0" <%= editDentista&&Number(editDentista.ativo)===0?'selected':'' %>>Inativo</option>
+              </select>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn"><%= editDentista ? 'Atualizar dentista' : 'Salvar dentista' %></button>
+              <% if(editDentista){ %><a href="/dentistas" class="btn btn-outline">Limpar</a><% } else { %><button type="reset" class="btn btn-outline">Limpar</button><% } %>
+            </div>
+          </form>
+        </div>
+      </div>
 
-  <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-  <section class="card form-card">
-    <h3><%= editDentista ? 'Editar dentista' : 'Novo dentista' %></h3>
-    <form method="POST" action="<%= editDentista ? '/dentistas/' + editDentista.id + '?_method=PUT' : '/dentistas' %>" class="grid-form grid-2">
       <div>
-        <label>Nome</label>
-        <input type="text" name="nome" value="<%= editDentista?.nome || '' %>" required />
-      </div>
-      <div>
-        <label>E-mail</label>
-        <input type="email" name="email" value="<%= editDentista?.email || '' %>" />
-      </div>
-      <div>
-        <label>Status</label>
-        <select name="ativo">
-          <option value="1" <%= !editDentista || Number(editDentista.ativo) === 1 ? 'selected' : '' %>>Ativo</option>
-          <option value="0" <%= editDentista && Number(editDentista.ativo) === 0 ? 'selected' : '' %>>Inativo</option>
-        </select>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn"><%= editDentista ? 'Atualizar dentista' : 'Salvar dentista' %></button>
-        <% if (editDentista) { %><a href="/dentistas" class="btn btn-outline">Cancelar</a><% } %>
-      </div>
-    </form>
-  </section>
-  <% } %>
-
-  <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-  <section class="card">
-    <h3>Fechamento de agenda</h3>
-    <form method="POST" action="/dentistas/fechamentos" class="grid-form grid-3">
-      <div>
-        <label>Dentista</label>
-        <select name="dentista_id" required>
-          <option value="">Selecione</option>
-          <% dentistas.forEach(d => { %>
-            <option value="<%= d.id %>"><%= d.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Data</label>
-        <input type="date" name="data_fechamento" required />
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn">Fechar agenda</button>
-      </div>
-    </form>
-  </section>
-  <% } %>
-
-  <section class="card">
-    <h3>Lista de dentistas</h3>
-    <table>
-      <thead><tr><th>Nome</th><th>E-mail</th><th>Status</th><th>Acoes</th></tr></thead>
-      <tbody>
-        <% if (!dentistas.length) { %><tr><td colspan="4">Nenhum dentista cadastrado.</td></tr><% } %>
-        <% dentistas.forEach(d => { %>
-          <tr>
-            <td><%= d.nome %></td>
-            <td><%= d.email || '-' %></td>
-            <td><%= Number(d.ativo) ? 'Ativo' : 'Inativo' %></td>
-            <td class="actions-cell">
-              <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-                <a href="/dentistas/<%= d.id %>/editar" class="btn btn-outline btn-small">Editar</a>
-                <form method="POST" action="/dentistas/<%= d.id %>?_method=DELETE" onsubmit="return confirm('Excluir dentista?');">
-                  <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-                </form>
-              <% } else { %>
-                <span>-</span>
+        <div class="card">
+          <h3>Dentistas cadastrados</h3>
+          <table>
+            <thead>
+              <tr><th>Nome</th><th>E-mail</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody>
+              <% if(!dentistas.length){ %>
+                <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:20px">Nenhum dentista cadastrado.</td></tr>
               <% } %>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="card">
-    <h3>Datas bloqueadas</h3>
-    <table>
-      <thead><tr><th>Dentista</th><th>Data</th><th>Acoes</th></tr></thead>
-      <tbody>
-        <% if (!fechamentos.length) { %><tr><td colspan="3">Nenhum fechamento cadastrado.</td></tr><% } %>
-        <% fechamentos.forEach(f => { %>
-          <tr>
-            <td><%= f.dentista_nome %></td>
-            <td><%= f.data_fechamento %></td>
-            <td>
-              <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-                <form method="POST" action="/dentistas/fechamentos/<%= f.id %>?_method=DELETE" onsubmit="return confirm('Remover fechamento?');">
-                  <button type="submit" class="btn btn-danger btn-small">Remover</button>
-                </form>
-              <% } else { %>
-                <span>-</span>
-              <% } %>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+              <% dentistas.forEach(function(d){ %>
+                <tr>
+                  <td><%= d.nome %></td>
+                  <td><%= d.email||'-' %></td>
+                  <td>
+                    <span class="badge <%= Number(d.ativo)?'badge-green':'badge-gray' %>">
+                      <%= Number(d.ativo)?'Ativo':'Inativo' %>
+                    </span>
+                  </td>
+                  <td>
+                    <div style="display:flex;gap:6px">
+                      <a href="/dentistas/<%= d.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
+                      <form method="POST" action="/dentistas/<%= d.id %>?_method=PUT" style="display:inline">
+                        <input type="hidden" name="ativo" value="<%= Number(d.ativo)?'0':'1' %>" />
+                        <input type="hidden" name="nome" value="<%= d.nome %>" />
+                        <input type="hidden" name="email" value="<%= d.email||'' %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= Number(d.ativo)?'Desativar':'Ativar' %></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 </body>
 </html>

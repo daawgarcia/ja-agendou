@@ -1,359 +1,255 @@
 ﻿<%- include('../partials/header', { title: 'Dashboard' }) %>
-<%- include('../partials/sidebar') %>
+<%- include('../partials/sidebar', { currentPage: 'dashboard' }) %>
 <%
-  function phoneToWhatsapp(rawPhone) {
-    var phone = String(rawPhone || '').replace(/\D/g, '');
-    if (phone.length === 10 || phone.length === 11) {
-      phone = '55' + phone;
-    }
-    return phone.length >= 12 ? phone : '';
+  function phoneToWa(raw) {
+    var p = String(raw||'').replace(/\D/g,'');
+    if(p.length===10||p.length===11) p='55'+p;
+    return p.length>=12?p:'';
   }
-
-  function buildDashboardQuery(dateValue, tabValue) {
-    var query = '?data=' + encodeURIComponent(dateValue || filters.selectedDate);
-    query += '&aba=' + encodeURIComponent(tabValue || filters.selectedTab || 'dia');
-    if (filters.dentistaId) query += '&dentista_id=' + encodeURIComponent(filters.dentistaId);
-    if (filters.status) query += '&status=' + encodeURIComponent(filters.status);
-    return query;
+  function waMsg(item) {
+    return encodeURIComponent('Olá '+item.paciente_nome+', lembramos do seu agendamento em '+item.data_fmt+' às '+item.hora_inicio+'. Qualquer dúvida estamos à disposição  Já Agendou');
   }
-
-  function whatsappMessage(item) {
-    return encodeURIComponent('Olá ' + item.paciente_nome + ', lembrando do seu agendamento em ' + item.data_fmt + ' às ' + item.hora_inicio + '. Qualquer dúvida, estamos à disposição. - Já Agendou');
-  }
+  var today = new Date().toISOString().slice(0,10);
 %>
-<main class="content dashboard-page">
-  <%- include('../partials/topbar', { pageTitle: 'Dashboard', subtitle: 'Agenda operacional no estilo do Já Agendou.' }) %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Dashboard', subtitle: 'Visão geral da semana e calendário visual' }) %>
 
-  <section class="cards cards-5 dashboard-cards">
-    <div class="card stat-card accent-blue">
-      <span>Pacientes</span>
-      <h2><%= Number(stats.pacientes || 0) %></h2>
-      <small>base total da clínica</small>
-    </div>
-    <div class="card stat-card accent-cyan">
-      <span>Agenda do dia</span>
-      <h2><%= Number(stats.agendaDia || 0) %></h2>
-      <small><%= filters.selectedDate %></small>
-    </div>
-    <div class="card stat-card success-card">
-      <span>Confirmados no dia</span>
-      <h2><%= Number(stats.confirmadosDia || 0) %></h2>
-      <small>prontos para atendimento</small>
-    </div>
-    <div class="card stat-card accent-slate">
-      <span>Agenda da semana</span>
-      <h2><%= Number(stats.agendaSemana || 0) %></h2>
-      <small><%= weekRangeLabel %></small>
-    </div>
-    <div class="card stat-card accent-gold">
-      <span>Receita do mês</span>
-      <h2>R$ <%= Number(stats.receitaMes || 0).toFixed(2) %></h2>
-      <small><%= monthTitle.charAt(0).toUpperCase() + monthTitle.slice(1) %></small>
-    </div>
-  </section>
+  <div class="page-body">
 
-  <section class="dashboard-top-grid">
-    <article class="card dashboard-filter-card">
-      <div class="section-header compact-header">
-        <div>
-          <h3>Filtro operacional</h3>
-          <p>Escolha a data-base e refine a agenda.</p>
-        </div>
-      </div>
-      <form method="GET" action="/dashboard" class="grid-form grid-4" id="dashboardFilterForm">
-        <input type="hidden" name="aba" id="abaInput" value="<%= filters.selectedTab %>" />
-        <div>
-          <label>Data-base</label>
-          <input type="date" name="data" value="<%= filters.selectedDate %>" />
-        </div>
-        <div>
-          <label>Dentista</label>
-          <select name="dentista_id">
-            <option value="">Todos</option>
-            <% dentistas.forEach(function(dentista) { %>
-              <option value="<%= dentista.id %>" <%= String(filters.dentistaId || '') === String(dentista.id) ? 'selected' : '' %>><%= dentista.nome %></option>
-            <% }) %>
-          </select>
-        </div>
-        <div>
-          <label>Status</label>
-          <select name="status">
-            <option value="">Todos</option>
-            <% ['agendado', 'confirmado', 'concluido', 'cancelado'].forEach(function(status) { %>
-              <option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= status %></option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="filter-actions">
-          <button type="submit" class="btn">Atualizar agenda</button>
-          <a href="/dashboard" class="btn btn-outline">Limpar</a>
-        </div>
-      </form>
-    </article>
+    <!-- TABS -->
+    <div class="tabs">
+      <% ['Resumo','Semanal','Mensal'].forEach(function(tab, i) {
+        var key = ['dia','semana','mes'][i];
+        var active = filters.selectedTab === key;
+      %>
+        <a href="/dashboard?data=<%= filters.selectedDate %>&aba=<%= key %><%= filters.dentistaId ? '&dentista_id='+filters.dentistaId : '' %>"
+           class="tab-btn<%= active ? ' active' : '' %>"><%= tab %></a>
+      <% }) %>
+    </div>
 
-    <article class="card quick-actions-card">
-      <div class="section-header compact-header">
-        <div>
-          <h3>Ações rápidas</h3>
-          <p>Atalhos para o fluxo de recepção.</p>
-        </div>
-      </div>
-      <div class="quick-actions-grid">
-        <a href="/agendamentos" class="quick-link quick-link-primary">Abrir agenda completa</a>
-        <a href="/pacientes" class="quick-link">Cadastrar ou localizar paciente</a>
-        <a href="/recibos" class="quick-link">Lançar recibos</a>
-        <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-          <a href="/relatorios" class="quick-link">Ver relatórios</a>
-        <% } %>
-      </div>
-    </article>
-  </section>
-
-  <section class="card agenda-card-v2">
-    <div class="section-header agenda-header-v2">
+    <!-- FILTER BAR -->
+    <form method="GET" action="/dashboard" class="filter-bar">
+      <input type="hidden" name="aba" value="<%= filters.selectedTab %>" />
       <div>
-        <h3>Agenda assistida</h3>
-        <p>Visualização diária, semanal e mensal com ações rápidas.</p>
+        <label>Semana base</label>
+        <input type="date" name="data" value="<%= filters.selectedDate %>" />
       </div>
-      <div class="tab-group">
-        <button type="button" class="tab-btn <%= filters.selectedTab === 'dia' ? 'active' : '' %>" data-tab="dia">Dia</button>
-        <button type="button" class="tab-btn <%= filters.selectedTab === 'semana' ? 'active' : '' %>" data-tab="semana">Semana</button>
-        <button type="button" class="tab-btn <%= filters.selectedTab === 'mes' ? 'active' : '' %>" data-tab="mes">Mês</button>
+      <div>
+        <label>Mês</label>
+        <input type="month" name="mes" value="<%= filters.selectedDate.slice(0,7) %>" onchange="this.form.data.value=this.value+'-01';this.form.submit();" />
       </div>
-    </div>
-
-    <div class="status-strip">
-      <span class="status-pill status-pill-agendado">Agendados: <strong><%= Number(statusResumo.agendado || 0) %></strong></span>
-      <span class="status-pill status-pill-confirmado">Confirmados: <strong><%= Number(statusResumo.confirmado || 0) %></strong></span>
-      <span class="status-pill status-pill-concluido">Concluídos: <strong><%= Number(statusResumo.concluido || 0) %></strong></span>
-      <span class="status-pill status-pill-cancelado">Cancelados: <strong><%= Number(statusResumo.cancelado || 0) %></strong></span>
-    </div>
-
-    <div id="tab-dia" class="tab-panel <%= filters.selectedTab === 'dia' ? 'active' : '' %>">
-      <% if (!agendaDia.length) { %>
-        <p class="empty-msg">Nenhum agendamento para a data selecionada.</p>
-      <% } else { %>
-        <div class="agenda-list-v2">
-          <% agendaDia.forEach(function(item) { %>
-            <% var whatsappPhone = phoneToWhatsapp(item.telefone); %>
-            <article class="agenda-card-item status-<%= item.status %>">
-              <div class="agenda-time-block">
-                <strong><%= item.hora_inicio %></strong>
-                <span>até <%= item.hora_fim %></span>
-              </div>
-              <div class="agenda-main-block">
-                <div class="agenda-main-row">
-                  <h4><%= item.paciente_nome %></h4>
-                  <span class="badge badge-<%= item.status %>"><%= item.status %></span>
-                </div>
-                <div class="agenda-meta-row">
-                  <span><strong>Serviço:</strong> <%= item.servico_nome %></span>
-                  <span><strong>Dentista:</strong> <%= item.dentista_nome %></span>
-                  <span><strong>Valor:</strong> R$ <%= Number(item.valor_estimado || 0).toFixed(2) %></span>
-                </div>
-                <% if (item.observacoes) { %>
-                  <p class="agenda-observacao"><%= item.observacoes %></p>
-                <% } %>
-              </div>
-              <div class="agenda-side-actions">
-                <div class="agenda-link-actions">
-                  <% if (whatsappPhone) { %>
-                    <a href="https://wa.me/<%= whatsappPhone %>?text=<%= whatsappMessage(item) %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">WhatsApp</a>
-                  <% } %>
-                  <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-small">Editar</a>
-                </div>
-                <div class="agenda-status-actions">
-                  <% if (item.status === 'agendado') { %>
-                    <form method="POST" action="/dashboard/agendamentos/<%= item.id %>/status">
-                      <input type="hidden" name="status" value="confirmado" />
-                      <button type="submit" class="btn btn-small">Confirmar</button>
-                    </form>
-                  <% } %>
-                  <% if (item.status !== 'concluido' && item.status !== 'cancelado') { %>
-                    <form method="POST" action="/dashboard/agendamentos/<%= item.id %>/status">
-                      <input type="hidden" name="status" value="concluido" />
-                      <button type="submit" class="btn btn-outline btn-small">Concluir</button>
-                    </form>
-                  <% } %>
-                  <% if (item.status !== 'cancelado') { %>
-                    <form method="POST" action="/dashboard/agendamentos/<%= item.id %>/status" onsubmit="return confirm('Cancelar este agendamento?');">
-                      <input type="hidden" name="status" value="cancelado" />
-                      <button type="submit" class="btn btn-danger btn-small">Cancelar</button>
-                    </form>
-                  <% } %>
-                </div>
-              </div>
-            </article>
+      <div>
+        <label>Dentista</label>
+        <select name="dentista_id" onchange="this.form.submit()">
+          <option value="">Todos os dentistas</option>
+          <% dentistas.forEach(function(d){ %>
+            <option value="<%= d.id %>" <%= filters.dentistaId==d.id?'selected':'' %>><%= d.nome %></option>
           <% }) %>
-        </div>
-      <% } %>
-    </div>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-sm">Atualizar</button>
+    </form>
 
-    <div id="tab-semana" class="tab-panel <%= filters.selectedTab === 'semana' ? 'active' : '' %>">
-      <div class="week-label">Semana: <%= weekRangeLabel %></div>
-      <div class="semana-grid-v2">
-        <% agendaSemana.forEach(function(day) { %>
-          <div class="semana-col-v2 <%= day.isToday ? 'semana-hoje' : '' %> <%= day.isSelected ? 'semana-selected' : '' %>">
-            <a class="semana-heading-link" href="/dashboard<%= buildDashboardQuery(day.iso, 'dia') %>">
-              <div class="semana-header-v2"><%= day.label %></div>
-            </a>
-            <% if (!day.appointments.length) { %>
-              <div class="semana-vazio">Livre</div>
-            <% } else { %>
-              <% day.appointments.forEach(function(item) { %>
-                <% var weekPhone = phoneToWhatsapp(item.telefone); %>
-                <div class="semana-item-v2 status-<%= item.status %>">
-                  <strong><%= item.hora_inicio %></strong>
-                  <span><%= item.paciente_nome %></span>
-                  <small><%= item.servico_nome %></small>
-                  <div class="semana-actions-inline">
-                    <% if (weekPhone) { %>
-                      <a href="https://wa.me/<%= weekPhone %>?text=<%= whatsappMessage(item) %>" target="_blank" rel="noopener" class="mini-link">WhatsApp</a>
-                    <% } %>
-                    <a href="/agendamentos/<%= item.id %>/editar" class="mini-link">Editar</a>
-                  </div>
-                </div>
-              <% }) %>
-            <% } %>
-          </div>
-        <% }) %>
+    <!-- KPI CARDS -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span>Pacientes cadastrados</span>
+        <strong><%= Number(stats.pacientes||0) %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Agendamentos da semana</span>
+        <strong><%= Number(stats.agendaSemana||0) %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Atendidos</span>
+        <strong><%= agendaDia.filter(function(a){return a.status==='concluido'||a.status==='atendido'}).length %></strong>
+      </div>
+      <div class="kpi-card">
+        <span>Receita lançada</span>
+        <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
       </div>
     </div>
 
-    <div id="tab-mes" class="tab-panel <%= filters.selectedTab === 'mes' ? 'active' : '' %>">
-      <div class="mes-title-v2"><%= monthTitle.charAt(0).toUpperCase() + monthTitle.slice(1) %></div>
-      <table class="mes-grid-v2">
-        <thead>
-          <tr>
-            <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].forEach(function(label) { %>
-              <th><%= label %></th>
+    <!-- MAIN CONTENT: WEEK / MONTH / DAY + NEXT -->
+    <div class="dashboard-row">
+
+      <!-- LEFT: AGENDA -->
+      <div>
+
+        <% if (filters.selectedTab === 'semana') { %>
+        <!-- WEEK VIEW -->
+        <div class="card" style="padding:16px">
+          <h3 style="margin-bottom:14px">Resumo da semana</h3>
+          <div class="week-grid">
+            <% agendaSemana.forEach(function(col) { %>
+              <div class="week-col">
+                <div class="week-col-header<%= col.iso===today?' today':'' %>">
+                  <%= col.label %>
+                </div>
+                <div class="week-col-body">
+                  <% if(!col.appointments.length) { %>
+                    <p style="font-size:11px;color:#9ca3af;text-align:center;margin-top:8px">Sem agendamentos</p>
+                  <% } %>
+                  <% col.appointments.forEach(function(a) { %>
+                    <div class="appt-card status-<%= a.status %>">
+                      <span class="appt-time"><%= a.hora_inicio %> às <%= a.hora_fim %></span>
+                      <span class="appt-dentist"> <%= a.dentista_nome %></span>
+                      <span class="appt-patients"><%= a.paciente_nome %></span>
+                      <% var wa=phoneToWa(a.telefone); if(wa){ %>
+                        <a href="https://wa.me/<%= wa %>?text=<%= waMsg(a) %>" target="_blank" class="btn btn-whatsapp btn-sm" style="margin-top:4px">WhatsApp</a>
+                      <% } %>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
             <% }) %>
-          </tr>
-        </thead>
-        <tbody>
-          <% monthCalendar.forEach(function(week) { %>
-            <tr>
-              <% week.forEach(function(day) { %>
-                <% if (!day) { %>
-                  <td class="mes-vazio"></td>
-                <% } else { %>
-                  <td class="mes-dia-v2 <%= day.isToday ? 'mes-dia-hoje' : '' %> <%= day.isSelected ? 'mes-dia-selected' : '' %>">
-                    <a class="mes-day-link" href="/dashboard<%= buildDashboardQuery(day.iso, 'dia') %>">
-                      <span class="mes-num"><%= day.day %></span>
-                    </a>
-                    <% day.appointments.slice(0, 4).forEach(function(item) { %>
-                      <div class="mes-evento-v2 status-<%= item.status %>"><%= item.hora_inicio %> <%= item.paciente_nome.split(' ')[0] %></div>
-                    <% }) %>
-                    <% if (day.appointments.length > 4) { %>
-                      <div class="mes-mais">+<%= day.appointments.length - 4 %> agendamentos</div>
+          </div>
+        </div>
+
+        <% } else if (filters.selectedTab === 'mes') { %>
+        <!-- MONTH VIEW -->
+        <div class="card month-calendar">
+          <h3><%= monthTitle %></h3>
+          <table>
+            <thead>
+              <tr>
+                <% ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(function(d){ %><th><%= d %></th><% }) %>
+              </tr>
+            </thead>
+            <tbody>
+              <% monthCalendar.forEach(function(week){ %>
+                <tr>
+                  <% week.forEach(function(cell){ %>
+                    <% if(!cell){ %>
+                      <td></td>
+                    <% } else { %>
+                      <td class="<%= cell.isToday?'today':'' %> <%= cell.isSelected?'selected':'' %>"
+                          onclick="location.href='/dashboard?data=<%= cell.iso %>&aba=dia'">
+                        <%= cell.day %>
+                        <% if(cell.appointments.length) { %>
+                          <div class="dot-count"><%= cell.appointments.length %> apmt</div>
+                        <% } %>
+                      </td>
                     <% } %>
-                  </td>
-                <% } %>
+                  <% }) %>
+                </tr>
               <% }) %>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="dashboard-bottom-grid">
-    <article class="card bottom-card">
-      <div class="section-header compact-header">
-        <div>
-          <h3>Produção por dentista</h3>
-          <p>Resumo do mês selecionado.</p>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Dentista</th>
-            <th>Atendimentos</th>
-            <th>Valor estimado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (!producaoDentistas.length) { %>
-            <tr><td colspan="3">Nenhum dado para o período.</td></tr>
-          <% } %>
-          <% producaoDentistas.forEach(function(item) { %>
-            <tr>
-              <td><%= item.dentista_nome %></td>
-              <td><%= Number(item.total || 0) %></td>
-              <td>R$ <%= Number(item.valor_total || 0).toFixed(2) %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </article>
 
-    <article class="card bottom-card">
-      <div class="section-header compact-header">
-        <div>
-          <h3>Últimos recibos</h3>
-          <p>Movimentação financeira recente.</p>
-        </div>
-      </div>
-      <div class="stack-list">
-        <% if (!ultimosRecibos.length) { %>
-          <p class="empty-msg compact-empty">Nenhum recibo cadastrado.</p>
-        <% } %>
-        <% ultimosRecibos.forEach(function(item) { %>
-          <div class="stack-item">
-            <div>
-              <strong><%= item.paciente_nome || 'Sem paciente' %></strong>
-              <span><%= item.descricao %> - <%= item.data_fmt %></span>
-            </div>
-            <strong>R$ <%= Number(item.valor || 0).toFixed(2) %></strong>
+        <% } else { %>
+        <!-- RESUMO/DIA VIEW (week grid = AgendaEA default) -->
+        <div class="card" style="padding:16px">
+          <h3 style="margin-bottom:14px">Resumo da semana</h3>
+          <div class="week-grid">
+            <% agendaSemana.forEach(function(col) { %>
+              <div class="week-col">
+                <div class="week-col-header<%= col.iso===today?' today':'' %>">
+                  <%= col.label %>
+                </div>
+                <div class="week-col-body">
+                  <% if(!col.appointments.length) { %>
+                    <p style="font-size:11px;color:#9ca3af;text-align:center;margin-top:8px">Sem agendamentos</p>
+                  <% } %>
+                  <% col.appointments.forEach(function(a) { %>
+                    <div class="appt-card status-<%= a.status %>">
+                      <span class="appt-time"><%= a.hora_inicio %> às <%= a.hora_fim %></span>
+                      <span class="appt-dentist"> <%= a.dentista_nome %></span>
+                      <span class="appt-patients"><%= a.paciente_nome %></span>
+                      <span class="appt-status"><%= a.status %></span>
+                      <% var wa=phoneToWa(a.telefone); if(wa){ %>
+                        <a href="https://wa.me/<%= wa %>?text=<%= waMsg(a) %>" target="_blank" class="btn btn-whatsapp btn-sm" style="margin-top:4px">WhatsApp</a>
+                      <% } %>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            <% }) %>
           </div>
-        <% }) %>
-      </div>
-    </article>
-
-    <article class="card bottom-card">
-      <div class="section-header compact-header">
-        <div>
-          <h3>Aniversariantes</h3>
-          <p>Pacientes do mês com acesso rápido ao WhatsApp.</p>
         </div>
-      </div>
-      <div class="stack-list">
-        <% if (!aniversariantes.length) { %>
-          <p class="empty-msg compact-empty">Nenhum aniversariante neste mês.</p>
-        <% } %>
-        <% aniversariantes.forEach(function(item) { %>
-          <% var birthdayPhone = phoneToWhatsapp(item.telefone); %>
-          <div class="stack-item">
-            <div>
-              <strong><%= item.nome %></strong>
-              <span>Faz aniversário em <%= item.data_nasc_fmt %></span>
+
+        <!-- FINANCEIRO DO MES -->
+        <div class="card">
+          <h3>Financeiro do mês</h3>
+          <div class="fin-grid">
+            <div class="fin-card">
+              <span>Recebido no mês</span>
+              <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
             </div>
-            <% if (birthdayPhone) { %>
-              <a href="https://wa.me/<%= birthdayPhone %>?text=<%= encodeURIComponent('Olá ' + item.nome + ', toda a equipe da Já Agendou deseja um feliz aniversário!') %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">Parabenizar</a>
-            <% } else { %>
-              <span class="muted-inline">Sem telefone</span>
+            <div class="fin-card">
+              <span>Recibos emitidos</span>
+              <strong><%= ultimosRecibos.length %></strong>
+            </div>
+            <div class="fin-card">
+              <span>Ticket médio</span>
+              <strong>R$ <%= ultimosRecibos.length ? (Number(stats.receitaMes||0)/ultimosRecibos.length).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '0,00' %></strong>
+            </div>
+            <div class="fin-card">
+              <span>Estimado em agenda</span>
+              <strong>R$ <%= Number(agendaDia.reduce(function(s,a){return s+Number(a.valor_estimado||0)},0)).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+            </div>
+          </div>
+          <p style="font-size:12px;color:#6b7280;margin-top:8px">
+            Período analisado: 01/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %> até
+            <% var d=new Date(filters.selectedDate.slice(0,4),filters.selectedDate.slice(5,7),0); %>
+            <%= d.getDate() %>/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %>.
+          </p>
+        </div>
+        <% } %>
+
+      </div>
+
+      <!-- RIGHT: PRÓXIMOS ATENDIMENTOS + ANIVERSARIANTES -->
+      <div>
+        <div class="card">
+          <h3>Próximos atendimentos</h3>
+          <div class="proximos-panel">
+            <% var proximos = agendaDia.slice(0,8); %>
+            <% if(!proximos.length){ %>
+              <div class="empty-state"><p>Sem agendamentos para hoje</p></div>
             <% } %>
+            <% proximos.forEach(function(a) { %>
+              <div class="proximo-card status-<%= a.status %>">
+                <div class="proximo-name"><%= a.paciente_nome %></div>
+                <div class="proximo-info"><%= a.data_fmt %>  <%= a.hora_inicio %> às <%= a.hora_fim %>  <%= a.dentista_nome %></div>
+                <div class="proximo-actions">
+                  <form method="POST" action="/dashboard/agendamentos/<%= a.id %>/status" style="display:inline">
+                    <select name="status" class="status-select" onchange="this.form.submit()">
+                      <% ['agendado','confirmado','concluido','cancelado','falta'].forEach(function(st){ %>
+                        <option value="<%= st %>" <%= a.status===st?'selected':'' %>><%= st.charAt(0).toUpperCase()+st.slice(1) %></option>
+                      <% }) %>
+                    </select>
+                    <input type="hidden" name="_redirect" value="<%= '/dashboard?data='+filters.selectedDate+'&aba=dia' %>" />
+                  </form>
+                  <% var wa=phoneToWa(a.telefone); if(wa){ %>
+                    <a href="https://wa.me/<%= wa %>?text=<%= waMsg(a) %>" target="_blank" class="btn btn-whatsapp btn-sm">WhatsApp</a>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
           </div>
-        <% }) %>
-      </div>
-    </article>
-  </section>
-</main>
+        </div>
 
-<script>
-  document.querySelectorAll('.tab-btn').forEach(function (button) {
-    button.addEventListener('click', function () {
-      var nextTab = button.dataset.tab;
-      document.getElementById('abaInput').value = nextTab;
-      document.querySelectorAll('.tab-btn').forEach(function (item) {
-        item.classList.toggle('active', item === button);
-      });
-      document.querySelectorAll('.tab-panel').forEach(function (panel) {
-        panel.classList.toggle('active', panel.id === 'tab-' + nextTab);
-      });
-    });
-  });
-</script>
+        <div class="card">
+          <h3>Aniversariantes do mês</h3>
+          <% if(!aniversariantes.length){ %>
+            <div class="empty-state"><p>Nenhum aniversariante</p></div>
+          <% } %>
+          <ul class="birthday-list">
+            <% aniversariantes.forEach(function(p){ %>
+              <li>
+                <span><%= p.nome %></span>
+                <span class="birthday-date"><%= p.data_nasc_fmt %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- end dashboard-row -->
+
+  </div><!-- end page-body -->
+</main>
 </body>
 </html>

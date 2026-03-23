@@ -1,25 +1,33 @@
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <img src="/images/logo-ja-agendou.png" alt="Já Agendou!" class="logo-small" />
-    <span class="brand-text">Já Agendou!</span>
+    <div class="brand-logo">JA</div>
+    <span class="brand-title">Já Agendou!</span>
+    <span class="brand-sub">by Otávio Garcia</span>
   </div>
 
   <nav class="sidebar-nav">
-    <a href="/dashboard" class="nav-link">Dashboard</a>
-    <a href="/pacientes" class="nav-link">Pacientes</a>
-    <a href="/agendamentos" class="nav-link">Agendamentos</a>
-    <a href="/agendamentos/lembretes" class="nav-link">Lembretes WhatsApp</a>
-        <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-          <a href="/dentistas" class="nav-link">Dentistas</a>
-          <a href="/servicos" class="nav-link">Serviços</a>
-        <% } %>
-        <a href="/historico" class="nav-link">Histórico</a>
-        <a href="/recibos" class="nav-link">Recibos</a>
-        <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-          <a href="/relatorios" class="nav-link">Relatórios</a>
-        <% } %>
+    <% const p = locals.currentPage || ''; %>
+    <a href="/dashboard" class="nav-link<%= p==='dashboard' ? ' active' : '' %>">Dashboard</a>
+    <a href="/agendamentos" class="nav-link<%= p==='agenda' ? ' active' : '' %>">Agenda</a>
+    <a href="/pacientes" class="nav-link<%= p==='pacientes' ? ' active' : '' %>">Pacientes</a>
+    <a href="/historico" class="nav-link<%= p==='historico' ? ' active' : '' %>">Histórico</a>
+    <a href="/recibos" class="nav-link<%= p==='recibos' ? ' active' : '' %>">Recibos</a>
+    <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
+      <a href="/dentistas" class="nav-link<%= p==='dentistas' ? ' active' : '' %>">Dentistas</a>
+      <a href="/servicos" class="nav-link<%= p==='servicos' ? ' active' : '' %>">Serviços</a>
+      <a href="/relatorios" class="nav-link<%= p==='relatorios' ? ' active' : '' %>">Relatórios</a>
+    <% } %>
+    <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
+      <a href="/usuarios" class="nav-link<%= p==='usuarios' ? ' active' : '' %>">Usuários</a>
+    <% } %>
     <% if (user && user.perfil === 'super_admin') { %>
-      <a href="/clinicas" class="nav-link">Clínicas</a>
+      <a href="/clinicas" class="nav-link<%= p==='clinicas' ? ' active' : '' %>">Clínicas</a>
     <% } %>
   </nav>
+
+  <div class="sidebar-footer">
+    <span class="user-name"><%= user ? user.nome : '' %></span>
+    <span class="user-role"><%= user ? user.perfil : '' %></span>
+    <a href="/logout">Sair</a>
+  </div>
 </aside>

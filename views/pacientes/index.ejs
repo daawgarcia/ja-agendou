@@ -1,138 +1,125 @@
-<%- include('../partials/header', { title: 'Pacientes' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Pacientes' }) %>
+<%- include('../partials/sidebar', { currentPage: 'pacientes' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Pacientes', subtitle: 'Cadastre e gerencie os pacientes da sua clínica.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Pacientes', subtitle: 'Cadastre e gerencie pacientes. Importação via Excel/CSV disponível.' }) %>
+  <div class="page-body">
+    <div class="two-col">
+      <!-- FORM -->
+      <div>
+        <div class="card">
+          <h3><%= editPaciente ? 'Editar paciente' : 'Novo paciente' %></h3>
+          <form method="POST" action="<%= editPaciente ? '/pacientes/' + editPaciente.id + '?_method=PUT' : '/pacientes' %>" class="form-grid">
+            <div class="full">
+              <label>Nome completo</label>
+              <input type="text" name="nome" value="<%= editPaciente?.nome||'' %>" required />
+            </div>
+            <div>
+              <label>Telefone</label>
+              <input type="text" name="telefone" value="<%= editPaciente?.telefone||'' %>" />
+            </div>
+            <div>
+              <label>E-mail</label>
+              <input type="email" name="email" value="<%= editPaciente?.email||'' %>" />
+            </div>
+            <div>
+              <label>Data de nascimento</label>
+              <input type="date" name="data_nascimento" value="<%= editPaciente?.data_nascimento||'' %>" />
+            </div>
+            <div>
+              <label>Convênio</label>
+              <input type="text" name="convenio" value="<%= editPaciente?.convenio||'' %>" />
+            </div>
+            <div class="full">
+              <label>Endereço</label>
+              <input type="text" name="endereco" value="<%= editPaciente?.endereco||'' %>" />
+            </div>
+            <div>
+              <label>Sexo</label>
+              <select name="sexo">
+                <option value="">Selecione</option>
+                <option value="F" <%= editPaciente?.sexo==='F'?'selected':'' %>>Feminino</option>
+                <option value="M" <%= editPaciente?.sexo==='M'?'selected':'' %>>Masculino</option>
+                <option value="O" <%= editPaciente?.sexo==='O'?'selected':'' %>>Outro</option>
+              </select>
+            </div>
+            <div>
+              <label>CPF</label>
+              <input type="text" name="cpf" value="<%= editPaciente?.cpf||'' %>" />
+            </div>
+            <div>
+              <label>RG</label>
+              <input type="text" name="rg" value="<%= editPaciente?.rg||'' %>" />
+            </div>
+            <div>
+              <label>Responsável</label>
+              <input type="text" name="responsavel" value="<%= editPaciente?.responsavel||'' %>" />
+            </div>
+            <div class="full">
+              <label>Observações</label>
+              <textarea name="observacoes" rows="3"><%= editPaciente?.observacoes||'' %></textarea>
+            </div>
+            <div class="form-actions full">
+              <button type="submit" class="btn"><%= editPaciente ? 'Atualizar paciente' : 'Salvar paciente' %></button>
+              <% if(editPaciente){ %><a href="/pacientes" class="btn btn-outline">Limpar</a><% } else { %>
+              <button type="reset" class="btn btn-outline">Limpar</button><% } %>
+            </div>
+          </form>
+        </div>
 
-  <section class="card">
-    <h3>Busca rápida</h3>
-    <form method="GET" action="/pacientes" class="grid-form grid-2">
-      <div>
-        <label>Nome</label>
-        <input type="text" name="busca" value="<%= busca || '' %>" placeholder="Digite parte do nome" />
+        <div class="card">
+          <h3>Importar Excel / CSV</h3>
+          <form method="POST" action="/pacientes/importar" enctype="multipart/form-data">
+            <label>Arquivo</label>
+            <input type="file" name="arquivo" accept=".csv,.xls,.xlsx" style="margin-bottom:12px" />
+            <div class="form-actions">
+              <button type="submit" class="btn btn-sm">Processar e importar</button>
+            </div>
+          </form>
+          <p style="font-size:12px;color:#6b7280;margin-top:10px">Colunas aceitas: nome, telefone, email, nascimento, convenio, endereco, sexo, cpf, rg, responsavel, observacoes.</p>
+        </div>
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-outline">Buscar</button>
-      </div>
-    </form>
-  </section>
 
-  <section class="card form-card">
-    <h3><%= editPaciente ? 'Editar paciente' : 'Novo paciente' %></h3>
-    <form method="POST" action="<%= editPaciente ? '/pacientes/' + editPaciente.id + '?_method=PUT' : '/pacientes' %>" class="grid-form grid-2">
+      <!-- LIST -->
       <div>
-        <label>Nome</label>
-        <input type="text" name="nome" value="<%= editPaciente?.nome || '' %>" required />
-      </div>
-      <div>
-        <label>Telefone</label>
-        <input type="text" name="telefone" value="<%= editPaciente?.telefone || '' %>" />
-      </div>
-      <div>
-        <label>CPF</label>
-        <input type="text" name="cpf" value="<%= editPaciente?.cpf || '' %>" />
-      </div>
-      <div>
-        <label>RG</label>
-        <input type="text" name="rg" value="<%= editPaciente?.rg || '' %>" />
-      </div>
-      <div>
-        <label>E-mail</label>
-        <input type="email" name="email" value="<%= editPaciente?.email || '' %>" />
-      </div>
-      <div>
-        <label>Data de nascimento</label>
-        <input type="date" name="data_nascimento" value="<%= editPaciente?.data_nascimento || '' %>" />
-      </div>
-      <div>
-        <label>Sexo</label>
-        <select name="sexo">
-          <option value="">Selecione</option>
-          <option value="F" <%= editPaciente?.sexo === 'F' ? 'selected' : '' %>>Feminino</option>
-          <option value="M" <%= editPaciente?.sexo === 'M' ? 'selected' : '' %>>Masculino</option>
-          <option value="O" <%= editPaciente?.sexo === 'O' ? 'selected' : '' %>>Outro</option>
-        </select>
-      </div>
-      <div>
-        <label>Convenio</label>
-        <input type="text" name="convenio" value="<%= editPaciente?.convenio || '' %>" />
-      </div>
-      <div>
-        <label>Responsavel</label>
-        <input type="text" name="responsavel" value="<%= editPaciente?.responsavel || '' %>" />
-      </div>
-      <div class="full-width">
-        <label>Endereco</label>
-        <input type="text" name="endereco" value="<%= editPaciente?.endereco || '' %>" />
-      </div>
-      <div class="full-width">
-        <label>Observações</label>
-        <textarea name="observacoes" rows="4"><%= editPaciente?.observacoes || '' %></textarea>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn"><%= editPaciente ? 'Atualizar paciente' : 'Salvar paciente' %></button>
-        <% if (editPaciente) { %>
-          <a href="/pacientes" class="btn btn-outline">Cancelar</a>
-        <% } %>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h3>Lista de pacientes</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>CPF</th>
-          <th>Telefone</th>
-          <th>Convenio</th>
-          <th>Nascimento</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (!pacientes.length) { %>
-          <tr><td colspan="6">Nenhum paciente cadastrado.</td></tr>
-        <% } %>
-        <% pacientes.forEach(paciente => { %>
-          <tr>
-            <td><%= paciente.nome %></td>
-            <td><%= paciente.cpf || '-' %></td>
-            <td><%= paciente.telefone || '-' %></td>
-            <td><%= paciente.convenio || '-' %></td>
-            <td><%= paciente.data_nascimento_fmt || '-' %></td>
-            <td class="actions-cell">
-              <a href="/pacientes/<%= paciente.id %>/editar" class="btn btn-outline btn-small">Editar</a>
-              <% if (user.perfil !== 'recepcao') { %>
-                <form method="POST" action="/pacientes/<%= paciente.id %>?_method=DELETE" onsubmit="return confirm('Excluir paciente?');">
-                  <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-                </form>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h3 style="margin-bottom:0;border-bottom:none;padding-bottom:0">Pacientes cadastrados</h3>
+          </div>
+          <form method="GET" action="/pacientes" style="margin-bottom:12px;display:flex;gap:8px">
+            <input type="text" name="busca" value="<%= busca||'' %>" placeholder="Buscar por nome..." style="flex:1" />
+            <button type="submit" class="btn btn-sm">Buscar</button>
+          </form>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Telefone</th>
+                <th>Responsável</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(!pacientes.length){ %>
+                <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:20px">Nenhum paciente encontrado.</td></tr>
               <% } %>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="card">
-    <h3>Aniversariantes do mês</h3>
-    <table>
-      <thead><tr><th>Nome</th><th>Data</th><th>Telefone</th></tr></thead>
-      <tbody>
-        <% if (!aniversariantes || !aniversariantes.length) { %>
-          <tr><td colspan="3">Sem aniversariantes neste mês.</td></tr>
-        <% } %>
-        <% (aniversariantes || []).forEach(a => { %>
-          <tr>
-            <td><%= a.nome %></td>
-            <td><%= a.dia_mes %></td>
-            <td><%= a.telefone || '-' %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+              <% pacientes.forEach(function(p){ %>
+                <tr>
+                  <td><%= p.nome %></td>
+                  <td><%= p.cpf||'-' %></td>
+                  <td><%= p.telefone||'-' %></td>
+                  <td><%= p.responsavel||'-' %></td>
+                  <td>
+                    <a href="/pacientes/<%= p.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 </body>
 </html>

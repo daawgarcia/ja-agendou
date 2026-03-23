@@ -1,162 +1,265 @@
-<%- include('../partials/header', { title: 'Agendamentos' }) %>
-<%- include('../partials/sidebar') %>
+﻿<%- include('../partials/header', { title: 'Agenda' }) %>
+<%- include('../partials/sidebar', { currentPage: 'agenda' }) %>
 <main class="content">
-  <%- include('../partials/topbar', { pageTitle: 'Agendamentos', subtitle: 'Gerencie a agenda da clínica com segurança.' }) %>
+  <%- include('../partials/topbar', { pageTitle: 'Agenda', subtitle: 'Controle de consultas, envio de e-mail, fechamento de agenda por dentista e busca rápida por paciente.' }) %>
 
-  <section class="card form-card">
-    <h3><%= editAgendamento ? 'Editar agendamento' : 'Novo agendamento' %></h3>
-    <form method="POST" action="<%= editAgendamento ? '/agendamentos/' + editAgendamento.id + '?_method=PUT' : '/agendamentos' %>" class="grid-form grid-2">
-      <div>
-        <label>Paciente</label>
-        <select name="paciente_id" required>
-          <option value="">Selecione o paciente</option>
-          <% pacientes.forEach(paciente => { %>
-            <option value="<%= paciente.id %>" <%= editAgendamento && Number(editAgendamento.paciente_id) === Number(paciente.id) ? 'selected' : '' %>><%= paciente.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Dentista</label>
-        <select name="dentista_id">
-          <option value="">Selecione</option>
-          <% (dentistas || []).forEach(d => { %>
-            <option value="<%= d.id %>" <%= editAgendamento && Number(editAgendamento.dentista_id) === Number(d.id) ? 'selected' : '' %>><%= d.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Servico</label>
-        <select name="servico_id" id="servico_id">
-          <option value="">Selecione</option>
-          <% (servicos || []).forEach(s => { %>
-            <option value="<%= s.id %>" data-valor="<%= s.valor_padrao || 0 %>" <%= editAgendamento && Number(editAgendamento.servico_id) === Number(s.id) ? 'selected' : '' %>><%= s.nome %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div>
-        <label>Procedimento</label>
-        <input type="text" name="procedimento" value="<%= editAgendamento?.procedimento || '' %>" />
-      </div>
-      <div>
-        <label>Valor estimado</label>
-        <input type="number" step="0.01" min="0" name="valor_estimado" id="valor_estimado" value="<%= editAgendamento?.valor_estimado || '' %>" />
-      </div>
-      <div>
-        <label>Data</label>
-        <input type="date" name="data" value="<%= editAgendamento?.data || '' %>" required />
-      </div>
-      <div>
-        <label>Hora início</label>
-        <input type="time" name="hora_inicio" value="<%= editAgendamento?.hora_inicio || '' %>" required />
-      </div>
-      <div>
-        <label>Hora fim</label>
-        <input type="time" name="hora_fim" value="<%= editAgendamento?.hora_fim || '' %>" required />
-      </div>
-      <div>
-        <label>Status</label>
-        <select name="status">
-          <% ['agendado','confirmado','concluido','cancelado'].forEach(st => { %>
-            <option value="<%= st %>" <%= editAgendamento?.status === st ? 'selected' : '' %>><%= st %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div class="full-width">
-        <label>Observações</label>
-        <textarea name="observacoes" rows="4"><%= editAgendamento?.observacoes || '' %></textarea>
-      </div>
-      <div class="form-actions full-width">
-        <button type="submit" class="btn"><%= editAgendamento ? 'Atualizar agendamento' : 'Salvar agendamento' %></button>
-        <% if (editAgendamento) { %>
-          <a href="/agendamentos" class="btn btn-outline">Cancelar</a>
-        <% } %>
-      </div>
-    </form>
-  </section>
+  <div class="page-body">
 
-  <section class="card">
-    <h3>Lista de agendamentos</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Início</th>
-          <th>Fim</th>
-          <th>Paciente</th>
-          <th>Dentista</th>
-          <th>Servico</th>
-          <th>Valor</th>
-          <th>Status</th>
-          <th>Lembrete</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (!agendamentos.length) { %>
-          <tr><td colspan="10">Nenhum agendamento cadastrado.</td></tr>
-        <% } %>
-        <% agendamentos.forEach(item => { %>
+    <% if (locals.flash) { %>
+      <div class="alert alert-<%= flash.type %>"><%= flash.msg %></div>
+    <% } %>
+
+    <div class="two-col">
+
+      <!-- FORM NOVO AGENDAMENTO -->
+      <div>
+        <div class="card">
+          <h3><%= editAgendamento ? 'Editar agendamento' : 'Novo agendamento' %></h3>
+          <form method="POST" action="<%= editAgendamento ? '/agendamentos/' + editAgendamento.id + '?_method=PUT' : '/agendamentos' %>" class="form-grid">
+
+            <div class="full">
+              <label>Paciente</label>
+              <div class="autocomplete-wrapper">
+                <input type="text" id="paciente-search" placeholder="Digite o nome ou telefone do paciente" autocomplete="off"
+                       value="<%= editAgendamento && editAgendamento.paciente_nome ? editAgendamento.paciente_nome : '' %>" />
+                <input type="hidden" name="paciente_id" id="paciente-id" value="<%= editAgendamento?.paciente_id || '' %>" required />
+                <ul class="autocomplete-list" id="autocomplete-list" style="display:none"></ul>
+                <p class="autocomplete-hint">Digite o nome do paciente para pesquisar e selecione uma opção da lista.</p>
+              </div>
+            </div>
+
+            <div>
+              <label>Data</label>
+              <input type="date" name="data" value="<%= editAgendamento?.data || '' %>" required />
+            </div>
+            <div>
+              <label>Hora inicial</label>
+              <input type="time" name="hora_inicio" value="<%= editAgendamento?.hora_inicio || '' %>" required />
+            </div>
+            <div>
+              <label>Hora final</label>
+              <input type="time" name="hora_fim" value="<%= editAgendamento?.hora_fim || '' %>" required />
+            </div>
+            <div>
+              <label>Serviço</label>
+              <select name="servico_id" id="servico_id">
+                <option value="">Selecione o serviço</option>
+                <% (servicos||[]).forEach(function(s){ %>
+                  <option value="<%= s.id %>" data-valor="<%= s.valor_padrao||0 %>"
+                    <%= editAgendamento && Number(editAgendamento.servico_id)===Number(s.id)?'selected':'' %>><%= s.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>Status</label>
+              <select name="status">
+                <% ['agendado','confirmado','concluido','cancelado','falta'].forEach(function(st){ %>
+                  <option value="<%= st %>" <%= editAgendamento?.status===st?'selected':'' %>><%= st.charAt(0).toUpperCase()+st.slice(1) %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="full">
+              <label>Procedimento / descrição</label>
+              <input type="text" name="procedimento" value="<%= editAgendamento?.procedimento||'' %>" />
+            </div>
+            <div>
+              <label>Dentista responsável</label>
+              <select name="dentista_id" id="dentista_sel">
+                <option value="">Selecione o dentista</option>
+                <% (dentistas||[]).forEach(function(d){ %>
+                  <option value="<%= d.id %>" data-email="<%= d.email||'' %>"
+                    <%= editAgendamento && Number(editAgendamento.dentista_id)===Number(d.id)?'selected':'' %>><%= d.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>E-mail do dentista</label>
+              <input type="email" name="dentista_email" id="dentista_email" value="<%= editAgendamento?.dentista_email||'' %>" />
+            </div>
+            <div>
+              <label>Valor estimado (R$)</label>
+              <input type="number" step="0.01" min="0" name="valor_estimado" id="valor_estimado" value="<%= editAgendamento?.valor_estimado||'' %>" />
+            </div>
+            <div class="full">
+              <label>Observações</label>
+              <textarea name="observacoes" rows="3"><%= editAgendamento?.observacoes||'' %></textarea>
+            </div>
+
+            <div class="form-actions full">
+              <button type="submit" class="btn"><%= editAgendamento ? 'Atualizar agendamento' : 'Salvar agendamento' %></button>
+              <button type="button" class="btn btn-outline" onclick="document.querySelector('form').reset();document.getElementById('paciente-id').value='';document.getElementById('paciente-search').value='';">Limpar</button>
+            </div>
+          </form>
+
+          <div style="margin-top:14px;padding:12px;background:#f0f4f8;border-radius:6px;font-size:12px;color:#4b5563;">
+            Ao criar um novo agendamento, o sistema enviará automaticamente a confirmação por e-mail para o paciente, quando houver e-mail cadastrado.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div>
+        <!-- FECHAR AGENDA -->
+        <div class="card">
+          <h3>Fechar agenda do dentista</h3>
+          <div class="form-grid">
+            <div>
+              <label>Dentista</label>
+              <select id="fechar-dentista">
+                <option value="">Selecione o dentista</option>
+                <% (dentistas||[]).forEach(function(d){ %>
+                  <option value="<%= d.id %>"><%= d.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>Data</label>
+              <input type="date" id="fechar-data" value="<%= new Date().toISOString().slice(0,10) %>" />
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-sm" onclick="fecharAgenda()">Fechar agenda</button>
+          </div>
+          <p style="font-size:12px;color:#6b7280;margin-top:10px">Agenda fechada bloqueia novos agendamentos e também a edição dos agendamentos existentes daquele dentista na data escolhida.</p>
+        </div>
+
+        <!-- ENVIAR AGENDA POR EMAIL -->
+        <div class="card">
+          <h3>Enviar agenda do dia para o dentista</h3>
+          <form method="POST" action="/agendamentos/lembretes/email-agenda" class="form-grid">
+            <div>
+              <label>Data da agenda</label>
+              <input type="date" name="data" value="<%= new Date().toISOString().slice(0,10) %>" />
+            </div>
+            <div>
+              <label>Dentista</label>
+              <select name="dentista_id" id="email-dentista-sel">
+                <option value="">Selecionar dentista</option>
+                <% (dentistas||[]).forEach(function(d){ %>
+                  <option value="<%= d.id %>" data-email="<%= d.email||'' %>"><%= d.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div>
+              <label>Nome do dentista</label>
+              <input type="text" id="email-dentista-nome" name="_nome_display" readonly />
+            </div>
+            <div>
+              <label>E-mail do dentista</label>
+              <input type="email" id="email-dentista-email" name="email_override" />
+            </div>
+            <input type="hidden" name="periodo" value="dia" />
+            <div class="form-actions full">
+              <button type="submit" class="btn btn-sm">Enviar agenda do dia</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- end two-col -->
+
+    <!-- AGENDAMENTOS ATIVOS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <h3 style="margin-bottom:0;border-bottom:none">Agendamentos ativos</h3>
+          <p style="font-size:12px;color:#6b7280;margin-top:2px">Pesquise pelo nome do paciente, telefone ou dentista.</p>
+        </div>
+        <form method="GET" action="/agendamentos" style="display:flex;gap:8px;align-items:center">
+          <input type="text" name="busca" value="<%= locals.busca||'' %>" placeholder="Paciente, telefone ou dentista" style="width:240px" />
+          <button type="submit" class="btn btn-sm">Pesquisar</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
           <tr>
-            <td><%= item.data_formatada %></td>
-            <td><%= item.hora_inicio %></td>
-            <td><%= item.hora_fim %></td>
-            <td><%= item.paciente_nome %></td>
-            <td><%= item.dentista_nome || '-' %></td>
-            <td><%= item.servico_nome || item.procedimento || '-' %></td>
-            <td>R$ <%= Number(item.valor_estimado || 0).toFixed(2) %></td>
-            <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
-            <td>
-              <% if (item.lembrete_enviado_fmt) { %>
-                <span class="badge badge-concluido">Enviado</span>
-                <div class="muted-inline" style="margin-top:4px;font-size:12px;"><%= item.lembrete_enviado_fmt %></div>
-              <% } else { %>
-                <span class="badge badge-agendado">Pendente</span>
-              <% } %>
-            </td>
-            <td class="actions-cell">
-              <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-small">Editar</a>
-              <%
-                var _tel = (item.telefone || '').replace(/\D/g,'');
-                if (_tel.length === 11 || _tel.length === 10) _tel = '55' + _tel;
-                var _msg = encodeURIComponent('Olá ' + item.paciente_nome + ', lembrando do seu agendamento para ' + item.data_formatada + ' às ' + item.hora_inicio + '. Aguardamos você! - Já Agendou');
-              %>
-              <% if (_tel.length >= 12) { %>
-                <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">💬 WPP</a>
-              <% } %>
-              <% if (!item.lembrete_enviado_fmt) { %>
-                <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-enviado">
-                  <button type="submit" class="btn btn-small">Marcar lembrete</button>
-                </form>
-              <% } %>
-              <form method="POST" action="/agendamentos/mover" class="grid-form" style="display:flex;gap:6px;align-items:center;">
-                <input type="hidden" name="agendamento_id" value="<%= item.id %>" />
-                <input type="date" name="nova_data" required style="padding:6px 8px;border-radius:8px;border:1px solid #dde7f1;" />
-                <button type="submit" class="btn btn-outline btn-small">Mover</button>
-              </form>
-              <% if (user.perfil !== 'recepcao') { %>
-                <form method="POST" action="/agendamentos/<%= item.id %>?_method=DELETE" onsubmit="return confirm('Excluir agendamento?');">
-                  <button type="submit" class="btn btn-danger btn-small">Excluir</button>
-                </form>
-              <% } %>
-            </td>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Paciente</th>
+            <th>Dentista</th>
+            <th>Status</th>
+            <th>Ações</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </section>
+        </thead>
+        <tbody>
+          <% if(!agendamentos.length){ %>
+            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px">Nenhum agendamento encontrado.</td></tr>
+          <% } %>
+          <% agendamentos.forEach(function(item){ %>
+            <tr class="row-<%= item.status %>">
+              <td><%= item.data_formatada %></td>
+              <td><%= item.hora_inicio %>h às <%= item.hora_fim %>h</td>
+              <td><%= item.paciente_nome %></td>
+              <td><%= item.dentista_nome||'-' %></td>
+              <td><%= item.status.charAt(0).toUpperCase()+item.status.slice(1) %></td>
+              <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                  <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
+                  <%
+                    var _tel=(item.telefone||'').replace(/\D/g,'');
+                    if(_tel.length===10||_tel.length===11) _tel='55'+_tel;
+                    var _msg=encodeURIComponent('Olá '+item.paciente_nome+', lembrando do seu agendamento em '+item.data_formatada+' às '+item.hora_inicio+'. Já Agendou');
+                  %>
+                  <% if(_tel.length>=12){ %>
+                    <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" class="btn btn-whatsapp btn-sm">WhatsApp</a>
+                  <% } %>
+                  <form method="POST" action="/agendamentos/<%= item.id %>?_method=DELETE" onsubmit="return confirm('Cancelar agendamento?');">
+                    <button type="submit" class="btn btn-red btn-sm">Cancelar</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </main>
 <script>
-  (function () {
-    const servico = document.getElementById('servico_id');
-    const valor = document.getElementById('valor_estimado');
-    if (!servico || !valor) return;
-    servico.addEventListener('change', function () {
-      if (valor.value) return;
-      const opt = servico.options[servico.selectedIndex];
-      const v = opt ? opt.getAttribute('data-valor') : '';
-      if (v) valor.value = Number(v).toFixed(2);
+(function(){
+  // Serviço auto-fill valor
+  var sel=document.getElementById('servico_id'),val=document.getElementById('valor_estimado');
+  if(sel&&val){ sel.addEventListener('change',function(){ if(val.value) return; var o=sel.options[sel.selectedIndex]; var v=o?o.getAttribute('data-valor'):''; if(v) val.value=Number(v).toFixed(2); }); }
+
+  // Dentista auto-fill email
+  var dsel=document.getElementById('dentista_sel'),demail=document.getElementById('dentista_email');
+  if(dsel&&demail){ dsel.addEventListener('change',function(){ var o=dsel.options[dsel.selectedIndex]; demail.value=o?o.getAttribute('data-email')||'':''; }); }
+
+  // Email agenda dentist fill
+  var esel=document.getElementById('email-dentista-sel');
+  if(esel){
+    esel.addEventListener('change',function(){
+      var o=esel.options[esel.selectedIndex];
+      var nome=document.getElementById('email-dentista-nome');
+      var email=document.getElementById('email-dentista-email');
+      if(nome) nome.value=o?o.text:'';
+      if(email) email.value=o?o.getAttribute('data-email')||'':'';
     });
-  })();
+  }
+
+  // Autocomplete paciente
+  var inp=document.getElementById('paciente-search'),hid=document.getElementById('paciente-id'),ul=document.getElementById('autocomplete-list');
+  var pacientes=<%- JSON.stringify((pacientes||[]).map(function(p){return{id:p.id,nome:p.nome,tel:p.telefone||''}})) %>;
+  if(inp){
+    inp.addEventListener('input',function(){
+      var q=this.value.toLowerCase().trim();
+      ul.innerHTML='';ul.style.display='none';
+      if(!q||q.length<2) return;
+      var filtered=pacientes.filter(function(p){ return p.nome.toLowerCase().includes(q)||(p.tel&&p.tel.includes(q)); }).slice(0,8);
+      if(!filtered.length) return;
+      filtered.forEach(function(p){
+        var li=document.createElement('li');
+        li.textContent=p.nome+(p.tel?' ('+p.tel+')':'');
+        li.addEventListener('click',function(){ inp.value=p.nome; hid.value=p.id; ul.style.display='none'; });
+        ul.appendChild(li);
+      });
+      ul.style.display='block';
+    });
+    document.addEventListener('click',function(e){ if(e.target!==inp) ul.style.display='none'; });
+  }
+})();
 </script>
 </body>
 </html>
