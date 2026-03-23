@@ -38,7 +38,7 @@ async function sendEmail({ to, subject, html, text }) {
     return { ok: false, skipped: true, reason: 'smtp-not-configured' };
   }
 
-  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+  const from = 'no-reply@jaagendou.app';
 
   try {
     await getTransporter().sendMail({
