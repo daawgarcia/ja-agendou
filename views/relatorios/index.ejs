@@ -1,0 +1,58 @@
+<%- include('../partials/header', { title: 'Relatorios' }) %>
+<%- include('../partials/sidebar') %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Relatorios Financeiros', subtitle: 'Receita e produtividade por dentista e periodo.' }) %>
+
+  <section class="card">
+    <h3>Filtros</h3>
+    <form method="GET" action="/relatorios" class="grid-form grid-3">
+      <div>
+        <label>Mes</label>
+        <input type="month" name="mes" value="<%= mesAno || '' %>" required />
+      </div>
+      <div>
+        <label>Dentista</label>
+        <select name="dentista_id">
+          <option value="">Todos</option>
+          <% dentistas.forEach(d => { %>
+            <option value="<%= d.id %>" <%= String(dentistaId || '') === String(d.id) ? 'selected' : '' %>><%= d.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn">Gerar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Resumo</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><span>Receita do periodo</span><strong>R$ <%= Number(stats?.receitaMes || 0).toFixed(2) %></strong></div>
+      <div class="kpi-card"><span>Agendados</span><strong><%= Number(stats?.agendados || 0) %></strong></div>
+      <div class="kpi-card"><span>Cancelados</span><strong><%= Number(stats?.cancelados || 0) %></strong></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Detalhamento</h3>
+    <table>
+      <thead><tr><th>Dentista</th><th>Detalhe</th><th>Detalhe</th><th>Atendimentos</th><th>Valor total</th><th>Mes</th></tr></thead>
+      <tbody>
+        <% if (!porDentista.length) { %><tr><td colspan="6">Nenhum resultado para o filtro.</td></tr><% } %>
+        <% porDentista.forEach(l => { %>
+          <tr>
+            <td><%= l.dentista_nome || '-' %></td>
+            <td>-</td>
+            <td>-</td>
+            <td><%= Number(l.total_atendidos || 0) %> atendimentos</td>
+            <td>R$ <%= Number(l.valor_total || 0).toFixed(2) %></td>
+            <td><%= l.mes || '-' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

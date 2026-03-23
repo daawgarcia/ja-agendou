@@ -1,6 +1,49 @@
 const pool = require('../config/db');
 const { comparePassword } = require('../utils/hash');
 
+function isBcryptHash(value) {
+  return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
+}
+
+async function verifyPassword(inputPassword, storedValue) {
+  if (typeof inputPassword !== 'string' || typeof storedValue !== 'string') {
+    return false;
+  }
+
+  if (isBcryptHash(storedValue)) {
+    return comparePassword(inputPassword, storedValue);
+  }
+
+  // Compatibilidade com bases legadas que ainda possuem senha em texto.
+  return inputPassword === storedValue;
+}
+
+async function loadUserByEmail(email) {
+  const [rows] = await pool.execute('SELECT * FROM usuarios WHERE email = ? LIMIT 1', [email]);
+  if (!rows.length) return null;
+
+  const rawUser = rows[0];
+  const clinicaId = rawUser.clinica_id || null;
+
+  let clinica = null;
+  if (clinicaId) {
+    const [clinicaRows] = await pool.execute('SELECT * FROM clinicas WHERE id = ? LIMIT 1', [clinicaId]);
+    clinica = clinicaRows[0] || null;
+  }
+
+  return {
+    id: rawUser.id,
+    nome: rawUser.nome,
+    email: rawUser.email,
+    senha_hash: rawUser.senha_hash || rawUser.senha || null,
+    perfil: rawUser.perfil || 'recepcao',
+    status: rawUser.status || 'ativo',
+    clinica_id: clinicaId,
+    clinica_nome: clinica?.nome || 'Clínica',
+    clinica_status: clinica?.status || 'ativo',
+  };
+}
+
 async function showLogin(req, res) {
   if (req.session.user) {
     return res.redirect('/dashboard');
@@ -9,30 +52,24 @@ async function showLogin(req, res) {
 }
 
 async function login(req, res) {
-  const { email, senha } = req.body;
+  const email = (req.body.email || '').trim();
+  const senha = req.body.senha || req.body.password || '';
+
+  if (!email || !senha) {
+    return res.status(400).render('auth/login', { error: 'Informe e-mail e senha.' });
+  }
 
   try {
-    const [rows] = await pool.execute(
-      `SELECT u.id, u.nome, u.email, u.senha_hash, u.perfil, u.status, u.clinica_id,
-              c.nome AS clinica_nome, c.status AS clinica_status
-       FROM usuarios u
-       INNER JOIN clinicas c ON c.id = u.clinica_id
-       WHERE u.email = ?
-       LIMIT 1`,
-      [email]
-    );
-
-    if (!rows.length) {
+    const user = await loadUserByEmail(email);
+    if (!user) {
       return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.' });
     }
-
-    const user = rows[0];
 
     if (user.status !== 'ativo' || user.clinica_status !== 'ativo') {
       return res.status(403).render('auth/login', { error: 'Usuário ou clínica inativa.' });
     }
 
-    const validPassword = await comparePassword(senha, user.senha_hash);
+    const validPassword = await verifyPassword(senha, user.senha_hash);
     if (!validPassword) {
       return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.' });
     }

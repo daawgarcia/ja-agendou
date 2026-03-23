@@ -12,6 +12,11 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const pacienteRoutes = require('./src/routes/pacienteRoutes');
 const agendamentoRoutes = require('./src/routes/agendamentoRoutes');
 const clinicaRoutes = require('./src/routes/clinicaRoutes');
+const dentistaRoutes = require('./src/routes/dentistaRoutes');
+const servicoRoutes = require('./src/routes/servicoRoutes');
+const historicoRoutes = require('./src/routes/historicoRoutes');
+const reciboRoutes = require('./src/routes/reciboRoutes');
+const relatorioRoutes = require('./src/routes/relatorioRoutes');
 const { attachUserToViews } = require('./src/middlewares/auth');
 
 const app = express();
@@ -50,6 +55,11 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/pacientes', pacienteRoutes);
 app.use('/agendamentos', agendamentoRoutes);
 app.use('/clinicas', clinicaRoutes);
+app.use('/dentistas', dentistaRoutes);
+app.use('/servicos', servicoRoutes);
+app.use('/historico', historicoRoutes);
+app.use('/recibos', reciboRoutes);
+app.use('/relatorios', relatorioRoutes);
 
 app.use((req, res) => {
   res.status(404).render('partials/error', {

@@ -16,6 +16,32 @@
         </select>
       </div>
       <div>
+        <label>Dentista</label>
+        <select name="dentista_id">
+          <option value="">Selecione</option>
+          <% (dentistas || []).forEach(d => { %>
+            <option value="<%= d.id %>" <%= editAgendamento && Number(editAgendamento.dentista_id) === Number(d.id) ? 'selected' : '' %>><%= d.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>Servico</label>
+        <select name="servico_id" id="servico_id">
+          <option value="">Selecione</option>
+          <% (servicos || []).forEach(s => { %>
+            <option value="<%= s.id %>" data-valor="<%= s.valor_padrao || 0 %>" <%= editAgendamento && Number(editAgendamento.servico_id) === Number(s.id) ? 'selected' : '' %>><%= s.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>Procedimento</label>
+        <input type="text" name="procedimento" value="<%= editAgendamento?.procedimento || '' %>" />
+      </div>
+      <div>
+        <label>Valor estimado</label>
+        <input type="number" step="0.01" min="0" name="valor_estimado" id="valor_estimado" value="<%= editAgendamento?.valor_estimado || '' %>" />
+      </div>
+      <div>
         <label>Data</label>
         <input type="date" name="data" value="<%= editAgendamento?.data || '' %>" required />
       </div>
@@ -57,13 +83,16 @@
           <th>Início</th>
           <th>Fim</th>
           <th>Paciente</th>
+          <th>Dentista</th>
+          <th>Servico</th>
+          <th>Valor</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         <% if (!agendamentos.length) { %>
-          <tr><td colspan="6">Nenhum agendamento cadastrado.</td></tr>
+          <tr><td colspan="9">Nenhum agendamento cadastrado.</td></tr>
         <% } %>
         <% agendamentos.forEach(item => { %>
           <tr>
@@ -71,9 +100,17 @@
             <td><%= item.hora_inicio %></td>
             <td><%= item.hora_fim %></td>
             <td><%= item.paciente_nome %></td>
+            <td><%= item.dentista_nome || '-' %></td>
+            <td><%= item.servico_nome || item.procedimento || '-' %></td>
+            <td>R$ <%= Number(item.valor_estimado || 0).toFixed(2) %></td>
             <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
             <td class="actions-cell">
               <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-small">Editar</a>
+              <form method="POST" action="/agendamentos/mover" class="grid-form" style="display:flex;gap:6px;align-items:center;">
+                <input type="hidden" name="agendamento_id" value="<%= item.id %>" />
+                <input type="date" name="nova_data" required style="padding:6px 8px;border-radius:8px;border:1px solid #dde7f1;" />
+                <button type="submit" class="btn btn-outline btn-small">Mover</button>
+              </form>
               <% if (user.perfil !== 'recepcao') { %>
                 <form method="POST" action="/agendamentos/<%= item.id %>?_method=DELETE" onsubmit="return confirm('Excluir agendamento?');">
                   <button type="submit" class="btn btn-danger btn-small">Excluir</button>
@@ -86,5 +123,18 @@
     </table>
   </section>
 </main>
+<script>
+  (function () {
+    const servico = document.getElementById('servico_id');
+    const valor = document.getElementById('valor_estimado');
+    if (!servico || !valor) return;
+    servico.addEventListener('change', function () {
+      if (valor.value) return;
+      const opt = servico.options[servico.selectedIndex];
+      const v = opt ? opt.getAttribute('data-valor') : '';
+      if (v) valor.value = Number(v).toFixed(2);
+    });
+  })();
+</script>
 </body>
 </html>

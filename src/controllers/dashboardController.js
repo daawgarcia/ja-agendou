@@ -10,14 +10,6 @@ async function index(req, res) {
     );
 
     const [[agendamentosHojeCount]] = await pool.execute(
-      'SELECT COUNT(*) AS total FROM agendamentos WHERE clinica_id = ? AND data = CURDATE()',
-      [clinicaId]
-    );
-
-    const [[confirmadosHojeCount]] = await pool.execute(
-      `SELECT COUNT(*) AS total
-       FROM agendamentos
-       WHERE clinica_id = ? AND data = CURDATE() AND status = 'confirmado'`,
       [clinicaId]
     );
 
@@ -35,14 +27,31 @@ async function index(req, res) {
       [clinicaId]
     );
 
-    return res.render('dashboard/index', {
-      stats: {
-        pacientes: pacientesCount.total,
-        agendamentosHoje: agendamentosHojeCount.total,
-        confirmadosHoje: confirmadosHojeCount.total,
-      },
-      proximosAgendamentos,
-    });
+      const [aniversariantes] = await pool.execute(
+        `SELECT id, nome, DATE_FORMAT(data_nascimento, '%d/%m') AS data_nasc_fmt
+         FROM pacientes
+         WHERE clinica_id = ? AND MONTH(data_nascimento) = MONTH(CURDATE())
+         ORDER BY DAY(data_nascimento) ASC LIMIT 5`,
+        [clinicaId]
+      );
+
+      const [[receitaMes]] = await pool.execute(
+        `SELECT COALESCE(SUM(valor), 0) AS total
+         FROM recibos
+         WHERE clinica_id = ? AND MONTH(data_recibo) = MONTH(CURDATE()) AND YEAR(data_recibo) = YEAR(CURDATE())`,
+        [clinicaId]
+      );
+
+      return res.render('dashboard/index', {
+        stats: {
+          pacientes: pacientesCount.total,
+          agendamentosHoje: agendamentosHojeCount.total,
+          confirmadosHoje: confirmadosHojeCount.total,
+          receitaMes: receitaMes.total,
+        },
+        proximosAgendamentos,
+        aniversariantes,
+      });
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', {

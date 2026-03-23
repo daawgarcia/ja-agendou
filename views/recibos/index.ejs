@@ -1,0 +1,79 @@
+<%- include('../partials/header', { title: 'Recibos' }) %>
+<%- include('../partials/sidebar') %>
+<main class="content">
+  <%- include('../partials/topbar', { pageTitle: 'Recibos', subtitle: 'Emissao e controle de recibos financeiros.' }) %>
+
+  <section class="card form-card">
+    <h3>Novo recibo</h3>
+    <form method="POST" action="/recibos" class="grid-form grid-2">
+      <div>
+        <label>Paciente</label>
+        <select name="paciente_id" required>
+          <option value="">Selecione</option>
+          <% pacientes.forEach(p => { %>
+            <option value="<%= p.id %>"><%= p.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>Data</label>
+        <input type="date" name="data_recibo" required />
+      </div>
+      <div>
+        <label>Valor</label>
+        <input type="number" step="0.01" min="0" name="valor" required />
+      </div>
+      <div>
+        <label>Documento do pagador</label>
+        <input type="text" name="documento_pagador" />
+      </div>
+      <div class="full-width">
+        <label>Descricao</label>
+        <textarea name="descricao" rows="3" required></textarea>
+      </div>
+      <div class="full-width">
+        <label>Observacoes</label>
+        <textarea name="observacoes" rows="3"></textarea>
+      </div>
+      <div class="form-actions full-width">
+        <button type="submit" class="btn">Emitir recibo</button>
+      </div>
+    </form>
+  </section>
+
+  <% if (previewRecibo) { %>
+    <section class="card">
+      <h3>Recibo gerado</h3>
+      <p><strong>Paciente:</strong> <%= previewRecibo.paciente.nome %></p>
+      <p><strong>Valor:</strong> R$ <%= Number(previewRecibo.valor).toFixed(2) %></p>
+      <p><strong>Data:</strong> <%= previewRecibo.data_recibo %></p>
+      <a href="/recibos/<%= previewRecibo.id %>/imprimir" class="btn" target="_blank">Imprimir</a>
+    </section>
+  <% } %>
+
+  <section class="card">
+    <h3>Recibos emitidos</h3>
+    <table>
+      <thead><tr><th>Data</th><th>Paciente</th><th>Valor</th><th>Descricao</th><th>Acoes</th></tr></thead>
+      <tbody>
+        <% if (!recibos.length) { %><tr><td colspan="5">Nenhum recibo emitido.</td></tr><% } %>
+        <% recibos.forEach(r => { %>
+          <tr>
+            <td><%= r.data_recibo %></td>
+            <td><%= r.paciente_nome %></td>
+            <td>R$ <%= Number(r.valor || 0).toFixed(2) %></td>
+            <td><%= r.descricao %></td>
+            <td class="actions-cell">
+              <a href="/recibos/<%= r.id %>/imprimir" class="btn btn-outline btn-small" target="_blank">Imprimir</a>
+              <form method="POST" action="/recibos/<%= r.id %>?_method=DELETE" onsubmit="return confirm('Excluir recibo?');">
+                <button type="submit" class="btn btn-danger btn-small">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

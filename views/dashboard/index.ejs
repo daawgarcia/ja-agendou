@@ -3,7 +3,7 @@
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Dashboard', subtitle: 'Visão rápida da operação da clínica.' }) %>
 
-  <section class="cards cards-3">
+  <section class="cards cards-4">
     <div class="card stat-card">
       <span>Pacientes cadastrados</span>
       <h2><%= stats.pacientes %></h2>
@@ -15,6 +15,10 @@
     <div class="card stat-card success-card">
       <span>Confirmados hoje</span>
       <h2><%= stats.confirmadosHoje %></h2>
+    </div>
+    <div class="card stat-card">
+      <span>Receita do mês</span>
+      <h2>R$ <%= Number(stats.receitaMes || 0).toFixed(2) %></h2>
     </div>
   </section>
 
@@ -44,6 +48,29 @@
             <td><%= item.hora_fim_formatada %></td>
             <td><%= item.paciente_nome %></td>
             <td><span class="badge badge-<%= item.status %>"><%= item.status %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h3>Aniversariantes do mês</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!aniversariantes || !aniversariantes.length) { %>
+          <tr><td colspan="2">Nenhum aniversariante neste mês.</td></tr>
+        <% } %>
+        <% (aniversariantes || []).forEach(item => { %>
+          <tr>
+            <td><%= item.nome %></td>
+            <td><%= item.data_nasc_fmt %></td>
           </tr>
         <% }) %>
       </tbody>

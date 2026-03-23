@@ -3,6 +3,19 @@
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Pacientes', subtitle: 'Cadastre e gerencie os pacientes da sua clínica.' }) %>
 
+  <section class="card">
+    <h3>Busca rápida</h3>
+    <form method="GET" action="/pacientes" class="grid-form grid-2">
+      <div>
+        <label>Nome</label>
+        <input type="text" name="busca" value="<%= busca || '' %>" placeholder="Digite parte do nome" />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-outline">Buscar</button>
+      </div>
+    </form>
+  </section>
+
   <section class="card form-card">
     <h3><%= editPaciente ? 'Editar paciente' : 'Novo paciente' %></h3>
     <form method="POST" action="<%= editPaciente ? '/pacientes/' + editPaciente.id + '?_method=PUT' : '/pacientes' %>" class="grid-form grid-2">
@@ -15,12 +28,41 @@
         <input type="text" name="telefone" value="<%= editPaciente?.telefone || '' %>" />
       </div>
       <div>
+        <label>CPF</label>
+        <input type="text" name="cpf" value="<%= editPaciente?.cpf || '' %>" />
+      </div>
+      <div>
+        <label>RG</label>
+        <input type="text" name="rg" value="<%= editPaciente?.rg || '' %>" />
+      </div>
+      <div>
         <label>E-mail</label>
         <input type="email" name="email" value="<%= editPaciente?.email || '' %>" />
       </div>
       <div>
         <label>Data de nascimento</label>
         <input type="date" name="data_nascimento" value="<%= editPaciente?.data_nascimento || '' %>" />
+      </div>
+      <div>
+        <label>Sexo</label>
+        <select name="sexo">
+          <option value="">Selecione</option>
+          <option value="F" <%= editPaciente?.sexo === 'F' ? 'selected' : '' %>>Feminino</option>
+          <option value="M" <%= editPaciente?.sexo === 'M' ? 'selected' : '' %>>Masculino</option>
+          <option value="O" <%= editPaciente?.sexo === 'O' ? 'selected' : '' %>>Outro</option>
+        </select>
+      </div>
+      <div>
+        <label>Convenio</label>
+        <input type="text" name="convenio" value="<%= editPaciente?.convenio || '' %>" />
+      </div>
+      <div>
+        <label>Responsavel</label>
+        <input type="text" name="responsavel" value="<%= editPaciente?.responsavel || '' %>" />
+      </div>
+      <div class="full-width">
+        <label>Endereco</label>
+        <input type="text" name="endereco" value="<%= editPaciente?.endereco || '' %>" />
       </div>
       <div class="full-width">
         <label>Observações</label>
@@ -41,22 +83,24 @@
       <thead>
         <tr>
           <th>Nome</th>
+          <th>CPF</th>
           <th>Telefone</th>
-          <th>E-mail</th>
+          <th>Convenio</th>
           <th>Nascimento</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         <% if (!pacientes.length) { %>
-          <tr><td colspan="5">Nenhum paciente cadastrado.</td></tr>
+          <tr><td colspan="6">Nenhum paciente cadastrado.</td></tr>
         <% } %>
         <% pacientes.forEach(paciente => { %>
           <tr>
             <td><%= paciente.nome %></td>
+            <td><%= paciente.cpf || '-' %></td>
             <td><%= paciente.telefone || '-' %></td>
-            <td><%= paciente.email || '-' %></td>
-            <td><%= paciente.data_nascimento || '-' %></td>
+            <td><%= paciente.convenio || '-' %></td>
+            <td><%= paciente.data_nascimento_fmt || '-' %></td>
             <td class="actions-cell">
               <a href="/pacientes/<%= paciente.id %>/editar" class="btn btn-outline btn-small">Editar</a>
               <% if (user.perfil !== 'recepcao') { %>
@@ -65,6 +109,25 @@
                 </form>
               <% } %>
             </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h3>Aniversariantes do mês</h3>
+    <table>
+      <thead><tr><th>Nome</th><th>Data</th><th>Telefone</th></tr></thead>
+      <tbody>
+        <% if (!aniversariantes || !aniversariantes.length) { %>
+          <tr><td colspan="3">Sem aniversariantes neste mês.</td></tr>
+        <% } %>
+        <% (aniversariantes || []).forEach(a => { %>
+          <tr>
+            <td><%= a.nome %></td>
+            <td><%= a.dia_mes %></td>
+            <td><%= a.telefone || '-' %></td>
           </tr>
         <% }) %>
       </tbody>
