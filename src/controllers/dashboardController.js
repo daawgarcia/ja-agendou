@@ -10,6 +10,12 @@ async function index(req, res) {
     );
 
     const [[agendamentosHojeCount]] = await pool.execute(
+      'SELECT COUNT(*) AS total FROM agendamentos WHERE clinica_id = ? AND data = CURDATE()',
+      [clinicaId]
+    );
+
+    const [[confirmadosHojeCount]] = await pool.execute(
+      'SELECT COUNT(*) AS total FROM agendamentos WHERE clinica_id = ? AND data = CURDATE() AND status = "confirmado"',
       [clinicaId]
     );
 
