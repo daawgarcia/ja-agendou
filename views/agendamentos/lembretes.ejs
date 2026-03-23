@@ -16,6 +16,51 @@
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Lembretes WhatsApp', subtitle: 'Controle diário dos avisos enviados aos pacientes.' }) %>
 
+  <% if (emailFeedback && emailFeedback.message) { %>
+    <div class="alert <%= emailFeedback.status === 'erro' ? 'alert-error' : '' %>" style="margin-bottom: 18px;">
+      <%= emailFeedback.message %>
+    </div>
+  <% } %>
+
+  <section class="card">
+    <div class="section-header">
+      <h3>Disparo por e-mail da agenda</h3>
+      <% if (!mailConfigured) { %>
+        <span class="badge badge-cancelado">SMTP não configurado</span>
+      <% } else { %>
+        <span class="badge badge-concluido">SMTP ativo</span>
+      <% } %>
+    </div>
+    <form method="POST" action="/agendamentos/lembretes/email-agenda" class="grid-form grid-4">
+      <div>
+        <label>Data base</label>
+        <input type="date" name="data" value="<%= dataSelecionada %>" required />
+      </div>
+      <div>
+        <label>Período</label>
+        <select name="periodo">
+          <option value="dia">Dia selecionado</option>
+          <option value="semana">Semana da data</option>
+        </select>
+      </div>
+      <div>
+        <label>Dentista</label>
+        <select name="dentista_id">
+          <option value="">Todos os dentistas</option>
+          <% (dentistas || []).forEach(function(d){ %>
+            <option value="<%= d.id %>"><%= d.nome %> <%= d.email ? '(' + d.email + ')' : '(sem e-mail)' %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-actions" style="align-items:flex-end;">
+        <button type="submit" class="btn" <%= !mailConfigured ? 'disabled' : '' %>>Enviar agenda por e-mail</button>
+      </div>
+    </form>
+    <p class="muted-inline" style="margin-top:10px; display:block;">
+      Este envio manda para os dentistas ativos com e-mail cadastrado. No novo agendamento, paciente e dentista também recebem e-mail automático.
+    </p>
+  </section>
+
   <section class="cards cards-3">
     <div class="card stat-card">
       <span>Total do dia</span>

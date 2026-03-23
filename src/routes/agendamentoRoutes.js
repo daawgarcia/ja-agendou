@@ -11,6 +11,7 @@ router.post('/', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recep
 router.put('/:id', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), agendamentoController.update);
 router.delete('/:id', ensureAuthenticated, ensureRole(['super_admin', 'admin']), agendamentoController.remove);
 router.post('/mover', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), agendamentoController.moverData);
+router.post('/lembretes/email-agenda', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), agendamentoController.enviarAgendaPorEmail);
 router.post('/:id/lembrete-enviado', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), agendamentoController.marcarLembreteEnviado);
 router.post('/:id/lembrete-limpar', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), agendamentoController.limparLembreteEnviado);
 
