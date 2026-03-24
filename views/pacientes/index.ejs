@@ -68,10 +68,30 @@
 
         <div class="card">
           <h3>Importar Excel / CSV</h3>
-          <p style="font-size:12px;color:#6b7280;line-height:1.6;">
-            A importação em lote está temporariamente indisponível nesta versão.
-            Para evitar erro de rota, o cadastro está funcionando apenas pelo formulário manual.
+
+          <% if (typeof importError !== 'undefined' && importError) { %>
+            <div class="alert alert-error" style="margin-bottom:12px"><%= importError %></div>
+          <% } %>
+          <% if (typeof importSuccess !== 'undefined' && importSuccess) { %>
+            <div class="alert alert-success" style="margin-bottom:12px"><%= importSuccess %></div>
+          <% } %>
+
+          <p style="font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:12px">
+            Baixe o template, preencha os dados dos pacientes e envie o arquivo para importar em lote.
+            A coluna <strong>Nome</strong> é obrigatória.
           </p>
+
+          <a href="/templates/template-pacientes.xlsx" class="btn btn-outline btn-sm" style="margin-bottom:14px" download>
+            ⬇ Baixar template Excel
+          </a>
+
+          <form method="POST" action="/pacientes/import" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:end">
+            <div style="flex:1">
+              <label style="font-size:12px">Arquivo (.xlsx ou .csv)</label>
+              <input type="file" name="arquivo" accept=".xlsx,.xls,.csv" required style="font-size:13px" />
+            </div>
+            <button type="submit" class="btn btn-sm">Importar</button>
+          </form>
         </div>
       </div>
 
