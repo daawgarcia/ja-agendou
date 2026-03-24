@@ -44,9 +44,11 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 }
 
 .sidebar-brand {
-  padding: 20px 16px 14px;
+  padding: 18px 16px 12px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .sidebar-brand .brand-logo {
@@ -54,12 +56,6 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
   height: 74px;
   object-fit: contain;
   display: block;
-  margin-bottom: 10px;
-}
-
-.sidebar-brand .brand-title {
-  font-size: 15px; font-weight: 700; color: var(--white); display: block; line-height: 1.2;
-  letter-spacing: 0.2px;
 }
 
 .sidebar-nav { flex: 1; padding: 0 8px; }
