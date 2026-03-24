@@ -2,27 +2,42 @@ const nodemailer = require('nodemailer');
 
 let transporter;
 
+function getEmailConfig() {
+  const host = process.env.SMTP_HOST || process.env.MAIL_HOST || '';
+  const port = Number(process.env.SMTP_PORT || process.env.MAIL_PORT || 587);
+  const user = process.env.SMTP_USER || process.env.MAIL_USER || process.env.MAIL_USERNAME || '';
+  const pass = process.env.SMTP_PASS || process.env.MAIL_PASS || process.env.MAIL_PASSWORD || '';
+  const secureRaw = process.env.SMTP_SECURE || process.env.MAIL_SECURE;
+  const secure = typeof secureRaw === 'string'
+    ? secureRaw.toLowerCase() === 'true'
+    : port === 465;
+
+  return {
+    host,
+    port,
+    user,
+    pass,
+    secure,
+  };
+}
+
 function isEmailConfigured() {
-  return Boolean(
-    process.env.SMTP_HOST
-      && process.env.SMTP_PORT
-      && process.env.SMTP_USER
-      && process.env.SMTP_PASS
-  );
+  const config = getEmailConfig();
+  return Boolean(config.host && config.port && config.user && config.pass);
 }
 
 function getTransporter() {
   if (transporter) return transporter;
 
-  const secure = String(process.env.SMTP_SECURE || '').toLowerCase() === 'true';
+  const config = getEmailConfig();
 
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure,
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: config.user,
+      pass: config.pass,
     },
   });
 
@@ -30,7 +45,8 @@ function getTransporter() {
 }
 
 function buildFromAddress(fromName) {
-  const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@jaagendou.app';
+  const config = getEmailConfig();
+  const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.MAIL_FROM || config.user || 'no-reply@jaagendou.app';
   const safeName = String(fromName || '').trim().replace(/"/g, '');
   return safeName ? `"${safeName}" <${fromEmail}>` : fromEmail;
 }

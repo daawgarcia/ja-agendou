@@ -1,13 +1,24 @@
 const pool = require('../config/db');
 
+async function executeOrFallback(query, params, fallback) {
+  try {
+    const [rows] = await pool.execute(query, params);
+    return rows;
+  } catch (error) {
+    console.error('Erro em consulta de relatorio:', error.message);
+    return fallback;
+  }
+}
+
 async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const mesAno = req.query.mes || new Date().toISOString().slice(0, 7); // YYYY-MM
   const dentistaId = req.query.dentista_id || null;
   try {
-    const [dentistas] = await pool.execute(
+    const dentistas = await executeOrFallback(
       'SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC',
-      [clinicaId]
+      [clinicaId],
+      []
     );
     let query = `
       SELECT COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
@@ -19,20 +30,27 @@ async function index(req, res) {
     const params = [clinicaId, mesAno];
     if (dentistaId) { query += ' AND a.dentista_id = ?'; params.push(dentistaId); }
     query += ' GROUP BY d.id, d.nome ORDER BY valor_total DESC';
-    const [porDentista] = await pool.execute(query, params);
+    const porDentista = await executeOrFallback(query, params, []);
 
-    const [[receitaMes]] = await pool.execute(
+    const receitaRows = await executeOrFallback(
       `SELECT SUM(valor) AS total FROM recibos WHERE clinica_id = ? AND DATE_FORMAT(data_recibo, '%Y-%m') = ?`,
-      [clinicaId, mesAno]
+      [clinicaId, mesAno],
+      [{ total: 0 }]
     );
-    const [[agendados]] = await pool.execute(
+    const agendadosRows = await executeOrFallback(
       `SELECT COUNT(*) AS total FROM agendamentos WHERE clinica_id = ? AND DATE_FORMAT(data, '%Y-%m') = ? AND status != 'cancelado'`,
-      [clinicaId, mesAno]
+      [clinicaId, mesAno],
+      [{ total: 0 }]
     );
-    const [[cancelados]] = await pool.execute(
+    const canceladosRows = await executeOrFallback(
       `SELECT COUNT(*) AS total FROM agendamentos WHERE clinica_id = ? AND DATE_FORMAT(data, '%Y-%m') = ? AND status = 'cancelado'`,
-      [clinicaId, mesAno]
+      [clinicaId, mesAno],
+      [{ total: 0 }]
     );
+
+    const receitaMes = receitaRows[0] || { total: 0 };
+    const agendados = agendadosRows[0] || { total: 0 };
+    const cancelados = canceladosRows[0] || { total: 0 };
 
     return res.render('relatorios/index', {
       porDentista,
