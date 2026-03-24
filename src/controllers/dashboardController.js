@@ -70,6 +70,8 @@ function buildMonthCalendar(referenceDate, agendamentos, todayIso, selectedDateI
 
 async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
+  const perfil = req.session.user.perfil;
+  const canViewFinancial = perfil !== 'recepcao';
   const selectedDate = parseDateInput(req.query.data);
   const selectedDateIso = formatDateISO(selectedDate);
   const todayIso = formatDateISO(new Date());
@@ -149,13 +151,15 @@ async function index(req, res) {
       });
     }
 
-    const [[receitaMes]] = await pool.execute(
-      `SELECT COALESCE(SUM(valor), 0) AS total
-       FROM recibos
-       WHERE clinica_id = ?
-         AND data_recibo BETWEEN ? AND ?`,
-      [clinicaId, monthStartIso, monthEndIso]
-    );
+    const [[receitaMes]] = canViewFinancial
+      ? await pool.execute(
+        `SELECT COALESCE(SUM(valor), 0) AS total
+         FROM recibos
+         WHERE clinica_id = ?
+           AND data_recibo BETWEEN ? AND ?`,
+        [clinicaId, monthStartIso, monthEndIso]
+      )
+      : [[{ total: 0 }]];
 
     const [aniversariantes] = await pool.execute(
       `SELECT id,
@@ -170,19 +174,21 @@ async function index(req, res) {
       [clinicaId, selectedDateIso]
     );
 
-    const [ultimosRecibos] = await pool.execute(
-      `SELECT r.id,
-              DATE_FORMAT(r.data_recibo, '%d/%m/%Y') AS data_fmt,
-              r.valor,
-              COALESCE(r.descricao, 'Recibo') AS descricao,
-              p.nome AS paciente_nome
-       FROM recibos r
-       LEFT JOIN pacientes p ON p.id = r.paciente_id
-       WHERE r.clinica_id = ?
-       ORDER BY r.data_recibo DESC, r.id DESC
-       LIMIT 5`,
-      [clinicaId]
-    );
+    const [ultimosRecibos] = canViewFinancial
+      ? await pool.execute(
+        `SELECT r.id,
+                DATE_FORMAT(r.data_recibo, '%d/%m/%Y') AS data_fmt,
+                r.valor,
+                COALESCE(r.descricao, 'Recibo') AS descricao,
+                p.nome AS paciente_nome
+         FROM recibos r
+         LEFT JOIN pacientes p ON p.id = r.paciente_id
+         WHERE r.clinica_id = ?
+         ORDER BY r.data_recibo DESC, r.id DESC
+         LIMIT 5`,
+        [clinicaId]
+      )
+      : [[]];
 
     const [producaoDentistas] = await pool.execute(
       `SELECT COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
@@ -216,6 +222,7 @@ async function index(req, res) {
         dentistaId,
         status: statusFilter,
       },
+      canViewFinancial,
       dentistas,
       stats: {
         pacientes: pacientesCount.total,

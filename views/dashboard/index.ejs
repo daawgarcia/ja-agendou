@@ -66,10 +66,17 @@
         <span>Atendidos</span>
         <strong><%= agendaDia.filter(function(a){return a.status==='concluido'||a.status==='atendido'}).length %></strong>
       </div>
-      <div class="kpi-card">
-        <span>Receita lançada</span>
-        <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
-      </div>
+      <% if (canViewFinancial) { %>
+        <div class="kpi-card">
+          <span>Receita lançada</span>
+          <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+        </div>
+      <% } else { %>
+        <div class="kpi-card">
+          <span>Agendamentos do mês</span>
+          <strong><%= Number(stats.agendaMes||0) %></strong>
+        </div>
+      <% } %>
     </div>
 
     <!-- MAIN CONTENT: WEEK / MONTH / DAY + NEXT -->
@@ -180,33 +187,35 @@
           </div>
         </div>
 
-        <!-- FINANCEIRO DO MES -->
-        <div class="card">
-          <h3>Financeiro do mês</h3>
-          <div class="fin-grid">
-            <div class="fin-card">
-              <span>Recebido no mês</span>
-              <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+        <% if (canViewFinancial) { %>
+          <!-- FINANCEIRO DO MES -->
+          <div class="card">
+            <h3>Financeiro do mês</h3>
+            <div class="fin-grid">
+              <div class="fin-card">
+                <span>Recebido no mês</span>
+                <strong>R$ <%= Number(stats.receitaMes||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+              </div>
+              <div class="fin-card">
+                <span>Recibos emitidos</span>
+                <strong><%= ultimosRecibos.length %></strong>
+              </div>
+              <div class="fin-card">
+                <span>Ticket médio</span>
+                <strong>R$ <%= ultimosRecibos.length ? (Number(stats.receitaMes||0)/ultimosRecibos.length).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '0,00' %></strong>
+              </div>
+              <div class="fin-card">
+                <span>Estimado em agenda</span>
+                <strong>R$ <%= Number(agendaDia.reduce(function(s,a){return s+Number(a.valor_estimado||0)},0)).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
+              </div>
             </div>
-            <div class="fin-card">
-              <span>Recibos emitidos</span>
-              <strong><%= ultimosRecibos.length %></strong>
-            </div>
-            <div class="fin-card">
-              <span>Ticket médio</span>
-              <strong>R$ <%= ultimosRecibos.length ? (Number(stats.receitaMes||0)/ultimosRecibos.length).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '0,00' %></strong>
-            </div>
-            <div class="fin-card">
-              <span>Estimado em agenda</span>
-              <strong>R$ <%= Number(agendaDia.reduce(function(s,a){return s+Number(a.valor_estimado||0)},0)).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></strong>
-            </div>
+            <p style="font-size:12px;color:#6b7280;margin-top:8px">
+              Período analisado: 01/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %> até
+              <% var d=new Date(filters.selectedDate.slice(0,4),filters.selectedDate.slice(5,7),0); %>
+              <%= d.getDate() %>/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %>.
+            </p>
           </div>
-          <p style="font-size:12px;color:#6b7280;margin-top:8px">
-            Período analisado: 01/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %> até
-            <% var d=new Date(filters.selectedDate.slice(0,4),filters.selectedDate.slice(5,7),0); %>
-            <%= d.getDate() %>/<%= filters.selectedDate.slice(5,7) %>/<%= filters.selectedDate.slice(0,4) %>.
-          </p>
-        </div>
+        <% } %>
         <% } %>
 
       </div>
