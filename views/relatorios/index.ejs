@@ -63,7 +63,7 @@
               <td><%= l.dentista_nome||'-' %></td>
               <td><%= Number(l.total_atendidos||0) %></td>
               <td>R$ <%= Number(l.valor_total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) %></td>
-              <td><%= l.mes || '-' %></td>
+              <td><%= mesAno || '-' %></td>
             </tr>
           <% }) %>
         </tbody>

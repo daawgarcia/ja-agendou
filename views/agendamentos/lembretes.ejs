@@ -54,6 +54,10 @@
           <% }) %>
         </select>
       </div>
+      <div>
+        <label>E-mail destino (opcional)</label>
+        <input type="email" name="email_override" placeholder="Use quando o dentista estiver sem e-mail" />
+      </div>
       <div class="form-actions" style="align-items:flex-end;">
         <button type="submit" class="btn" <%= !mailConfigured ? 'disabled' : '' %>>Enviar agenda por e-mail</button>
       </div>

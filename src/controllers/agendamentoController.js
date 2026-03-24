@@ -18,6 +18,12 @@ function resolveClinicName(value) {
   return name || 'sua clinica';
 }
 
+function normalizeEmail(value) {
+  const email = String(value || '').trim().toLowerCase();
+  if (!email) return '';
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+}
+
 function getWeekRange(dateISO) {
   const [y, m, d] = dateISO.split('-').map(Number);
   const base = new Date(y, m - 1, d);
@@ -269,6 +275,7 @@ async function enviarAgendaPorEmail(req, res) {
   const dataSelecionada = parseDateISO(req.body.data || req.query.data);
   const periodo = req.body.periodo === 'semana' ? 'semana' : 'dia';
   const dentistaId = req.body.dentista_id || '';
+  const emailOverride = normalizeEmail(req.body.email_override);
 
   if (!isEmailConfigured()) {
     return res.redirect(`/agendamentos/lembretes?data=${dataSelecionada}&email_status=erro&email_msg=${encodeURIComponent('SMTP nao configurado. Defina as variaveis de e-mail no ambiente.')}`);
@@ -289,7 +296,7 @@ async function enviarAgendaPorEmail(req, res) {
     let query = `
       SELECT d.id AS dentista_id,
              d.nome AS dentista_nome,
-             d.email AS dentista_email,
+             COALESCE(d.email, '') AS dentista_email,
              DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
              TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
              TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
@@ -303,9 +310,7 @@ async function enviarAgendaPorEmail(req, res) {
       WHERE a.clinica_id = ?
         AND a.data BETWEEN ? AND ?
         AND a.status IN ('agendado', 'confirmado', 'concluido')
-        AND d.ativo = 1
-        AND d.email IS NOT NULL
-        AND d.email <> ''`;
+        AND d.ativo = 1`;
 
     const params = [clinicaId, rangeStart, rangeEnd];
 
@@ -323,19 +328,34 @@ async function enviarAgendaPorEmail(req, res) {
     }
 
     const map = new Map();
+    const semEmailDentistas = new Set();
     for (const row of rows) {
+      const targetEmail = emailOverride && dentistaId && String(row.dentista_id) === String(dentistaId)
+        ? emailOverride
+        : normalizeEmail(row.dentista_email);
+
+      if (!targetEmail) {
+        semEmailDentistas.add(String(row.dentista_id));
+        continue;
+      }
+
       if (!map.has(row.dentista_id)) {
         map.set(row.dentista_id, {
           nome: row.dentista_nome,
-          email: row.dentista_email,
+          email: targetEmail,
           itens: [],
         });
       }
       map.get(row.dentista_id).itens.push(row);
     }
 
+    if (!map.size) {
+      return res.redirect(`/agendamentos/lembretes?data=${dataSelecionada}&email_status=info&email_msg=${encodeURIComponent('Nenhum e-mail valido encontrado para envio da agenda.')}`);
+    }
+
     let enviados = 0;
     let falhas = 0;
+    const semEmail = semEmailDentistas.size;
 
     for (const [, dentistData] of map) {
       const payload = buildDentistAgendaEmail(dentistData.nome, periodoLabel, dentistData.itens, clinicaNome);
@@ -353,8 +373,8 @@ async function enviarAgendaPorEmail(req, res) {
       }
     }
 
-    const message = `E-mails enviados: ${enviados}. Falhas: ${falhas}.`;
-    const status = falhas > 0 ? 'info' : 'ok';
+    const message = `E-mails enviados: ${enviados}. Falhas: ${falhas}. Sem e-mail: ${semEmail}.`;
+    const status = falhas > 0 || semEmail > 0 ? 'info' : 'ok';
 
     return res.redirect(`/agendamentos/lembretes?data=${dataSelecionada}&email_status=${status}&email_msg=${encodeURIComponent(message)}`);
   } catch (error) {

@@ -4,6 +4,6 @@ const { ensureAuthenticated, ensureRole } = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/', ensureAuthenticated, ensureRole(['super_admin', 'admin']), relatorioController.index);
+router.get('/', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), relatorioController.index);
 
 module.exports = router;

@@ -110,34 +110,43 @@
 
         <% } else if (filters.selectedTab === 'mes') { %>
         <!-- MONTH VIEW -->
-        <div class="card month-calendar">
-          <h3><%= monthTitle %></h3>
-          <table>
-            <thead>
-              <tr>
-                <% ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(function(d){ %><th><%= d %></th><% }) %>
-              </tr>
-            </thead>
-            <tbody>
-              <% monthCalendar.forEach(function(week){ %>
-                <tr>
-                  <% week.forEach(function(cell){ %>
-                    <% if(!cell){ %>
-                      <td></td>
-                    <% } else { %>
-                      <td class="<%= cell.isToday?'today':'' %> <%= cell.isSelected?'selected':'' %>"
-                          onclick="location.href='/dashboard?data=<%= cell.iso %>&aba=dia'">
-                        <%= cell.day %>
-                        <% if(cell.appointments.length) { %>
-                          <div class="dot-count"><%= cell.appointments.length %> apmt</div>
-                        <% } %>
-                      </td>
-                    <% } %>
-                  <% }) %>
-                </tr>
+        <div class="card" style="padding:16px">
+          <h3 style="margin-bottom:14px">Agenda do mês - <%= monthTitle %></h3>
+          <div class="week-grid month-week-grid">
+            <% monthCalendar.forEach(function(week){ %>
+              <% week.forEach(function(cell){ %>
+                <% if(!cell){ %>
+                  <div class="week-col month-empty-col">
+                    <div class="week-col-header">-</div>
+                    <div class="week-col-body"></div>
+                  </div>
+                <% } else { %>
+                  <div class="week-col month-day-col<%= cell.isSelected ? ' selected' : '' %>">
+                    <div class="week-col-header<%= cell.isToday ? ' today' : '' %>">
+                      <a href="/dashboard?data=<%= cell.iso %>&aba=dia<%= filters.dentistaId ? '&dentista_id='+filters.dentistaId : '' %>" class="month-day-link">
+                        <%= new Date(cell.iso + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }) %>
+                      </a>
+                    </div>
+                    <div class="week-col-body">
+                      <% if(!cell.appointments.length) { %>
+                        <p style="font-size:11px;color:#9ca3af;text-align:center;margin-top:8px">Sem agendamentos</p>
+                      <% } %>
+                      <% cell.appointments.forEach(function(a) { %>
+                        <div class="appt-card status-<%= a.status %>">
+                          <span class="appt-time"><%= a.hora_inicio %> às <%= a.hora_fim %></span>
+                          <span class="appt-dentist"><%= a.dentista_nome %></span>
+                          <span class="appt-patients"><%= a.paciente_nome %></span>
+                          <% var wa=phoneToWa(a.telefone); if(wa){ %>
+                            <a href="https://wa.me/<%= wa %>?text=<%= waMsg(a) %>" target="_blank" class="btn btn-whatsapp btn-sm" style="margin-top:4px">WhatsApp</a>
+                          <% } %>
+                        </div>
+                      <% }) %>
+                    </div>
+                  </div>
+                <% } %>
               <% }) %>
-            </tbody>
-          </table>
+            <% }) %>
+          </div>
         </div>
 
         <% } else { %>

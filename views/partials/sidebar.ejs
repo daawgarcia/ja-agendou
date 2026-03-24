@@ -2,7 +2,6 @@
   <div class="sidebar-brand">
     <img src="/images/logo-ja-agendou.png" alt="Já Agendou!" class="brand-logo" />
     <span class="brand-title">Já Agendou!</span>
-    <span class="brand-sub">by Otávio Garcia</span>
   </div>
 
   <nav class="sidebar-nav">
@@ -15,6 +14,8 @@
     <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
       <a href="/dentistas" class="nav-link<%= p==='dentistas' ? ' active' : '' %>">Dentistas</a>
       <a href="/servicos" class="nav-link<%= p==='servicos' ? ' active' : '' %>">Serviços</a>
+    <% } %>
+    <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin' || user.perfil === 'recepcao')) { %>
       <a href="/relatorios" class="nav-link<%= p==='relatorios' ? ' active' : '' %>">Relatórios</a>
     <% } %>
     <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
