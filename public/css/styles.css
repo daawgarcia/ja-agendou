@@ -52,8 +52,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 }
 
 .sidebar-brand .brand-logo {
-  width: 120px;
-  height: 120px;
+  width: 136px;
+  max-width: 100%;
+  height: auto;
   object-fit: contain;
   display: block;
   background: transparent;
@@ -462,12 +463,13 @@ textarea { resize: vertical; }
 }
 
 .auth-logo {
-  width: 180px;
-  height: 180px;
+  width: 280px;
+  max-width: 100%;
+  height: auto;
   object-fit: contain;
   display: block;
   background: transparent;
-  margin: 0 auto 12px;
+  margin: 0 auto 18px;
 }
 
 .auth-box h1 { font-size: 22px; font-weight: 700; margin-bottom: 18px; color: var(--text); }
@@ -545,6 +547,7 @@ textarea { resize: vertical; }
 @media (max-width: 820px) {
   .sidebar { width: 160px; min-width: 160px; }
   .content { margin-left: 160px; }
+  .sidebar-brand .brand-logo { width: 120px; }
   .two-col { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .week-grid { grid-template-columns: repeat(2, 1fr); }
