@@ -50,12 +50,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
 }
 
 .sidebar-brand .brand-logo {
-  width: 36px; height: 36px;
-  background: var(--white);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 14px;
-  color: var(--sidebar-bg);
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
   margin-bottom: 8px;
 }
 
@@ -443,12 +441,10 @@ textarea { resize: vertical; }
 }
 
 .auth-logo {
-  width: 52px; height: 52px;
-  background: var(--primary);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 18px;
-  color: var(--white);
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  display: block;
   margin: 0 auto 10px;
 }
 

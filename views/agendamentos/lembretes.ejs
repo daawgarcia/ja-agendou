@@ -1,6 +1,8 @@
 <%- include('../partials/header', { title: 'Lembretes WhatsApp' }) %>
 <%- include('../partials/sidebar') %>
 <%
+  var clinicaNome = String((user && user.clinica_nome) || 'sua clínica');
+
   function phoneToWhatsapp(rawPhone) {
     var phone = String(rawPhone || '').replace(/\D/g, '');
     if (phone.length === 10 || phone.length === 11) {
@@ -10,7 +12,7 @@
   }
 
   function buildReminderMessage(item) {
-    return encodeURIComponent('Olá ' + item.paciente_nome + ', lembrando do seu agendamento de ' + item.data_formatada + ' às ' + item.hora_inicio + '. Em caso de imprevisto, nos avise. - Já Agendou');
+    return encodeURIComponent('Olá ' + item.paciente_nome + ', lembrando do seu agendamento de ' + item.data_formatada + ' às ' + item.hora_inicio + '. Em caso de imprevisto, nos avise. - ' + clinicaNome);
   }
 %>
 <main class="content">

@@ -4,6 +4,7 @@
   <%- include('../partials/topbar', { pageTitle: 'Agenda', subtitle: 'Controle de consultas, envio de e-mail, fechamento de agenda por dentista e busca rápida por paciente.' }) %>
 
   <div class="page-body">
+    <% var clinicaNome = String((user && user.clinica_nome) || 'sua clínica'); %>
 
     <% if (locals.flash) { %>
       <div class="alert alert-<%= flash.type %>"><%= flash.msg %></div>
@@ -199,7 +200,7 @@
                   <%
                     var _tel=(item.telefone||'').replace(/\D/g,'');
                     if(_tel.length===10||_tel.length===11) _tel='55'+_tel;
-                    var _msg=encodeURIComponent('Olá '+item.paciente_nome+', lembrando do seu agendamento em '+item.data_formatada+' às '+item.hora_inicio+'. Já Agendou');
+                    var _msg=encodeURIComponent('Olá '+item.paciente_nome+', lembrando do seu agendamento em '+item.data_formatada+' às '+item.hora_inicio+'. Em caso de imprevisto, nos avise. - '+clinicaNome);
                   %>
                   <% if(_tel.length>=12){ %>
                     <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" class="btn btn-whatsapp btn-sm">WhatsApp</a>

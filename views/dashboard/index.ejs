@@ -1,13 +1,15 @@
 ﻿<%- include('../partials/header', { title: 'Dashboard' }) %>
 <%- include('../partials/sidebar', { currentPage: 'dashboard' }) %>
 <%
+  var clinicaNome = String((user && user.clinica_nome) || 'sua clínica');
+
   function phoneToWa(raw) {
     var p = String(raw||'').replace(/\D/g,'');
     if(p.length===10||p.length===11) p='55'+p;
     return p.length>=12?p:'';
   }
   function waMsg(item) {
-    return encodeURIComponent('Olá '+item.paciente_nome+', lembramos do seu agendamento em '+item.data_fmt+' às '+item.hora_inicio+'. Qualquer dúvida estamos à disposição  Já Agendou');
+    return encodeURIComponent('Olá '+item.paciente_nome+', lembramos do seu agendamento em '+item.data_fmt+' às '+item.hora_inicio+'. Qualquer dúvida estamos à disposição. - '+clinicaNome);
   }
   var today = new Date().toISOString().slice(0,10);
 %>

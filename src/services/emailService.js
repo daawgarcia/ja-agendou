@@ -29,7 +29,13 @@ function getTransporter() {
   return transporter;
 }
 
-async function sendEmail({ to, subject, html, text }) {
+function buildFromAddress(fromName) {
+  const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@jaagendou.app';
+  const safeName = String(fromName || '').trim().replace(/"/g, '');
+  return safeName ? `"${safeName}" <${fromEmail}>` : fromEmail;
+}
+
+async function sendEmail({ to, subject, html, text, fromName }) {
   if (!to) {
     return { ok: false, skipped: true, reason: 'missing-recipient' };
   }
@@ -38,7 +44,7 @@ async function sendEmail({ to, subject, html, text }) {
     return { ok: false, skipped: true, reason: 'smtp-not-configured' };
   }
 
-  const from = 'no-reply@jaagendou.app';
+  const from = buildFromAddress(fromName);
 
   try {
     await getTransporter().sendMail({

@@ -13,6 +13,11 @@ function formatMoney(value) {
   return Number(value || 0).toFixed(2);
 }
 
+function resolveClinicName(value) {
+  const name = String(value || '').trim();
+  return name || 'sua clinica';
+}
+
 function getWeekRange(dateISO) {
   const [y, m, d] = dateISO.split('-').map(Number);
   const base = new Date(y, m - 1, d);
@@ -26,10 +31,11 @@ function getWeekRange(dateISO) {
 }
 
 function buildPatientAppointmentEmail(item) {
-  const subject = 'Confirmacao de agendamento - Ja Agendou';
+  const clinicaNome = resolveClinicName(item.clinica_nome);
+  const subject = `Confirmacao de agendamento - ${clinicaNome}`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;color:#1f2937;">
-      <h2 style="margin-bottom:6px;color:#1254a1;">Ja Agendou</h2>
+      <h2 style="margin-bottom:6px;color:#1254a1;">${clinicaNome}</h2>
       <p>Ola <strong>${item.paciente_nome}</strong>, seu agendamento foi confirmado.</p>
       <ul>
         <li><strong>Data:</strong> ${item.data_formatada}</li>
@@ -38,16 +44,18 @@ function buildPatientAppointmentEmail(item) {
         <li><strong>Servico:</strong> ${item.servico_nome || 'Nao informado'}</li>
       </ul>
       <p>Se precisar alterar, fale com a secretaria.</p>
+      <p>Atenciosamente,<br/><strong>${clinicaNome}</strong></p>
     </div>`;
-  const text = `Ola ${item.paciente_nome}, seu agendamento foi confirmado para ${item.data_formatada} as ${item.hora_inicio}. Dentista: ${item.dentista_nome || 'A definir'}. Servico: ${item.servico_nome || 'Nao informado'}.`;
+  const text = `Ola ${item.paciente_nome}, seu agendamento foi confirmado para ${item.data_formatada} as ${item.hora_inicio}. Dentista: ${item.dentista_nome || 'A definir'}. Servico: ${item.servico_nome || 'Nao informado'}. Atenciosamente, ${clinicaNome}.`;
   return { subject, html, text };
 }
 
 function buildDentistNewAppointmentEmail(item) {
-  const subject = 'Novo agendamento na agenda';
+  const clinicaNome = resolveClinicName(item.clinica_nome);
+  const subject = `Novo agendamento na agenda - ${clinicaNome}`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;color:#1f2937;">
-      <h2 style="margin-bottom:6px;color:#1254a1;">Ja Agendou</h2>
+      <h2 style="margin-bottom:6px;color:#1254a1;">${clinicaNome}</h2>
       <p>Voce recebeu um novo agendamento.</p>
       <ul>
         <li><strong>Paciente:</strong> ${item.paciente_nome}</li>
@@ -56,12 +64,14 @@ function buildDentistNewAppointmentEmail(item) {
         <li><strong>Servico:</strong> ${item.servico_nome || 'Nao informado'}</li>
         <li><strong>Valor estimado:</strong> R$ ${formatMoney(item.valor_estimado)}</li>
       </ul>
+      <p>Atenciosamente,<br/><strong>${clinicaNome}</strong></p>
     </div>`;
-  const text = `Novo agendamento: ${item.paciente_nome}, ${item.data_formatada} ${item.hora_inicio}-${item.hora_fim}, servico ${item.servico_nome || 'Nao informado'}.`;
+  const text = `Novo agendamento: ${item.paciente_nome}, ${item.data_formatada} ${item.hora_inicio}-${item.hora_fim}, servico ${item.servico_nome || 'Nao informado'}. Atenciosamente, ${clinicaNome}.`;
   return { subject, html, text };
 }
 
-function buildDentistAgendaEmail(dentistaNome, periodoLabel, itens) {
+function buildDentistAgendaEmail(dentistaNome, periodoLabel, itens, clinicaNomeInput) {
+  const clinicaNome = resolveClinicName(clinicaNomeInput);
   const rowsHtml = itens.map((item) => `
     <tr>
       <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">${item.data_formatada}</td>
@@ -71,10 +81,10 @@ function buildDentistAgendaEmail(dentistaNome, periodoLabel, itens) {
       <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">${item.status}</td>
     </tr>`).join('');
 
-  const subject = `Agenda ${periodoLabel} - ${dentistaNome}`;
+  const subject = `Agenda ${periodoLabel} - ${dentistaNome} - ${clinicaNome}`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;color:#1f2937;">
-      <h2 style="margin-bottom:6px;color:#1254a1;">Ja Agendou</h2>
+      <h2 style="margin-bottom:6px;color:#1254a1;">${clinicaNome}</h2>
       <p>Resumo da agenda <strong>${periodoLabel}</strong>.</p>
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
         <thead>
@@ -88,11 +98,12 @@ function buildDentistAgendaEmail(dentistaNome, periodoLabel, itens) {
         </thead>
         <tbody>${rowsHtml}</tbody>
       </table>
+      <p style="margin-top:12px;">Atenciosamente,<br/><strong>${clinicaNome}</strong></p>
     </div>`;
 
   const text = itens
     .map((item) => `${item.data_formatada} ${item.hora_inicio}-${item.hora_fim} | ${item.paciente_nome} | ${item.servico_nome || '-'} | ${item.status}`)
-    .join('\n');
+    .join('\n') + `\n\nAtenciosamente, ${clinicaNome}.`;
 
   return { subject, html, text };
 }
@@ -111,9 +122,11 @@ async function enviarEmailsNovoAgendamento(clinicaId, agendamentoId) {
               COALESCE(p.email, '') AS paciente_email,
               COALESCE(d.nome, '') AS dentista_nome,
               COALESCE(d.email, '') AS dentista_email,
-              COALESCE(s.nome, a.procedimento, '') AS servico_nome
+        COALESCE(s.nome, a.procedimento, '') AS servico_nome,
+        COALESCE(c.nome, '') AS clinica_nome
        FROM agendamentos a
        INNER JOIN pacientes p ON p.id = a.paciente_id
+      INNER JOIN clinicas c ON c.id = a.clinica_id
        LEFT JOIN dentistas d ON d.id = a.dentista_id
        LEFT JOIN servicos s ON s.id = a.servico_id
        WHERE a.id = ? AND a.clinica_id = ?
@@ -124,10 +137,11 @@ async function enviarEmailsNovoAgendamento(clinicaId, agendamentoId) {
     if (!rows.length) return;
 
     const item = rows[0];
+    const clinicaNome = resolveClinicName(item.clinica_nome);
 
     if (item.paciente_email) {
       const payload = buildPatientAppointmentEmail(item);
-      const result = await sendEmail({ to: item.paciente_email, ...payload });
+      const result = await sendEmail({ to: item.paciente_email, ...payload, fromName: clinicaNome });
       if (!result.ok && !result.skipped) {
         console.error('Erro ao enviar e-mail para paciente:', result.error);
       }
@@ -135,7 +149,7 @@ async function enviarEmailsNovoAgendamento(clinicaId, agendamentoId) {
 
     if (item.dentista_email) {
       const payload = buildDentistNewAppointmentEmail(item);
-      const result = await sendEmail({ to: item.dentista_email, ...payload });
+      const result = await sendEmail({ to: item.dentista_email, ...payload, fromName: clinicaNome });
       if (!result.ok && !result.skipped) {
         console.error('Erro ao enviar e-mail para dentista:', result.error);
       }
@@ -251,6 +265,7 @@ async function lembretes(req, res) {
 
 async function enviarAgendaPorEmail(req, res) {
   const clinicaId = req.session.user.clinica_id;
+  const clinicaNome = resolveClinicName(req.session.user.clinica_nome);
   const dataSelecionada = parseDateISO(req.body.data || req.query.data);
   const periodo = req.body.periodo === 'semana' ? 'semana' : 'dia';
   const dentistaId = req.body.dentista_id || '';
@@ -323,10 +338,11 @@ async function enviarAgendaPorEmail(req, res) {
     let falhas = 0;
 
     for (const [, dentistData] of map) {
-      const payload = buildDentistAgendaEmail(dentistData.nome, periodoLabel, dentistData.itens);
+      const payload = buildDentistAgendaEmail(dentistData.nome, periodoLabel, dentistData.itens, clinicaNome);
       const result = await sendEmail({
         to: dentistData.email,
         ...payload,
+        fromName: clinicaNome,
       });
 
       if (result.ok) {
