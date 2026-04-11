@@ -47,10 +47,14 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
   const releaseCcEmail = (process.env.RELEASE_COPY_EMAIL || 'otavio.garcia@outlook.com').trim().toLowerCase();
   const title = mode === 'unlock'
     ? 'Acesso reativado com sucesso'
-    : 'Acesso liberado com sucesso';
+    : mode === 'license'
+      ? 'Licença atualizada e acesso liberado'
+      : 'Acesso liberado com sucesso';
   const subtitle = mode === 'unlock'
     ? 'Seu acesso ao Já Agendou foi reativado e já está disponível para uso.'
-    : 'Seu cadastro de teste foi aprovado e já está disponível para uso.';
+    : mode === 'license'
+      ? 'Sua licença foi atualizada pelo admin e o acesso já está disponível para uso.'
+      : 'Seu cadastro de teste foi aprovado e já está disponível para uso.';
 
   const textBody = [
     title,
@@ -306,6 +310,8 @@ async function setLicenseDays(req, res) {
       "UPDATE usuarios SET status = 'ativo' WHERE clinica_id = ?",
       [id]
     );
+
+    await sendAccessReleaseEmail({ req, clinicaId: Number(id), mode: 'license' });
 
     return res.redirect('/clinicas');
   } catch (error) {
