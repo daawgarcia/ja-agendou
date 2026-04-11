@@ -1,4 +1,7 @@
 const pool = require('../config/db');
+const { sendEmail, isEmailConfigured } = require('../services/emailService');
+
+const RENEWAL_OPTIONS = [7, 30, 90, 180, 360];
 
 let dashboardSchemaReady = false;
 
@@ -192,6 +195,22 @@ function getLicenseInfo(clinica) {
   };
 }
 
+function getRenewalFeedback(statusCode) {
+  if (statusCode === 'ok') {
+    return { type: 'success', message: 'Pedido de renovação enviado ao admin com sucesso.' };
+  }
+  if (statusCode === 'email_indisponivel') {
+    return { type: 'error', message: 'Não foi possível enviar o e-mail do pedido porque o SMTP não está configurado.' };
+  }
+  if (statusCode === 'dias_invalidos') {
+    return { type: 'error', message: 'Escolha um período válido para solicitar renovação.' };
+  }
+  if (statusCode === 'erro_envio') {
+    return { type: 'error', message: 'O pedido não pôde ser enviado agora. Tente novamente em instantes.' };
+  }
+  return null;
+}
+
 async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const perfil = req.session.user.perfil;
@@ -210,6 +229,7 @@ async function index(req, res) {
   const monthEndIso = formatDateISO(monthEnd);
   const weekStartIso = formatDateISO(weekStart);
   const weekEndIso = formatDateISO(weekEnd);
+  const renewalFeedback = getRenewalFeedback(req.query.renovacao);
 
   try {
     await ensureDashboardSchemaCompatibility();
@@ -359,6 +379,7 @@ async function index(req, res) {
         status: statusFilter,
       },
       warningMessage: null,
+      renewalFeedback,
       canViewFinancial,
       dentistas,
       stats: {
@@ -428,7 +449,74 @@ async function index(req, res) {
       producaoDentistas: [],
       weekRangeLabel: `${weekStart.toLocaleDateString('pt-BR')} - ${weekEnd.toLocaleDateString('pt-BR')}`,
       warningMessage: 'Alguns dados do dashboard nao puderam ser carregados neste momento. Tente novamente em instantes.',
+      renewalFeedback,
     });
+  }
+}
+
+async function requestRenewal(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const requestedDays = Number(req.body.dias);
+
+  if (!RENEWAL_OPTIONS.includes(requestedDays)) {
+    return res.redirect('/dashboard?renovacao=dias_invalidos');
+  }
+
+  if (!isEmailConfigured()) {
+    return res.redirect('/dashboard?renovacao=email_indisponivel');
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT nome, email
+       FROM clinicas
+       WHERE id = ?
+       LIMIT 1`,
+      [clinicaId]
+    );
+
+    const clinica = rows[0] || { nome: req.session.user.clinica_nome || 'Clínica', email: '-' };
+    const adminRecipient = process.env.TRIAL_APPROVAL_EMAIL || process.env.SALES_LEADS_EMAIL || 'otavio.garcia@outlook.com';
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const clinicasUrl = `${baseUrl.replace(/\/$/, '')}/clinicas`;
+
+    const textBody = [
+      'Solicitação de renovação de licença',
+      '',
+      `Clínica: ${clinica.nome}`,
+      `E-mail da clínica: ${clinica.email || '-'}`,
+      `Usuário solicitante: ${req.session.user.nome} (${req.session.user.email})`,
+      `Período solicitado: ${requestedDays} dias`,
+      '',
+      `Acesse: ${clinicasUrl}`,
+    ].join('\n');
+
+    const htmlBody = `
+      <h2>Solicitação de renovação de licença</h2>
+      <p><strong>Clínica:</strong> ${clinica.nome}</p>
+      <p><strong>E-mail da clínica:</strong> ${clinica.email || '-'}</p>
+      <p><strong>Usuário solicitante:</strong> ${req.session.user.nome} (${req.session.user.email})</p>
+      <p><strong>Período solicitado:</strong> ${requestedDays} dias</p>
+      <p><a href="${clinicasUrl}">Abrir painel de clínicas</a></p>
+    `;
+
+    const sendResult = await sendEmail({
+      to: adminRecipient,
+      subject: `Renovação solicitada - ${clinica.nome} (${requestedDays} dias)`,
+      text: textBody,
+      html: htmlBody,
+      fromName: 'Já Agendou Renovações',
+    });
+
+    if (!sendResult.ok) {
+      console.error('ERRO AO ENVIAR SOLICITAÇÃO DE RENOVAÇÃO:', sendResult.error || sendResult.reason);
+      return res.redirect('/dashboard?renovacao=erro_envio');
+    }
+
+    return res.redirect('/dashboard?renovacao=ok');
+  } catch (error) {
+    console.error('ERRO SOLICITAR RENOVAÇÃO:', error);
+    return res.redirect('/dashboard?renovacao=erro_envio');
   }
 }
 
@@ -461,4 +549,4 @@ async function updateStatus(req, res) {
   }
 }
 
-module.exports = { index, updateStatus };
+module.exports = { index, updateStatus, requestRenewal };

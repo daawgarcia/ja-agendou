@@ -22,17 +22,34 @@
       <div class="alert alert-error" style="margin-bottom: 14px;"><%= warningMessage %></div>
     <% } %>
 
+    <% if (renewalFeedback) { %>
+      <div class="alert alert-<%= renewalFeedback.type === 'success' ? 'success' : 'error' %>" style="margin-bottom: 14px;"><%= renewalFeedback.message %></div>
+    <% } %>
+
     <% if (licenseInfo && licenseInfo.hasLicense) { %>
       <div class="license-banner <%= licenseInfo.isExpiringSoon ? 'warning' : 'ok' %>">
         <div>
-          <strong>Licenca de uso:</strong>
+          <strong>Licença de uso:</strong>
           expira em <%= licenseInfo.expiresAtLabel %>
           <% if (typeof licenseInfo.daysRemaining === 'number') { %>
             (<%= licenseInfo.daysRemaining >= 0 ? licenseInfo.daysRemaining : 0 %> dias restantes)
           <% } %>
         </div>
         <% if (licenseInfo.isExpiringSoon) { %>
-          <span class="license-banner-tag">Renove com o admin para evitar bloqueio</span>
+          <details class="renew-details">
+            <summary class="license-banner-tag">Renove com o admin para evitar bloqueio</summary>
+            <form method="POST" action="/dashboard/licenca/renovar" class="renew-form">
+              <label for="dias-renovacao">Escolha o período</label>
+              <select id="dias-renovacao" name="dias" required>
+                <option value="7">7 dias</option>
+                <option value="30">30 dias</option>
+                <option value="90">90 dias</option>
+                <option value="180">180 dias</option>
+                <option value="360">360 dias</option>
+              </select>
+              <button type="submit" class="btn btn-sm">Solicitar renovação</button>
+            </form>
+          </details>
         <% } %>
       </div>
     <% } %>

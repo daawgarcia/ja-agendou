@@ -135,6 +135,37 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color:
   background: rgba(255, 255, 255, 0.7);
   padding: 4px 8px;
   border-radius: 999px;
+  cursor: pointer;
+}
+
+.renew-details {
+  position: relative;
+}
+
+.renew-form {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ecd19b;
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.renew-form label {
+  margin-bottom: 0;
+  font-size: 12px;
+  color: inherit;
+}
+
+.renew-form select {
+  min-width: 110px;
+}
+
+.license-banner.warning .renew-form .btn {
+  background: #976200;
+  border-color: #976200;
 }
 
 /* ========== CARDS ========== */

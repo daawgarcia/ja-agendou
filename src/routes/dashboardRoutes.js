@@ -4,6 +4,7 @@ const { ensureAuthenticated, ensureRole } = require('../middlewares/auth');
 
 const router = express.Router();
 router.get('/', ensureAuthenticated, dashboardController.index);
+router.post('/licenca/renovar', ensureAuthenticated, dashboardController.requestRenewal);
 router.post('/agendamentos/:id/status', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), dashboardController.updateStatus);
 
 module.exports = router;
