@@ -97,6 +97,16 @@ WHERE NOT EXISTS (
   SELECT 1 FROM usuarios WHERE email = 'admin@jaagendou.app'
 );
 
+INSERT INTO usuarios (clinica_id, nome, email, senha_hash, perfil, status)
+SELECT 1, 'Otavio Garcia', 'otavio@jaagendou.app', '$2b$10$KIXIDZ8J0v7V3PqJdaRh0e14Bf6T4MHDL/95B2S/bRMyCV2wE8p8i', 'super_admin', 'ativo'
+WHERE NOT EXISTS (
+  SELECT 1 FROM usuarios WHERE email = 'otavio@jaagendou.app'
+);
+
+UPDATE usuarios
+SET perfil = 'super_admin', status = 'ativo'
+WHERE email = 'otavio@jaagendou.app';
+
 INSERT INTO pacientes (clinica_id, nome, telefone, email, data_nascimento, observacoes)
 SELECT 1, 'Paciente Exemplo', '11988887777', 'paciente@exemplo.com', '1990-01-10', 'Primeiro cadastro de exemplo.'
 WHERE NOT EXISTS (

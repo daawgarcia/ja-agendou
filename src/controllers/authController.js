@@ -1,6 +1,8 @@
 const pool = require('../config/db');
 const { comparePassword } = require('../utils/hash');
 
+const PERMANENT_SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'otavio@jaagendou.app').toLowerCase();
+
 function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
 }
@@ -64,6 +66,13 @@ function mapLoginQueryError(errorCode) {
 }
 
 async function validateClinicAccess(user) {
+  const isPermanentSuperAdmin =
+    user.perfil === 'super_admin' && String(user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
+
+  if (isPermanentSuperAdmin) {
+    return { allowed: true, message: null };
+  }
+
   if (user.clinica_status === 'pendente') {
     return {
       allowed: false,

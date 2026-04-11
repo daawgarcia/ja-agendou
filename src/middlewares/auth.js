@@ -1,8 +1,18 @@
 const pool = require('../config/db');
 
+const PERMANENT_SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'otavio@jaagendou.app').toLowerCase();
+
 function ensureAuthenticated(req, res, next) {
   if (!req.session.user) {
     return res.redirect('/login');
+  }
+
+  const isPermanentSuperAdmin =
+    req.session.user.perfil === 'super_admin'
+    && String(req.session.user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
+
+  if (isPermanentSuperAdmin) {
+    return next();
   }
 
   return pool
