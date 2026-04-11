@@ -116,10 +116,11 @@ function mapLoginQueryError(errorCode) {
 }
 
 async function validateClinicAccess(user) {
+  const isSuperAdmin = user.perfil === 'super_admin';
   const isPermanentSuperAdmin =
-    user.perfil === 'super_admin' && String(user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
+    isSuperAdmin && String(user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
 
-  if (isPermanentSuperAdmin) {
+  if (isSuperAdmin || isPermanentSuperAdmin) {
     return { allowed: true, message: null };
   }
 

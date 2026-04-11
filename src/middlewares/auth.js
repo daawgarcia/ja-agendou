@@ -7,11 +7,11 @@ function ensureAuthenticated(req, res, next) {
     return res.redirect('/login');
   }
 
+  const isSuperAdmin = req.session.user.perfil === 'super_admin';
   const isPermanentSuperAdmin =
-    req.session.user.perfil === 'super_admin'
-    && String(req.session.user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
+    isSuperAdmin && String(req.session.user.email || '').toLowerCase() === PERMANENT_SUPER_ADMIN_EMAIL;
 
-  if (isPermanentSuperAdmin) {
+  if (isSuperAdmin || isPermanentSuperAdmin) {
     return next();
   }
 

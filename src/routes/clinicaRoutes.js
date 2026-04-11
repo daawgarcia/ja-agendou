@@ -10,6 +10,7 @@ router.post('/', ensureAuthenticated, ensureRole(['super_admin']), clinicaContro
 router.post('/:id/aprovar', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.approveRequest);
 router.post('/:id/desbloquear', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.unlockAccess);
 router.post('/:id/licenca', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.setLicenseDays);
+router.post('/:id/excluir', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.deleteClient);
 router.put('/:id', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.update);
 
 module.exports = router;

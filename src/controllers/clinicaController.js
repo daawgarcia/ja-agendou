@@ -317,6 +317,79 @@ async function setLicenseDays(req, res) {
   }
 }
 
+async function tableExists(connection, tableName) {
+  const [rows] = await connection.execute(
+    `SELECT 1
+     FROM INFORMATION_SCHEMA.TABLES
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+     LIMIT 1`,
+    [tableName]
+  );
+
+  return rows.length > 0;
+}
+
+async function deleteByClinicaIfExists(connection, tableName, clinicaId) {
+  if (!(await tableExists(connection, tableName))) {
+    return;
+  }
+  await connection.execute(`DELETE FROM ${tableName} WHERE clinica_id = ?`, [clinicaId]);
+}
+
+async function deleteClient(req, res) {
+  const { id } = req.params;
+  const clinicaId = Number(id);
+
+  if (!Number.isInteger(clinicaId) || clinicaId <= 0) {
+    return res.status(400).render('partials/error', {
+      title: 'Cliente inválido',
+      message: 'Não foi possível identificar o cliente para exclusão.',
+    });
+  }
+
+  if (Number(req.session.user.clinica_id) === clinicaId) {
+    return res.status(400).render('partials/error', {
+      title: 'Ação bloqueada',
+      message: 'Você não pode excluir a própria clínica enquanto estiver logado.',
+    });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    await deleteByClinicaIfExists(connection, 'agendamentos', clinicaId);
+    await deleteByClinicaIfExists(connection, 'pacientes', clinicaId);
+    await deleteByClinicaIfExists(connection, 'dentistas', clinicaId);
+    await deleteByClinicaIfExists(connection, 'servicos', clinicaId);
+    await deleteByClinicaIfExists(connection, 'recibos', clinicaId);
+    await deleteByClinicaIfExists(connection, 'historico', clinicaId);
+    await deleteByClinicaIfExists(connection, 'configuracoes_clinica', clinicaId);
+    await deleteByClinicaIfExists(connection, 'usuarios', clinicaId);
+
+    await connection.execute('DELETE FROM clinicas WHERE id = ?', [clinicaId]);
+
+    await connection.commit();
+    return res.redirect('/clinicas');
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+
+    console.error('ERRO EXCLUIR CLIENTE:', error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao excluir cliente',
+      message: 'Não foi possível excluir o cliente neste momento.',
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+
 module.exports = {
   list,
   create,
@@ -325,4 +398,5 @@ module.exports = {
   approveRequest,
   unlockAccess,
   setLicenseDays,
+  deleteClient,
 };
