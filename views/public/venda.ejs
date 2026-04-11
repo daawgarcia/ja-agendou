@@ -22,6 +22,20 @@
   </header>
 
   <main>
+    <% if (success) { %>
+      <section class="sales-section" id="contato-comercial">
+        <div class="alert alert-success">
+          Recebemos seu interesse. Vou analisar seus dados e entrar em contato no e-mail informado.
+        </div>
+      </section>
+    <% } %>
+
+    <% if (error) { %>
+      <section class="sales-section" id="contato-comercial">
+        <div class="alert alert-error"><%= error %></div>
+      </section>
+    <% } %>
+
     <section class="hero-sales reveal-up">
       <div class="hero-sales-text">
         <p class="hero-kicker">SaaS para clinicas odontologicas que querem escalar</p>
@@ -36,7 +50,7 @@
         </div>
         <div class="hero-sales-ctas">
           <a href="/cadastro-dentista" class="btn btn-pulse">Quero liberar meu teste de 3 dias</a>
-          <a href="#planos" class="btn btn-outline">Ver como funciona a licenca</a>
+          <a href="#contato-comercial" class="btn btn-outline">Escolher pacote e forma de pagamento</a>
         </div>
       </div>
       <div class="hero-sales-card">
@@ -128,6 +142,88 @@
           <p>Apos o trial, o admin define os dias de uso para sua operacao. Ao expirar, o sistema bloqueia automaticamente.</p>
           <a href="/cadastro-dentista" class="btn btn-pulse">Quero ativar minha clinica</a>
         </article>
+      </div>
+    </section>
+
+    <section class="sales-section reveal-up" id="contato-comercial">
+      <h2>Pacotes e proposta comercial</h2>
+      <div class="sales-lead-layout">
+        <div class="sales-price-table-wrap">
+          <table class="sales-price-table">
+            <thead>
+              <tr>
+                <th>Pacote</th>
+                <th>Duracao</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Starter</td>
+                <td>7 dias</td>
+                <td>R$ 9,97</td>
+              </tr>
+              <tr>
+                <td>Mensal</td>
+                <td>30 dias (1 mes)</td>
+                <td>R$ 35,97</td>
+              </tr>
+              <tr>
+                <td>Trimestral</td>
+                <td>90 dias (3 meses)</td>
+                <td>R$ 107,91</td>
+              </tr>
+              <tr>
+                <td>Semestral</td>
+                <td>180 dias (6 meses)</td>
+                <td>R$ 215,82</td>
+              </tr>
+              <tr>
+                <td>Anual</td>
+                <td>360 dias (1 ano)</td>
+                <td>R$ 397,00</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="sales-price-note">
+            Escolha um pacote e forma de pagamento no formulario. Os dados chegam por e-mail para o time comercial e o contato e feito em seguida.
+          </p>
+        </div>
+
+        <form method="POST" action="/venda/lead" class="sales-lead-form">
+          <label>Nome do responsavel</label>
+          <input type="text" name="nome_responsavel" placeholder="Nome completo" required />
+
+          <label>Nome da clinica</label>
+          <input type="text" name="nome_clinica" placeholder="Clinica Sorriso" required />
+
+          <label>E-mail de contato</label>
+          <input type="email" name="email" placeholder="contato@clinica.com" required />
+
+          <label>Telefone/WhatsApp</label>
+          <input type="text" name="telefone" placeholder="(11) 99999-9999" />
+
+          <label>Pacote desejado</label>
+          <select name="pacote" required>
+            <option value="">Selecione um pacote</option>
+            <% Object.keys(salesPackages).forEach(function(key) { %>
+              <option value="<%= key %>"><%= salesPackages[key].label %> - <%= salesPackages[key].price %></option>
+            <% }) %>
+          </select>
+
+          <label>Forma de pagamento</label>
+          <select name="forma_pagamento" required>
+            <option value="">Selecione uma forma</option>
+            <% Object.keys(paymentMethods).forEach(function(key) { %>
+              <option value="<%= key %>"><%= paymentMethods[key] %></option>
+            <% }) %>
+          </select>
+
+          <label>Observacoes (opcional)</label>
+          <textarea name="mensagem" rows="4" placeholder="Se quiser, descreva o tamanho da equipe e melhor horario para contato."></textarea>
+
+          <button type="submit" class="btn btn-pulse">Enviar dados para contato comercial</button>
+        </form>
       </div>
     </section>
 

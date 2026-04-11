@@ -1,5 +1,22 @@
 const pool = require('../config/db');
 const { hashPassword } = require('../utils/hash');
+const { sendEmail, isEmailConfigured } = require('../services/emailService');
+
+const SALES_PACKAGES = {
+  pacote_7: { label: '7 dias', price: 'R$ 9,97' },
+  pacote_30: { label: '30 dias (1 mes)', price: 'R$ 35,97' },
+  pacote_90: { label: '90 dias (3 meses)', price: 'R$ 107,91' },
+  pacote_180: { label: '180 dias (6 meses)', price: 'R$ 215,82' },
+  pacote_360: { label: '360 dias (1 ano)', price: 'R$ 397,00' },
+};
+
+const PAYMENT_METHODS = {
+  pix: 'Pix',
+  cartao_credito: 'Cartao de credito',
+  cartao_debito: 'Cartao de debito',
+  boleto: 'Boleto',
+  transferencia: 'Transferencia',
+};
 
 function slugify(input) {
   return String(input || '')
@@ -28,7 +45,100 @@ async function generateUniqueSlug(baseName) {
 }
 
 function showSalesPage(req, res) {
-  return res.render('public/venda');
+  const success = req.query.sucesso === '1';
+  const error = req.query.erro === 'campos_obrigatorios'
+    ? 'Preencha nome, clinica, e-mail, pacote e forma de pagamento.'
+    : req.query.erro === 'pacote_invalido'
+      ? 'Pacote selecionado invalido. Tente novamente.'
+      : req.query.erro === 'pagamento_invalido'
+        ? 'Forma de pagamento invalida. Tente novamente.'
+        : req.query.erro === 'email_indisponivel'
+          ? 'Formulario recebido, mas o envio de e-mail ainda nao esta configurado no servidor.'
+          : req.query.erro === 'envio_falhou'
+            ? 'Nao foi possivel enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
+            : null;
+
+  return res.render('public/venda', {
+    success,
+    error,
+    salesPackages: SALES_PACKAGES,
+    paymentMethods: PAYMENT_METHODS,
+  });
+}
+
+async function submitSalesLead(req, res) {
+  const nomeResponsavel = String(req.body.nome_responsavel || '').trim();
+  const nomeClinica = String(req.body.nome_clinica || '').trim();
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const telefone = String(req.body.telefone || '').trim();
+  const pacote = String(req.body.pacote || '').trim();
+  const formaPagamento = String(req.body.forma_pagamento || '').trim();
+  const mensagem = String(req.body.mensagem || '').trim();
+
+  if (!nomeResponsavel || !nomeClinica || !email || !pacote || !formaPagamento) {
+    return res.redirect('/venda?erro=campos_obrigatorios#contato-comercial');
+  }
+
+  const selectedPackage = SALES_PACKAGES[pacote];
+  if (!selectedPackage) {
+    return res.redirect('/venda?erro=pacote_invalido#contato-comercial');
+  }
+
+  const paymentLabel = PAYMENT_METHODS[formaPagamento];
+  if (!paymentLabel) {
+    return res.redirect('/venda?erro=pagamento_invalido#contato-comercial');
+  }
+
+  const salesEmailRecipient = process.env.SALES_LEADS_EMAIL || 'otavio.garcia@outlook.com';
+
+  const textBody = [
+    'Novo interesse comercial - Ja Agendou',
+    '',
+    `Responsavel: ${nomeResponsavel}`,
+    `Clinica: ${nomeClinica}`,
+    `E-mail: ${email}`,
+    `Telefone: ${telefone || '-'}`,
+    `Pacote: ${selectedPackage.label} (${selectedPackage.price})`,
+    `Pagamento escolhido: ${paymentLabel}`,
+    `Mensagem: ${mensagem || '-'}`,
+  ].join('\n');
+
+  const htmlBody = `
+    <h2>Novo interesse comercial - Ja Agendou</h2>
+    <p><strong>Responsavel:</strong> ${nomeResponsavel}</p>
+    <p><strong>Clinica:</strong> ${nomeClinica}</p>
+    <p><strong>E-mail:</strong> ${email}</p>
+    <p><strong>Telefone:</strong> ${telefone || '-'}</p>
+    <p><strong>Pacote:</strong> ${selectedPackage.label} (${selectedPackage.price})</p>
+    <p><strong>Pagamento escolhido:</strong> ${paymentLabel}</p>
+    <p><strong>Mensagem:</strong> ${mensagem || '-'}</p>
+  `;
+
+  if (!isEmailConfigured()) {
+    console.warn('SMTP nao configurado. Lead comercial capturado sem envio de e-mail.', {
+      nomeResponsavel,
+      nomeClinica,
+      email,
+      pacote,
+      formaPagamento,
+    });
+    return res.redirect('/venda?erro=email_indisponivel#contato-comercial');
+  }
+
+  const sendResult = await sendEmail({
+    to: salesEmailRecipient,
+    subject: `Novo lead comercial - ${nomeClinica}`,
+    text: textBody,
+    html: htmlBody,
+    fromName: 'Ja Agendou Leads',
+  });
+
+  if (!sendResult.ok) {
+    console.error('ERRO AO ENVIAR LEAD COMERCIAL:', sendResult.error || sendResult.reason);
+    return res.redirect('/venda?erro=envio_falhou#contato-comercial');
+  }
+
+  return res.redirect('/venda?sucesso=1#contato-comercial');
 }
 
 function showDentistSignup(req, res) {
@@ -103,6 +213,7 @@ async function submitDentistSignup(req, res) {
 
 module.exports = {
   showSalesPage,
+  submitSalesLead,
   showDentistSignup,
   submitDentistSignup,
 };

@@ -853,6 +853,57 @@ textarea { resize: vertical; }
   color: #475569;
 }
 
+.sales-lead-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.sales-price-table-wrap,
+.sales-lead-form {
+  background: #ffffff;
+  border: 1px solid #d4e1ee;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(13, 43, 72, 0.08);
+  padding: 18px;
+}
+
+.sales-price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-price-table thead th {
+  color: #0b355e;
+  font-size: 12px;
+  border-bottom: 1px solid #dce8f3;
+}
+
+.sales-price-table tbody td {
+  border-bottom: 1px solid #edf3f8;
+  font-size: 13px;
+}
+
+.sales-price-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.sales-price-note {
+  margin-top: 10px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.sales-lead-form {
+  display: grid;
+  gap: 8px;
+}
+
+.sales-lead-form .btn {
+  margin-top: 4px;
+}
+
 .sales-final-cta {
   max-width: 1140px;
   margin: 0 auto 40px;
@@ -964,6 +1015,10 @@ textarea { resize: vertical; }
 
   .featured-plan {
     transform: none;
+  }
+
+  .sales-lead-layout {
+    grid-template-columns: 1fr;
   }
 }
 
