@@ -1,5 +1,101 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
+const { sendEmail, isEmailConfigured } = require('../services/emailService');
+
+function getLoginUrl(req) {
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  return `${baseUrl.replace(/\/$/, '')}/login`;
+}
+
+async function getClinicAccessContact(clinicaId) {
+  const [rows] = await pool.execute(
+    `SELECT c.nome AS clinica_nome,
+            c.email AS clinica_email,
+            u.nome AS usuario_nome,
+            u.email AS usuario_email
+     FROM clinicas c
+     LEFT JOIN usuarios u
+       ON u.clinica_id = c.id
+      AND u.perfil IN ('admin', 'super_admin')
+     WHERE c.id = ?
+     ORDER BY CASE WHEN u.perfil = 'admin' THEN 0 ELSE 1 END, u.id ASC
+     LIMIT 1`,
+    [clinicaId]
+  );
+
+  const row = rows[0] || null;
+  if (!row) return null;
+
+  return {
+    clinicaNome: row.clinica_nome,
+    contatoNome: row.usuario_nome || 'Responsável',
+    contatoEmail: row.usuario_email || row.clinica_email || null,
+  };
+}
+
+async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
+  if (!isEmailConfigured()) {
+    return;
+  }
+
+  const contact = await getClinicAccessContact(clinicaId);
+  if (!contact || !contact.contatoEmail) {
+    return;
+  }
+
+  const loginUrl = getLoginUrl(req);
+  const title = mode === 'unlock'
+    ? 'Acesso reativado com sucesso'
+    : 'Acesso liberado com sucesso';
+  const subtitle = mode === 'unlock'
+    ? 'Seu acesso ao Já Agendou foi reativado e já está disponível para uso.'
+    : 'Seu cadastro de teste foi aprovado e já está disponível para uso.';
+
+  const textBody = [
+    title,
+    '',
+    `Olá, ${contact.contatoNome}!`,
+    subtitle,
+    '',
+    `Clínica: ${contact.clinicaNome}`,
+    `E-mail de acesso: ${contact.contatoEmail}`,
+    `Link de acesso: ${loginUrl}`,
+    '',
+    'Equipe Já Agendou',
+  ].join('\n');
+
+  const htmlBody = `
+    <div style="font-family:Segoe UI,Arial,sans-serif;background:#f4f7fb;padding:24px;">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dbe6f2;border-radius:14px;overflow:hidden;">
+        <div style="background:linear-gradient(140deg,#154c7d,#1e6cab);padding:22px 24px;color:#ffffff;">
+          <h2 style="margin:0 0 6px;font-size:26px;">${title}</h2>
+          <p style="margin:0;font-size:14px;opacity:0.92;">${subtitle}</p>
+        </div>
+        <div style="padding:24px;color:#243447;line-height:1.55;">
+          <p style="margin-top:0;">Olá, <strong>${contact.contatoNome}</strong>!</p>
+          <p>Seu acesso da clínica <strong>${contact.clinicaNome}</strong> está liberado.</p>
+          <p><strong>E-mail de acesso:</strong> ${contact.contatoEmail}</p>
+          <p style="margin:20px 0 24px;">
+            <a href="${loginUrl}" style="display:inline-block;background:#1e5b92;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Acessar o sistema</a>
+          </p>
+          <p style="margin:0;color:#5a6b7d;font-size:13px;">Se o botão não abrir, use este link: <a href="${loginUrl}">${loginUrl}</a></p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const sendResult = await sendEmail({
+    to: contact.contatoEmail,
+    subject: `Já Agendou - ${title}`,
+    text: textBody,
+    html: htmlBody,
+    fromName: 'Já Agendou',
+  });
+
+  if (!sendResult.ok) {
+    console.error('ERRO AO ENVIAR E-MAIL DE LIBERAÇÃO:', sendResult.error || sendResult.reason);
+  }
+}
 
 async function list(req, res) {
   try {
@@ -139,6 +235,8 @@ async function approveRequest(req, res) {
       [id]
     );
 
+    await sendAccessReleaseEmail({ req, clinicaId: Number(id), mode: 'approve' });
+
     return res.redirect('/clinicas');
   } catch (error) {
     console.error('ERRO APPROVE CLINICA:', error);
@@ -165,6 +263,8 @@ async function unlockAccess(req, res) {
       "UPDATE usuarios SET status = 'ativo' WHERE clinica_id = ?",
       [id]
     );
+
+    await sendAccessReleaseEmail({ req, clinicaId: Number(id), mode: 'unlock' });
 
     return res.redirect('/clinicas');
   } catch (error) {

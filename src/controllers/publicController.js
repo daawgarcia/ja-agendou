@@ -16,6 +16,54 @@ const PAYMENT_METHODS = {
   boleto: 'Boleto',
 };
 
+async function notifyTrialSignupForApproval({ nomeDentista, nomeClinica, email, telefone }) {
+  const approvalRecipient =
+    process.env.TRIAL_APPROVAL_EMAIL
+    || process.env.SALES_LEADS_EMAIL
+    || 'otavio.garcia@outlook.com';
+
+  if (!isEmailConfigured()) {
+    console.warn('SMTP não configurado. Cadastro de teste salvo sem e-mail de aprovação.', {
+      nomeDentista,
+      nomeClinica,
+      email,
+    });
+    return;
+  }
+
+  const textBody = [
+    'Novo cadastro de teste aguardando aprovação',
+    '',
+    `Dentista responsável: ${nomeDentista}`,
+    `Clínica: ${nomeClinica}`,
+    `E-mail de acesso: ${email}`,
+    `Telefone: ${telefone || '-'}`,
+    '',
+    'Acesse o painel de clínicas para aprovar e liberar o teste.',
+  ].join('\n');
+
+  const htmlBody = `
+    <h2>Novo cadastro de teste aguardando aprovação</h2>
+    <p><strong>Dentista responsável:</strong> ${nomeDentista}</p>
+    <p><strong>Clínica:</strong> ${nomeClinica}</p>
+    <p><strong>E-mail de acesso:</strong> ${email}</p>
+    <p><strong>Telefone:</strong> ${telefone || '-'}</p>
+    <p>Acesse o painel de clínicas para aprovar e liberar o teste.</p>
+  `;
+
+  const sendResult = await sendEmail({
+    to: approvalRecipient,
+    subject: `Aprovação pendente de teste - ${nomeClinica}`,
+    text: textBody,
+    html: htmlBody,
+    fromName: 'Ja Agendou Aprovações',
+  });
+
+  if (!sendResult.ok) {
+    console.error('ERRO AO ENVIAR E-MAIL DE APROVAÇÃO DE TESTE:', sendResult.error || sendResult.reason);
+  }
+}
+
 function slugify(input) {
   return String(input || '')
     .normalize('NFD')
@@ -186,6 +234,14 @@ async function submitDentistSignup(req, res) {
     );
 
     await connection.commit();
+
+    await notifyTrialSignupForApproval({
+      nomeDentista,
+      nomeClinica,
+      email,
+      telefone,
+    });
+
     return res.redirect('/cadastro-dentista?sucesso=1');
   } catch (error) {
     if (connection) {
