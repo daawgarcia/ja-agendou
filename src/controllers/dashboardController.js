@@ -358,6 +358,7 @@ async function index(req, res) {
         dentistaId,
         status: statusFilter,
       },
+      warningMessage: null,
       canViewFinancial,
       dentistas,
       stats: {
