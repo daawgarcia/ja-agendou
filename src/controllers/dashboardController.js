@@ -2,6 +2,35 @@ const pool = require('../config/db');
 
 let dashboardSchemaReady = false;
 
+async function hasColumn(tableName, columnName) {
+  const [rows] = await pool.execute(
+    `SELECT 1
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+       AND COLUMN_NAME = ?
+     LIMIT 1`,
+    [tableName, columnName]
+  );
+
+  return rows.length > 0;
+}
+
+async function addColumnIfMissing(tableName, columnName, definitionSql) {
+  const exists = await hasColumn(tableName, columnName);
+  if (exists) return;
+
+  try {
+    await pool.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definitionSql}`);
+  } catch (error) {
+    // Idempotency for concurrent requests.
+    if (error && (error.code === 'ER_DUP_FIELDNAME' || error.code === 'ER_DUP_COLUMNNAME')) {
+      return;
+    }
+    throw error;
+  }
+}
+
 async function ensureDashboardSchemaCompatibility() {
   if (dashboardSchemaReady) return;
 
@@ -47,13 +76,10 @@ async function ensureDashboardSchemaCompatibility() {
     )`
   );
 
-  await pool.execute(
-    `ALTER TABLE agendamentos
-      ADD COLUMN IF NOT EXISTS dentista_id INT UNSIGNED NULL AFTER paciente_id,
-      ADD COLUMN IF NOT EXISTS servico_id INT UNSIGNED NULL AFTER dentista_id,
-      ADD COLUMN IF NOT EXISTS procedimento VARCHAR(150) NULL AFTER servico_id,
-      ADD COLUMN IF NOT EXISTS valor_estimado DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER observacoes`
-  );
+  await addColumnIfMissing('agendamentos', 'dentista_id', 'INT UNSIGNED NULL AFTER paciente_id');
+  await addColumnIfMissing('agendamentos', 'servico_id', 'INT UNSIGNED NULL AFTER dentista_id');
+  await addColumnIfMissing('agendamentos', 'procedimento', 'VARCHAR(150) NULL AFTER servico_id');
+  await addColumnIfMissing('agendamentos', 'valor_estimado', 'DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER observacoes');
 
   dashboardSchemaReady = true;
 }
