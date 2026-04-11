@@ -20,6 +20,7 @@ const reciboRoutes = require('./src/routes/reciboRoutes');
 const relatorioRoutes = require('./src/routes/relatorioRoutes');
 const usuarioRoutes = require('./src/routes/usuarioRoutes');
 const { attachUserToViews } = require('./src/middlewares/auth');
+const { runMigrations } = require('./src/config/migrations');
 
 const app = express();
 
@@ -73,6 +74,21 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Já Agendou! rodando em http://localhost:${PORT}`);
-});
+
+async function bootstrap() {
+  try {
+    const migrationResult = await runMigrations();
+    if (migrationResult.executed > 0) {
+      console.log(`Migrations aplicadas: ${migrationResult.executed}/${migrationResult.total}`);
+    }
+
+    app.listen(PORT, () => {
+      console.log(`Já Agendou! rodando em http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Falha ao inicializar aplicação (migrations):', error);
+    process.exit(1);
+  }
+}
+
+bootstrap();
