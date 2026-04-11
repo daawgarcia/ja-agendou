@@ -4,7 +4,7 @@ const { sendEmail, isEmailConfigured } = require('../services/emailService');
 
 const SALES_PACKAGES = {
   pacote_7: { label: '7 dias', price: 'R$ 9,97' },
-  pacote_30: { label: '30 dias (1 mes)', price: 'R$ 35,97' },
+  pacote_30: { label: '30 dias (1 mês)', price: 'R$ 35,97' },
   pacote_90: { label: '90 dias (3 meses)', price: 'R$ 107,91' },
   pacote_180: { label: '180 dias (6 meses)', price: 'R$ 215,82' },
   pacote_360: { label: '360 dias (1 ano)', price: 'R$ 397,00' },
@@ -12,10 +12,8 @@ const SALES_PACKAGES = {
 
 const PAYMENT_METHODS = {
   pix: 'Pix',
-  cartao_credito: 'Cartao de credito',
-  cartao_debito: 'Cartao de debito',
+  cartao: 'Cartão',
   boleto: 'Boleto',
-  transferencia: 'Transferencia',
 };
 
 function slugify(input) {
@@ -47,15 +45,15 @@ async function generateUniqueSlug(baseName) {
 function showSalesPage(req, res) {
   const success = req.query.sucesso === '1';
   const error = req.query.erro === 'campos_obrigatorios'
-    ? 'Preencha nome, clinica, e-mail, pacote e forma de pagamento.'
+    ? 'Preencha nome, clínica, e-mail, pacote e forma de pagamento.'
     : req.query.erro === 'pacote_invalido'
-      ? 'Pacote selecionado invalido. Tente novamente.'
+      ? 'Pacote selecionado inválido. Tente novamente.'
       : req.query.erro === 'pagamento_invalido'
-        ? 'Forma de pagamento invalida. Tente novamente.'
+        ? 'Forma de pagamento inválida. Tente novamente.'
         : req.query.erro === 'email_indisponivel'
-          ? 'Formulario recebido, mas o envio de e-mail ainda nao esta configurado no servidor.'
+          ? 'Formulário recebido, mas o envio de e-mail ainda não está configurado no servidor.'
           : req.query.erro === 'envio_falhou'
-            ? 'Nao foi possivel enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
+            ? 'Não foi possível enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
             : null;
 
   return res.render('public/venda', {
@@ -92,10 +90,10 @@ async function submitSalesLead(req, res) {
   const salesEmailRecipient = process.env.SALES_LEADS_EMAIL || 'otavio.garcia@outlook.com';
 
   const textBody = [
-    'Novo interesse comercial - Ja Agendou',
+    'Novo interesse comercial - Já Agendou',
     '',
-    `Responsavel: ${nomeResponsavel}`,
-    `Clinica: ${nomeClinica}`,
+    `Responsável: ${nomeResponsavel}`,
+    `Clínica: ${nomeClinica}`,
     `E-mail: ${email}`,
     `Telefone: ${telefone || '-'}`,
     `Pacote: ${selectedPackage.label} (${selectedPackage.price})`,
@@ -104,9 +102,9 @@ async function submitSalesLead(req, res) {
   ].join('\n');
 
   const htmlBody = `
-    <h2>Novo interesse comercial - Ja Agendou</h2>
-    <p><strong>Responsavel:</strong> ${nomeResponsavel}</p>
-    <p><strong>Clinica:</strong> ${nomeClinica}</p>
+    <h2>Novo interesse comercial - Já Agendou</h2>
+    <p><strong>Responsável:</strong> ${nomeResponsavel}</p>
+    <p><strong>Clínica:</strong> ${nomeClinica}</p>
     <p><strong>E-mail:</strong> ${email}</p>
     <p><strong>Telefone:</strong> ${telefone || '-'}</p>
     <p><strong>Pacote:</strong> ${selectedPackage.label} (${selectedPackage.price})</p>
@@ -115,7 +113,7 @@ async function submitSalesLead(req, res) {
   `;
 
   if (!isEmailConfigured()) {
-    console.warn('SMTP nao configurado. Lead comercial capturado sem envio de e-mail.', {
+    console.warn('SMTP não configurado. Lead comercial capturado sem envio de e-mail.', {
       nomeResponsavel,
       nomeClinica,
       email,
