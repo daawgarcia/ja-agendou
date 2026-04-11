@@ -63,16 +63,61 @@ CREATE TABLE IF NOT EXISTS agendamentos (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   clinica_id INT UNSIGNED NOT NULL,
   paciente_id INT UNSIGNED NOT NULL,
+  dentista_id INT UNSIGNED NULL,
+  servico_id INT UNSIGNED NULL,
+  procedimento VARCHAR(150) NULL,
   data DATE NOT NULL,
   hora_inicio TIME NOT NULL,
   hora_fim TIME NOT NULL,
   status ENUM('agendado', 'confirmado', 'concluido', 'cancelado') NOT NULL DEFAULT 'agendado',
   observacoes TEXT NULL,
+  valor_estimado DECIMAL(10,2) NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_agendamentos_clinica FOREIGN KEY (clinica_id) REFERENCES clinicas(id) ON DELETE CASCADE,
   CONSTRAINT fk_agendamentos_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE,
   INDEX idx_agendamentos_clinica_data (clinica_id, data, hora_inicio)
+);
+
+ALTER TABLE agendamentos
+  ADD COLUMN IF NOT EXISTS dentista_id INT UNSIGNED NULL AFTER paciente_id,
+  ADD COLUMN IF NOT EXISTS servico_id INT UNSIGNED NULL AFTER dentista_id,
+  ADD COLUMN IF NOT EXISTS procedimento VARCHAR(150) NULL AFTER servico_id,
+  ADD COLUMN IF NOT EXISTS valor_estimado DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER observacoes;
+
+CREATE TABLE IF NOT EXISTS dentistas (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  clinica_id INT UNSIGNED NOT NULL,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NULL,
+  telefone VARCHAR(30) NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_dentistas_clinica_nome (clinica_id, nome)
+);
+
+CREATE TABLE IF NOT EXISTS servicos (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  clinica_id INT UNSIGNED NOT NULL,
+  nome VARCHAR(150) NOT NULL,
+  valor DECIMAL(10,2) NOT NULL DEFAULT 0,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_servicos_clinica_nome (clinica_id, nome)
+);
+
+CREATE TABLE IF NOT EXISTS recibos (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  clinica_id INT UNSIGNED NOT NULL,
+  paciente_id INT UNSIGNED NULL,
+  valor DECIMAL(10,2) NOT NULL DEFAULT 0,
+  descricao VARCHAR(255) NULL,
+  data_recibo DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_recibos_clinica_data (clinica_id, data_recibo)
 );
 
 CREATE TABLE IF NOT EXISTS configuracoes_clinica (

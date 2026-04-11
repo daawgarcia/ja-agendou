@@ -1,5 +1,63 @@
 const pool = require('../config/db');
 
+let dashboardSchemaReady = false;
+
+async function ensureDashboardSchemaCompatibility() {
+  if (dashboardSchemaReady) return;
+
+  // Keep dashboard resilient on environments with partial/legacy schema.
+  await pool.execute(
+    `CREATE TABLE IF NOT EXISTS dentistas (
+      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      clinica_id INT UNSIGNED NOT NULL,
+      nome VARCHAR(150) NOT NULL,
+      email VARCHAR(150) NULL,
+      telefone VARCHAR(30) NULL,
+      ativo TINYINT(1) NOT NULL DEFAULT 1,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_dentistas_clinica_nome (clinica_id, nome)
+    )`
+  );
+
+  await pool.execute(
+    `CREATE TABLE IF NOT EXISTS servicos (
+      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      clinica_id INT UNSIGNED NOT NULL,
+      nome VARCHAR(150) NOT NULL,
+      valor DECIMAL(10,2) NOT NULL DEFAULT 0,
+      ativo TINYINT(1) NOT NULL DEFAULT 1,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_servicos_clinica_nome (clinica_id, nome)
+    )`
+  );
+
+  await pool.execute(
+    `CREATE TABLE IF NOT EXISTS recibos (
+      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      clinica_id INT UNSIGNED NOT NULL,
+      paciente_id INT UNSIGNED NULL,
+      valor DECIMAL(10,2) NOT NULL DEFAULT 0,
+      descricao VARCHAR(255) NULL,
+      data_recibo DATE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_recibos_clinica_data (clinica_id, data_recibo)
+    )`
+  );
+
+  await pool.execute(
+    `ALTER TABLE agendamentos
+      ADD COLUMN IF NOT EXISTS dentista_id INT UNSIGNED NULL AFTER paciente_id,
+      ADD COLUMN IF NOT EXISTS servico_id INT UNSIGNED NULL AFTER dentista_id,
+      ADD COLUMN IF NOT EXISTS procedimento VARCHAR(150) NULL AFTER servico_id,
+      ADD COLUMN IF NOT EXISTS valor_estimado DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER observacoes`
+  );
+
+  dashboardSchemaReady = true;
+}
+
 function formatDateISO(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -128,6 +186,8 @@ async function index(req, res) {
   const weekEndIso = formatDateISO(weekEnd);
 
   try {
+    await ensureDashboardSchemaCompatibility();
+
     const [[clinicaAccess]] = await pool.execute(
       `SELECT licenca_dias, licenca_fim_em, trial_fim_em
        FROM clinicas
