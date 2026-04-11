@@ -384,9 +384,49 @@ async function index(req, res) {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).render('partials/error', {
-      title: 'Erro no dashboard',
-      message: 'Não foi possível carregar o dashboard.'
+    return res.status(200).render('dashboard/index', {
+      filters: {
+        selectedDate: selectedDateIso,
+        selectedTab,
+        dentistaId,
+        status: statusFilter,
+      },
+      canViewFinancial,
+      dentistas: [],
+      stats: {
+        pacientes: 0,
+        agendaDia: 0,
+        agendaSemana: 0,
+        agendaMes: 0,
+        confirmadosDia: 0,
+        receitaMes: 0,
+      },
+      agendaDia: [],
+      agendaSemana: [],
+      agendaMes: [],
+      monthCalendar: buildMonthCalendar(selectedDate, [], todayIso, selectedDateIso),
+      monthTitle: selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      todayIso,
+      selectedDateIso,
+      statusResumo: {
+        agendado: 0,
+        confirmado: 0,
+        concluido: 0,
+        cancelado: 0,
+      },
+      licenseInfo: {
+        hasLicense: false,
+        expiresAt: null,
+        expiresAtLabel: null,
+        daysRemaining: null,
+        isExpiringSoon: false,
+        isExpired: false,
+      },
+      aniversariantes: [],
+      ultimosRecibos: [],
+      producaoDentistas: [],
+      weekRangeLabel: `${weekStart.toLocaleDateString('pt-BR')} - ${weekEnd.toLocaleDateString('pt-BR')}`,
+      warningMessage: 'Alguns dados do dashboard nao puderam ser carregados neste momento. Tente novamente em instantes.',
     });
   }
 }
