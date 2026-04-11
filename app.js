@@ -74,6 +74,7 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+const MIGRATIONS_STRICT = String(process.env.MIGRATIONS_STRICT || 'false').toLowerCase() === 'true';
 
 async function bootstrap() {
   try {
@@ -81,14 +82,17 @@ async function bootstrap() {
     if (migrationResult.executed > 0) {
       console.log(`Migrations aplicadas: ${migrationResult.executed}/${migrationResult.total}`);
     }
-
-    app.listen(PORT, () => {
-      console.log(`Já Agendou! rodando em http://localhost:${PORT}`);
-    });
   } catch (error) {
     console.error('Falha ao inicializar aplicação (migrations):', error);
-    process.exit(1);
+    if (MIGRATIONS_STRICT) {
+      process.exit(1);
+    }
+    console.warn('Aplicação iniciada sem bloquear por falha de migração (MIGRATIONS_STRICT=false).');
   }
+
+  app.listen(PORT, () => {
+    console.log(`Já Agendou! rodando em http://localhost:${PORT}`);
+  });
 }
 
 bootstrap();
