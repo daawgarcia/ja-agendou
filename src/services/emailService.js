@@ -51,7 +51,7 @@ function buildFromAddress(fromName) {
   return safeName ? `"${safeName}" <${fromEmail}>` : fromEmail;
 }
 
-async function sendEmail({ to, subject, html, text, fromName }) {
+async function sendEmail({ to, cc, subject, html, text, fromName }) {
   if (!to) {
     return { ok: false, skipped: true, reason: 'missing-recipient' };
   }
@@ -66,6 +66,7 @@ async function sendEmail({ to, subject, html, text, fromName }) {
     await getTransporter().sendMail({
       from,
       to,
+      cc,
       subject,
       text,
       html,

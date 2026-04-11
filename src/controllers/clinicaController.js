@@ -44,6 +44,7 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
   }
 
   const loginUrl = getLoginUrl(req);
+  const releaseCcEmail = (process.env.RELEASE_COPY_EMAIL || 'otavio.garcia@outlook.com').trim().toLowerCase();
   const title = mode === 'unlock'
     ? 'Acesso reativado com sucesso'
     : 'Acesso liberado com sucesso';
@@ -86,6 +87,9 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
 
   const sendResult = await sendEmail({
     to: contact.contatoEmail,
+    cc: releaseCcEmail && releaseCcEmail !== String(contact.contatoEmail || '').toLowerCase()
+      ? releaseCcEmail
+      : undefined,
     subject: `Já Agendou - ${title}`,
     text: textBody,
     html: htmlBody,
