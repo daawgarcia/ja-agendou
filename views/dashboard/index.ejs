@@ -18,6 +18,21 @@
 
   <div class="page-body">
 
+    <% if (licenseInfo && licenseInfo.hasLicense) { %>
+      <div class="license-banner <%= licenseInfo.isExpiringSoon ? 'warning' : 'ok' %>">
+        <div>
+          <strong>Licenca de uso:</strong>
+          expira em <%= licenseInfo.expiresAtLabel %>
+          <% if (typeof licenseInfo.daysRemaining === 'number') { %>
+            (<%= licenseInfo.daysRemaining >= 0 ? licenseInfo.daysRemaining : 0 %> dias restantes)
+          <% } %>
+        </div>
+        <% if (licenseInfo.isExpiringSoon) { %>
+          <span class="license-banner-tag">Renove com o admin para evitar bloqueio</span>
+        <% } %>
+      </div>
+    <% } %>
+
     <!-- TABS -->
     <div class="tabs">
       <% ['Resumo','Semanal','Mensal'].forEach(function(tab, i) {

@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const authRoutes = require('./src/routes/authRoutes');
+const publicRoutes = require('./src/routes/publicRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const pacienteRoutes = require('./src/routes/pacienteRoutes');
 const agendamentoRoutes = require('./src/routes/agendamentoRoutes');
@@ -48,9 +49,10 @@ app.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect('/dashboard');
   }
-  return res.redirect('/login');
+  return res.redirect('/venda');
 });
 
+app.use('/', publicRoutes);
 app.use('/', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/pacientes', pacienteRoutes);

@@ -5,6 +5,12 @@ async function list(req, res) {
   try {
     const [clinicas] = await pool.execute(
       `SELECT id, nome, slug, email, telefone, status,
+              licenca_dias,
+              licenca_inicio_em,
+              licenca_fim_em,
+              trial_inicio_em,
+              trial_fim_em,
+              desbloqueado_em,
               DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at_formatado
        FROM clinicas
        ORDER BY id DESC`
@@ -112,4 +118,107 @@ async function update(req, res) {
   }
 }
 
-module.exports = { list, create, editForm, update };
+async function approveRequest(req, res) {
+  const { id } = req.params;
+
+  try {
+    await pool.execute(
+      `UPDATE clinicas
+       SET status = 'ativo',
+           licenca_dias = IFNULL(licenca_dias, 3),
+           licenca_inicio_em = IFNULL(licenca_inicio_em, NOW()),
+           licenca_fim_em = IFNULL(licenca_fim_em, DATE_ADD(NOW(), INTERVAL 3 DAY)),
+           trial_inicio_em = IFNULL(trial_inicio_em, NOW()),
+           trial_fim_em = IFNULL(trial_fim_em, DATE_ADD(NOW(), INTERVAL 3 DAY))
+       WHERE id = ? AND status = 'pendente'`,
+      [id]
+    );
+
+    await pool.execute(
+      "UPDATE usuarios SET status = 'ativo' WHERE clinica_id = ?",
+      [id]
+    );
+
+    return res.redirect('/clinicas');
+  } catch (error) {
+    console.error('ERRO APPROVE CLINICA:', error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao aprovar cadastro',
+      message: 'Nao foi possivel aprovar a solicitacao da clinica.',
+    });
+  }
+}
+
+async function unlockAccess(req, res) {
+  const { id } = req.params;
+
+  try {
+    await pool.execute(
+      `UPDATE clinicas
+       SET status = 'ativo',
+           desbloqueado_em = NOW()
+       WHERE id = ?`,
+      [id]
+    );
+
+    await pool.execute(
+      "UPDATE usuarios SET status = 'ativo' WHERE clinica_id = ?",
+      [id]
+    );
+
+    return res.redirect('/clinicas');
+  } catch (error) {
+    console.error('ERRO DESBLOQUEAR CLINICA:', error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao desbloquear acesso',
+      message: 'Nao foi possivel desbloquear o acesso da clinica.',
+    });
+  }
+}
+
+async function setLicenseDays(req, res) {
+  const { id } = req.params;
+  const dias = Number(req.body.licenca_dias);
+
+  if (!Number.isInteger(dias) || dias <= 0) {
+    return res.status(400).render('partials/error', {
+      title: 'Licenca invalida',
+      message: 'Informe um numero de dias maior que zero.',
+    });
+  }
+
+  try {
+    await pool.execute(
+      `UPDATE clinicas
+       SET status = 'ativo',
+           licenca_dias = ?,
+           licenca_inicio_em = NOW(),
+           licenca_fim_em = DATE_ADD(NOW(), INTERVAL ? DAY)
+       WHERE id = ?`,
+      [dias, dias, id]
+    );
+
+    await pool.execute(
+      "UPDATE usuarios SET status = 'ativo' WHERE clinica_id = ?",
+      [id]
+    );
+
+    return res.redirect('/clinicas');
+  } catch (error) {
+    console.error('ERRO DEFINIR LICENCA:', error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao definir licenca',
+      message: 'Nao foi possivel definir os dias de licenca para a clinica.',
+    });
+  }
+}
+
+module.exports = {
+  list,
+  create,
+  editForm,
+  update,
+  approveRequest,
+  unlockAccess,
+  setLicenseDays,
+};

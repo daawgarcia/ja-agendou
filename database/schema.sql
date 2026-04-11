@@ -7,10 +7,30 @@ CREATE TABLE IF NOT EXISTS clinicas (
   slug VARCHAR(150) NOT NULL UNIQUE,
   email VARCHAR(150) NULL,
   telefone VARCHAR(30) NULL,
-  status ENUM('ativo', 'inativo') NOT NULL DEFAULT 'ativo',
+  status ENUM('pendente', 'ativo', 'inativo') NOT NULL DEFAULT 'ativo',
+  licenca_dias INT UNSIGNED NULL,
+  licenca_inicio_em DATETIME NULL,
+  licenca_fim_em DATETIME NULL,
+  trial_inicio_em DATETIME NULL,
+  trial_fim_em DATETIME NULL,
+  desbloqueado_em DATETIME NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Compatibilidade para bases ja existentes.
+ALTER TABLE clinicas
+  MODIFY COLUMN status ENUM('pendente', 'ativo', 'inativo') NOT NULL DEFAULT 'ativo';
+
+ALTER TABLE clinicas
+  ADD COLUMN IF NOT EXISTS trial_inicio_em DATETIME NULL AFTER status,
+  ADD COLUMN IF NOT EXISTS trial_fim_em DATETIME NULL AFTER trial_inicio_em,
+  ADD COLUMN IF NOT EXISTS desbloqueado_em DATETIME NULL AFTER trial_fim_em;
+
+ALTER TABLE clinicas
+  ADD COLUMN IF NOT EXISTS licenca_dias INT UNSIGNED NULL AFTER status,
+  ADD COLUMN IF NOT EXISTS licenca_inicio_em DATETIME NULL AFTER licenca_dias,
+  ADD COLUMN IF NOT EXISTS licenca_fim_em DATETIME NULL AFTER licenca_inicio_em;
 
 CREATE TABLE IF NOT EXISTS usuarios (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

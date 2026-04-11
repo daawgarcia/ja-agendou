@@ -68,6 +68,46 @@ function buildMonthCalendar(referenceDate, agendamentos, todayIso, selectedDateI
   return weeks;
 }
 
+function getLicenseInfo(clinica) {
+  const expirationRaw = clinica?.licenca_fim_em || clinica?.trial_fim_em || null;
+  if (!expirationRaw) {
+    return {
+      hasLicense: false,
+      expiresAt: null,
+      expiresAtLabel: null,
+      daysRemaining: null,
+      isExpiringSoon: false,
+      isExpired: false,
+    };
+  }
+
+  const now = new Date();
+  const expiresAt = new Date(expirationRaw);
+  if (Number.isNaN(expiresAt.getTime())) {
+    return {
+      hasLicense: false,
+      expiresAt: null,
+      expiresAtLabel: null,
+      daysRemaining: null,
+      isExpiringSoon: false,
+      isExpired: false,
+    };
+  }
+
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const diffMs = expiresAt.getTime() - now.getTime();
+  const daysRemaining = Math.ceil(diffMs / millisecondsPerDay);
+
+  return {
+    hasLicense: true,
+    expiresAt,
+    expiresAtLabel: expiresAt.toLocaleDateString('pt-BR'),
+    daysRemaining,
+    isExpiringSoon: daysRemaining >= 0 && daysRemaining <= 5,
+    isExpired: daysRemaining < 0,
+  };
+}
+
 async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const perfil = req.session.user.perfil;
@@ -88,6 +128,16 @@ async function index(req, res) {
   const weekEndIso = formatDateISO(weekEnd);
 
   try {
+    const [[clinicaAccess]] = await pool.execute(
+      `SELECT licenca_dias, licenca_fim_em, trial_fim_em
+       FROM clinicas
+       WHERE id = ?
+       LIMIT 1`,
+      [clinicaId]
+    );
+
+    const licenseInfo = getLicenseInfo(clinicaAccess);
+
     const [[pacientesCount]] = await pool.execute(
       'SELECT COUNT(*) AS total FROM pacientes WHERE clinica_id = ?',
       [clinicaId]
@@ -240,6 +290,7 @@ async function index(req, res) {
       todayIso,
       selectedDateIso,
       statusResumo,
+      licenseInfo,
       aniversariantes,
       ultimosRecibos,
       producaoDentistas,

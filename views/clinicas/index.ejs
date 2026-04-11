@@ -1,5 +1,5 @@
 <%- include('../partials/header', { title: 'Clínicas' }) %>
-<%- include('../partials/sidebar') %>
+<%- include('../partials/sidebar', { currentPage: 'clinicas' }) %>
 
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Clínicas', subtitle: 'Área exclusiva do super admin para gerenciar clientes.' }) %>
@@ -40,6 +40,7 @@
         <label>Status</label>
         <select name="status">
           <option value="ativo" <%= editClinica?.status === 'ativo' ? 'selected' : '' %>>ativo</option>
+          <option value="pendente" <%= editClinica?.status === 'pendente' ? 'selected' : '' %>>pendente</option>
           <option value="inativo" <%= editClinica?.status === 'inativo' ? 'selected' : '' %>>inativo</option>
         </select>
       </div>
@@ -68,6 +69,7 @@
           <th>E-mail</th>
           <th>Telefone</th>
           <th>Status</th>
+          <th>Validade</th>
           <th>Criada em</th>
           <th>Ações</th>
         </tr>
@@ -76,7 +78,7 @@
       <tbody>
         <% if (!clinicas.length) { %>
           <tr>
-            <td colspan="7">Nenhuma clínica cadastrada.</td>
+            <td colspan="8">Nenhuma clínica cadastrada.</td>
           </tr>
         <% } %>
 
@@ -91,11 +93,46 @@
                 <%= clinica.status %>
               </span>
             </td>
+            <td>
+              <% if (clinica.licenca_fim_em) { %>
+                <div>Expira em <%= new Date(clinica.licenca_fim_em).toLocaleDateString('pt-BR') %></div>
+                <small><%= clinica.licenca_dias || '-' %> dias</small>
+              <% } else if (clinica.trial_fim_em) { %>
+                <div>Trial ate <%= new Date(clinica.trial_fim_em).toLocaleDateString('pt-BR') %></div>
+                <small>3 dias iniciais</small>
+              <% } else { %>
+                -
+              <% } %>
+            </td>
             <td><%= clinica.created_at_formatado %></td>
             <td>
               <a href="/clinicas/<%= clinica.id %>/editar" class="btn btn-outline btn-small">
                 Editar
               </a>
+
+              <% if (clinica.status === 'pendente') { %>
+                <form method="POST" action="/clinicas/<%= clinica.id %>/aprovar" style="display:inline-block; margin-left: 6px;">
+                  <button type="submit" class="btn btn-green btn-small">Aprovar pedido</button>
+                </form>
+              <% } %>
+
+              <% if (clinica.status === 'inativo' && !clinica.desbloqueado_em) { %>
+                <form method="POST" action="/clinicas/<%= clinica.id %>/desbloquear" style="display:inline-block; margin-left: 6px;">
+                  <button type="submit" class="btn btn-green btn-small">Desbloquear</button>
+                </form>
+              <% } %>
+
+              <form method="POST" action="/clinicas/<%= clinica.id %>/licenca" style="display:inline-flex; gap:6px; align-items:center; margin-left:6px; margin-top:6px;">
+                <input
+                  type="number"
+                  name="licenca_dias"
+                  min="1"
+                  value="<%= clinica.licenca_dias || 30 %>"
+                  style="width:80px; padding:4px 6px;"
+                  required
+                />
+                <button type="submit" class="btn btn-outline btn-small">Definir dias</button>
+              </form>
             </td>
           </tr>
         <% }) %>

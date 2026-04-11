@@ -7,6 +7,9 @@ const router = express.Router();
 router.get('/', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.list);
 router.get('/:id/editar', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.editForm);
 router.post('/', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.create);
+router.post('/:id/aprovar', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.approveRequest);
+router.post('/:id/desbloquear', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.unlockAccess);
+router.post('/:id/licenca', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.setLicenseDays);
 router.put('/:id', ensureAuthenticated, ensureRole(['super_admin']), clinicaController.update);
 
 module.exports = router;

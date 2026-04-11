@@ -41,14 +41,71 @@ async function loadUserByEmail(email) {
     clinica_id: clinicaId,
     clinica_nome: clinica?.nome || 'Clínica',
     clinica_status: clinica?.status || 'ativo',
+    clinica_licenca_fim_em: clinica?.licenca_fim_em || null,
+    clinica_trial_fim_em: clinica?.trial_fim_em || null,
+    clinica_desbloqueado_em: clinica?.desbloqueado_em || null,
   };
+}
+
+function mapLoginQueryError(errorCode) {
+  if (errorCode === 'clinica_pendente') {
+    return 'Cadastro recebido. Seu acesso ainda aguarda aprovacao do admin.';
+  }
+  if (errorCode === 'clinica_inativa') {
+    return 'Acesso da clinica inativo. Entre em contato com o suporte.';
+  }
+  if (errorCode === 'licenca_expirada') {
+    return 'Sua licenca expirou. Aguarde o admin renovar o periodo de uso.';
+  }
+  if (errorCode === 'trial_expirado') {
+    return 'Seu periodo gratuito terminou. Aguarde o admin definir sua licenca.';
+  }
+  return null;
+}
+
+async function validateClinicAccess(user) {
+  if (user.clinica_status === 'pendente') {
+    return {
+      allowed: false,
+      message: 'Cadastro recebido. Seu acesso ainda aguarda aprovacao do admin.',
+    };
+  }
+
+  if (user.clinica_status !== 'ativo') {
+    return {
+      allowed: false,
+      message: 'Acesso da clinica inativo. Entre em contato com o suporte.',
+    };
+  }
+
+  const licenseEnd = user.clinica_licenca_fim_em || user.clinica_trial_fim_em;
+  if (licenseEnd) {
+    const licenseEndDate = new Date(licenseEnd);
+    if (!Number.isNaN(licenseEndDate.getTime()) && Date.now() > licenseEndDate.getTime()) {
+      await pool.execute(
+        "UPDATE clinicas SET status = 'inativo' WHERE id = ? AND status = 'ativo'",
+        [user.clinica_id]
+      );
+
+      return {
+        allowed: false,
+        message: user.clinica_licenca_fim_em
+          ? 'Sua licenca expirou. Aguarde o admin renovar o periodo de uso.'
+          : 'Seu periodo gratuito terminou. Aguarde o admin definir sua licenca.',
+      };
+    }
+  }
+
+  return { allowed: true, message: null };
 }
 
 async function showLogin(req, res) {
   if (req.session.user) {
     return res.redirect('/dashboard');
   }
-  return res.render('auth/login', { error: null });
+
+  const queryError = mapLoginQueryError(req.query.erro);
+  return res.render('auth/login', { error: queryError, info: null });
 }
 
 async function login(req, res) {
@@ -56,22 +113,27 @@ async function login(req, res) {
   const senha = req.body.senha || req.body.password || '';
 
   if (!email || !senha) {
-    return res.status(400).render('auth/login', { error: 'Informe e-mail e senha.' });
+    return res.status(400).render('auth/login', { error: 'Informe e-mail e senha.', info: null });
   }
 
   try {
     const user = await loadUserByEmail(email);
     if (!user) {
-      return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.' });
+      return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.', info: null });
     }
 
-    if (user.status !== 'ativo' || user.clinica_status !== 'ativo') {
-      return res.status(403).render('auth/login', { error: 'Usuário ou clínica inativa.' });
+    if (user.status !== 'ativo') {
+      return res.status(403).render('auth/login', { error: 'Usuário inativo.', info: null });
+    }
+
+    const clinicAccess = await validateClinicAccess(user);
+    if (!clinicAccess.allowed) {
+      return res.status(403).render('auth/login', { error: clinicAccess.message, info: null });
     }
 
     const validPassword = await verifyPassword(senha, user.senha_hash);
     if (!validPassword) {
-      return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.' });
+      return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.', info: null });
     }
 
     req.session.user = {
@@ -86,7 +148,7 @@ async function login(req, res) {
     return res.redirect('/dashboard');
   } catch (error) {
     console.error(error);
-    return res.status(500).render('auth/login', { error: 'Erro interno ao fazer login.' });
+    return res.status(500).render('auth/login', { error: 'Erro interno ao fazer login.', info: null });
   }
 }
 

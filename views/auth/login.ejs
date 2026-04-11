@@ -15,6 +15,10 @@
     <div class="alert alert-error" style="text-align:left"><%= error %></div>
   <% } %>
 
+  <% if (info) { %>
+    <div class="alert alert-info" style="text-align:left"><%= info %></div>
+  <% } %>
+
   <form method="POST" action="/login">
     <label>E-mail</label>
     <input type="email" name="email" placeholder="admin@clinica.com" required />
@@ -22,6 +26,12 @@
     <input type="password" name="senha" placeholder="Digite sua senha" required />
     <button type="submit" class="btn">Entrar</button>
   </form>
+
+  <div class="auth-alt-link">
+    <a href="/cadastro-dentista">Sou dentista e quero testar</a>
+    <span>·</span>
+    <a href="/venda">Ver pagina de vendas</a>
+  </div>
 </div>
 
 </body>

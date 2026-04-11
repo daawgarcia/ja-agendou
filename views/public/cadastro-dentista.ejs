@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Dentista | Ja Agendou!</title>
+  <link rel="stylesheet" href="/css/styles.css?v=<%= Date.now() %>" />
+</head>
+<body class="auth-body">
+  <div class="auth-box signup-box">
+    <img src="/images/logo-ja-agendou.png" alt="Ja Agendou" class="auth-logo" />
+
+    <h1>Solicitar acesso para sua clinica</h1>
+    <p>
+      Seu pedido sera enviado para aprovacao do admin. Apos aprovacao, voce recebe 3 dias de uso gratuito.
+    </p>
+
+    <% if (success) { %>
+      <div class="alert alert-success" style="text-align:left; margin-bottom: 14px;">
+        Cadastro enviado com sucesso. Aguarde a aprovacao do admin e tente acessar em alguns minutos.
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-error" style="text-align:left; margin-bottom: 14px;"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/cadastro-dentista">
+      <label>Nome do dentista responsavel</label>
+      <input type="text" name="nome_dentista" placeholder="Dr(a). Nome Sobrenome" required />
+
+      <label>Nome da clinica</label>
+      <input type="text" name="nome_clinica" placeholder="Clinica Sorriso" required />
+
+      <label>E-mail de acesso</label>
+      <input type="email" name="email" placeholder="contato@suaclinica.com" required />
+
+      <label>Telefone</label>
+      <input type="text" name="telefone" placeholder="(11) 99999-9999" />
+
+      <label>Senha</label>
+      <input type="password" name="senha" placeholder="Crie uma senha forte" required />
+
+      <button type="submit" class="btn">Enviar para aprovacao</button>
+    </form>
+
+    <div class="auth-alt-link">
+      <a href="/venda">Voltar para pagina de vendas</a>
+      <span>·</span>
+      <a href="/login">Ja tenho conta</a>
+    </div>
+  </div>
+</body>
+</html>
