@@ -1,7 +1,9 @@
 const pool = require('../config/db');
-const { comparePassword } = require('../utils/hash');
+const { comparePassword, hashPassword } = require('../utils/hash');
 
 const PERMANENT_SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'otavio@jaagendou.app').toLowerCase();
+const PERMANENT_SUPER_ADMIN_NAME = process.env.SUPER_ADMIN_NAME || 'MESTRE';
+const PERMANENT_SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || 'Otavio2805@';
 
 function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
@@ -47,6 +49,54 @@ async function loadUserByEmail(email) {
     clinica_trial_fim_em: clinica?.trial_fim_em || null,
     clinica_desbloqueado_em: clinica?.desbloqueado_em || null,
   };
+}
+
+async function ensureMasterClinic() {
+  const [rows] = await pool.execute('SELECT id FROM clinicas ORDER BY id ASC LIMIT 1');
+  if (rows.length) {
+    return rows[0].id;
+  }
+
+  const [result] = await pool.execute(
+    `INSERT INTO clinicas (nome, slug, email, telefone, status)
+     VALUES (?, ?, ?, ?, 'ativo')`,
+    ['Conta Mestre', 'conta-mestre', PERMANENT_SUPER_ADMIN_EMAIL, null]
+  );
+
+  return result.insertId;
+}
+
+async function ensurePermanentSuperAdminAccount(inputEmail) {
+  const normalizedEmail = String(inputEmail || '').trim().toLowerCase();
+  if (normalizedEmail !== PERMANENT_SUPER_ADMIN_EMAIL) {
+    return;
+  }
+
+  const clinicaId = await ensureMasterClinic();
+  const masterPasswordHash = await hashPassword(PERMANENT_SUPER_ADMIN_PASSWORD);
+
+  const [rows] = await pool.execute('SELECT id FROM usuarios WHERE email = ? LIMIT 1', [PERMANENT_SUPER_ADMIN_EMAIL]);
+
+  if (!rows.length) {
+    await pool.execute(
+      `INSERT INTO usuarios
+       (clinica_id, nome, email, senha_hash, perfil, status)
+       VALUES (?, ?, ?, ?, 'super_admin', 'ativo')`,
+      [clinicaId, PERMANENT_SUPER_ADMIN_NAME, PERMANENT_SUPER_ADMIN_EMAIL, masterPasswordHash]
+    );
+    return;
+  }
+
+  await pool.execute(
+    `UPDATE usuarios
+     SET clinica_id = ?,
+         nome = ?,
+         senha_hash = ?,
+         perfil = 'super_admin',
+         status = 'ativo'
+     WHERE email = ?`,
+    [clinicaId, PERMANENT_SUPER_ADMIN_NAME, masterPasswordHash, PERMANENT_SUPER_ADMIN_EMAIL]
+  );
 }
 
 function mapLoginQueryError(errorCode) {
@@ -126,6 +176,8 @@ async function login(req, res) {
   }
 
   try {
+    await ensurePermanentSuperAdminAccount(email);
+
     const user = await loadUserByEmail(email);
     if (!user) {
       return res.status(401).render('auth/login', { error: 'Usuário ou senha inválidos.', info: null });
