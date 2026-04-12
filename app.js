@@ -9,6 +9,7 @@ dotenv.config();
 
 const authRoutes = require('./src/routes/authRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
+const webhookRoutes = require('./src/routes/webhookRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const pacienteRoutes = require('./src/routes/pacienteRoutes');
 const agendamentoRoutes = require('./src/routes/agendamentoRoutes');
@@ -19,6 +20,7 @@ const historicoRoutes = require('./src/routes/historicoRoutes');
 const reciboRoutes = require('./src/routes/reciboRoutes');
 const relatorioRoutes = require('./src/routes/relatorioRoutes');
 const usuarioRoutes = require('./src/routes/usuarioRoutes');
+const hotmartWebhookController = require('./src/controllers/hotmartWebhookController');
 const { attachUserToViews } = require('./src/middlewares/auth');
 const { runMigrations } = require('./src/config/migrations');
 
@@ -55,6 +57,8 @@ app.get('/', (req, res) => {
 
 app.use('/', publicRoutes);
 app.use('/', authRoutes);
+app.use('/webhooks', webhookRoutes);
+app.post('/api/webhook-hotmart', hotmartWebhookController.receive);
 app.use('/dashboard', dashboardRoutes);
 app.use('/pacientes', pacienteRoutes);
 app.use('/agendamentos', agendamentoRoutes);
