@@ -39,6 +39,10 @@ Exemplo de mapeamento:
 
 `HOTMART_PLAN_MAPPINGS=pacote_7:7,pacote_30:30,pacote_90:90,pacote_180:180,pacote_360:360`
 
+Opcional (fallback por valor pago):
+
+`HOTMART_PRICE_MAPPINGS=9.97:7,35.97:30,107.91:90,215.82:180,397.00:360`
+
 Quando chegar uma venda aprovada mapeada, o sistema atualiza os mesmos campos de licença já usados hoje:
 
 - `status = ativo`

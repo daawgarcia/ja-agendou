@@ -7,6 +7,14 @@ const DEFAULT_APPROVED_EVENTS = new Set([
   'APPROVED',
 ]);
 
+const DEFAULT_PRICE_TO_DAYS = new Map([
+  [997, 7],
+  [3597, 30],
+  [10791, 90],
+  [21582, 180],
+  [39700, 360],
+]);
+
 let hotmartTableChecked = false;
 
 function normalizeValue(value) {
@@ -65,6 +73,54 @@ function parsePlanMappings(raw) {
   return mappings;
 }
 
+function normalizeMoneyToCents(value) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.round(value * 100);
+  }
+
+  const normalized = String(value)
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/R\$/gi, '')
+    .replace(/\./g, '')
+    .replace(',', '.');
+
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return Math.round(parsed * 100);
+}
+
+function parsePriceMappings(raw) {
+  const mappings = new Map();
+  const value = normalizeValue(raw);
+
+  if (!value) {
+    return mappings;
+  }
+
+  const parts = value.split(',').map((part) => part.trim()).filter(Boolean);
+  for (const part of parts) {
+    const [left, right] = part.split(':');
+    const cents = normalizeMoneyToCents(left);
+    const days = Number(right);
+
+    if (!Number.isInteger(cents) || cents <= 0 || !Number.isInteger(days) || days <= 0) {
+      continue;
+    }
+
+    mappings.set(cents, days);
+  }
+
+  return mappings;
+}
+
 function getDefaultPlanDaysByName(input) {
   const normalized = normalizeKey(input);
 
@@ -111,9 +167,29 @@ function extractIdentifiers(payload) {
   ].filter(Boolean);
 }
 
+function extractAmountsInCents(payload) {
+  const values = [
+    readNested(payload, ['purchase.price.value', 'data.purchase.price.value']),
+    readNested(payload, ['purchase.price', 'data.purchase.price']),
+    readNested(payload, ['purchase.full_price.value', 'data.purchase.full_price.value']),
+    readNested(payload, ['purchase.full_price', 'data.purchase.full_price']),
+    readNested(payload, ['purchase.original_offer_price.value', 'data.purchase.original_offer_price.value']),
+    readNested(payload, ['amount', 'data.amount']),
+    readNested(payload, ['value', 'data.value']),
+  ].filter((value) => value !== null && value !== undefined);
+
+  const cents = values
+    .map((value) => normalizeMoneyToCents(value))
+    .filter((value) => Number.isInteger(value) && value > 0);
+
+  return Array.from(new Set(cents));
+}
+
 function resolvePlanDays(payload) {
   const mappings = parsePlanMappings(process.env.HOTMART_PLAN_MAPPINGS);
+  const priceMappings = parsePriceMappings(process.env.HOTMART_PRICE_MAPPINGS);
   const identifiers = extractIdentifiers(payload);
+  const amountsInCents = extractAmountsInCents(payload);
 
   for (const identifier of identifiers) {
     const mapped = mappings.get(normalizeKey(identifier));
@@ -124,6 +200,20 @@ function resolvePlanDays(payload) {
 
   for (const identifier of identifiers) {
     const fallback = getDefaultPlanDaysByName(identifier);
+    if (fallback) {
+      return fallback;
+    }
+  }
+
+  for (const amountInCents of amountsInCents) {
+    const mapped = priceMappings.get(amountInCents);
+    if (mapped) {
+      return mapped;
+    }
+  }
+
+  for (const amountInCents of amountsInCents) {
+    const fallback = DEFAULT_PRICE_TO_DAYS.get(amountInCents);
     if (fallback) {
       return fallback;
     }
