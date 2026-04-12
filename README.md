@@ -51,6 +51,8 @@ Quando chegar uma venda aprovada mapeada, o sistema atualiza os mesmos campos de
 - `licenca_fim_em = DATE_ADD(NOW(), INTERVAL dias DAY)`
 - `desbloqueado_em = NOW()`
 
+Se não existir clínica/usuário para o comprador, o webhook pode criar a conta automaticamente (`HOTMART_AUTO_CREATE_ACCOUNT=true`) e enviar e-mail com acesso inicial (login + senha temporária), desde que SMTP esteja configurado.
+
 Como a venda é vinculada à clínica:
 
 1. `clinica_id` no payload (`metadata/custom`), quando enviado.

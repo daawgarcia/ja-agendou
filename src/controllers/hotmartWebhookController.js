@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const pool = require('../config/db');
+const { hashPassword } = require('../utils/hash');
+const { isEmailConfigured, sendEmail } = require('../services/emailService');
 
 const DEFAULT_APPROVED_EVENTS = new Set([
   'PURCHASE_APPROVED',
@@ -24,6 +26,24 @@ function normalizeValue(value) {
 
   const normalized = String(value).trim();
   return normalized || null;
+}
+
+function slugify(input) {
+  return String(input || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function generateTempPassword() {
+  return crypto.randomBytes(9).toString('base64').replace(/[^a-zA-Z0-9]/g, 'A').slice(0, 12);
+}
+
+function getBaseUrl(req) {
+  return process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
 }
 
 function normalizeKey(value) {
@@ -270,6 +290,195 @@ async function ensureHotmartWebhookTable() {
   hotmartTableChecked = true;
 }
 
+async function generateUniqueClinicSlug(baseName) {
+  const baseSlug = slugify(baseName) || 'clinica-hotmart';
+  let candidate = baseSlug;
+  let suffix = 1;
+
+  while (true) {
+    const [rows] = await pool.execute('SELECT id FROM clinicas WHERE slug = ? LIMIT 1', [candidate]);
+    if (!rows.length) {
+      return candidate;
+    }
+    suffix += 1;
+    candidate = `${baseSlug}-${suffix}`;
+  }
+}
+
+async function provisionClinicFromBuyer(payload) {
+  const buyerEmail = normalizeValue(readNested(payload, [
+    'buyer.email',
+    'purchase.buyer.email',
+    'data.buyer.email',
+    'data.purchase.buyer.email',
+    'email',
+  ]));
+
+  if (!buyerEmail) {
+    return null;
+  }
+
+  const buyerName = normalizeValue(readNested(payload, [
+    'buyer.name',
+    'purchase.buyer.name',
+    'data.buyer.name',
+    'data.purchase.buyer.name',
+    'name',
+  ])) || 'Responsavel';
+
+  const clinicName = normalizeValue(readNested(payload, [
+    'metadata.clinica_nome',
+    'data.metadata.clinica_nome',
+    'purchase.metadata.clinica_nome',
+    'data.purchase.metadata.clinica_nome',
+    'custom.clinica_nome',
+    'data.custom.clinica_nome',
+    'purchase.product.name',
+    'data.purchase.product.name',
+    'product.name',
+    'data.product.name',
+  ])) || `Clinica ${buyerName}`;
+
+  let connection;
+  try {
+    const [existingUserRows] = await pool.execute(
+      `SELECT c.id
+       FROM usuarios u
+       INNER JOIN clinicas c ON c.id = u.clinica_id
+       WHERE LOWER(u.email) = LOWER(?)
+       LIMIT 1`,
+      [buyerEmail]
+    );
+    if (existingUserRows.length) {
+      return {
+        clinicId: existingUserRows[0].id,
+        created: false,
+        buyerEmail,
+        buyerName,
+        clinicName,
+        tempPassword: null,
+      };
+    }
+
+    const [existingClinicRows] = await pool.execute(
+      `SELECT id
+       FROM clinicas
+       WHERE LOWER(email) = LOWER(?)
+       LIMIT 1`,
+      [buyerEmail]
+    );
+    if (existingClinicRows.length) {
+      return {
+        clinicId: existingClinicRows[0].id,
+        created: false,
+        buyerEmail,
+        buyerName,
+        clinicName,
+        tempPassword: null,
+      };
+    }
+
+    const slug = await generateUniqueClinicSlug(clinicName);
+    const tempPassword = generateTempPassword();
+    const passwordHash = await hashPassword(tempPassword);
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [clinicResult] = await connection.execute(
+      `INSERT INTO clinicas (nome, slug, email, telefone, status)
+       VALUES (?, ?, ?, ?, 'ativo')`,
+      [clinicName, slug, buyerEmail, null]
+    );
+
+    await connection.execute(
+      `INSERT INTO usuarios
+       (clinica_id, nome, email, senha_hash, perfil, status)
+       VALUES (?, ?, ?, ?, 'admin', 'ativo')`,
+      [clinicResult.insertId, buyerName, buyerEmail, passwordHash]
+    );
+
+    await connection.commit();
+
+    return {
+      clinicId: clinicResult.insertId,
+      created: true,
+      buyerEmail,
+      buyerName,
+      clinicName,
+      tempPassword,
+    };
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+
+    if (error && error.code === 'ER_DUP_ENTRY') {
+      const fallbackClinicId = await findClinicIdFromPayload(payload);
+      if (fallbackClinicId) {
+        return {
+          clinicId: fallbackClinicId,
+          created: false,
+          buyerEmail,
+          buyerName,
+          clinicName,
+          tempPassword: null,
+        };
+      }
+    }
+
+    throw error;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+
+async function sendWelcomeAccessEmail({ req, buyerEmail, buyerName, clinicName, tempPassword, licenseDays }) {
+  if (!tempPassword || !buyerEmail || !isEmailConfigured()) {
+    return;
+  }
+
+  const loginUrl = `${getBaseUrl(req).replace(/\/$/, '')}/login`;
+  const textBody = [
+    'Seu acesso ao Ja Agendou foi criado!',
+    '',
+    `Ola, ${buyerName}!`,
+    `Clinica: ${clinicName}`,
+    `Plano aplicado: ${licenseDays} dias`,
+    '',
+    `Login: ${buyerEmail}`,
+    `Senha temporaria: ${tempPassword}`,
+    `Acesso: ${loginUrl}`,
+    '',
+    'Recomendamos trocar sua senha no primeiro acesso.',
+  ].join('\n');
+
+  const htmlBody = `
+    <h2>Seu acesso ao Ja Agendou foi criado!</h2>
+    <p>Ola, <strong>${buyerName}</strong>!</p>
+    <p><strong>Clinica:</strong> ${clinicName}</p>
+    <p><strong>Plano aplicado:</strong> ${licenseDays} dias</p>
+    <p><strong>Login:</strong> ${buyerEmail}</p>
+    <p><strong>Senha temporaria:</strong> ${tempPassword}</p>
+    <p><a href="${loginUrl}">Acessar agora</a></p>
+    <p>Recomendamos trocar sua senha no primeiro acesso.</p>
+  `;
+
+  const sendResult = await sendEmail({
+    to: buyerEmail,
+    subject: 'Ja Agendou - Seu acesso foi liberado',
+    text: textBody,
+    html: htmlBody,
+    fromName: 'Ja Agendou',
+  });
+
+  if (!sendResult.ok) {
+    console.error('ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS HOTMART:', sendResult.error || sendResult.reason);
+  }
+}
+
 async function findClinicIdFromPayload(payload) {
   const clinicaId = parseClinicaId(payload);
   if (clinicaId) {
@@ -467,17 +676,47 @@ async function receive(req, res) {
       });
     }
 
-    const clinicId = await findClinicIdFromPayload(payload);
+    const autoCreateEnabled = String(process.env.HOTMART_AUTO_CREATE_ACCOUNT || 'true').toLowerCase() !== 'false';
+    let clinicId = await findClinicIdFromPayload(payload);
+    let createdAccount = false;
+    let createdAccountEmail = null;
+    let createdAccountName = null;
+    let createdClinicName = null;
+    let tempPassword = null;
+
+    if (!clinicId && autoCreateEnabled) {
+      const provisioned = await provisionClinicFromBuyer(payload);
+      if (provisioned && provisioned.clinicId) {
+        clinicId = provisioned.clinicId;
+        createdAccount = Boolean(provisioned.created);
+        createdAccountEmail = provisioned.buyerEmail;
+        createdAccountName = provisioned.buyerName;
+        createdClinicName = provisioned.clinicName;
+        tempPassword = provisioned.tempPassword;
+      }
+    }
+
     if (!clinicId) {
       return res.status(200).json({
         ok: true,
-        message: 'Evento aprovado registrado, mas clínica não identificada.',
+        message: 'Evento aprovado registrado, mas clínica não identificada (nem criada automaticamente).',
         event: result.eventName,
         eventKey: result.eventKey,
       });
     }
 
     await activateLicenseForClinic(clinicId, licenseDays);
+    if (createdAccount) {
+      await sendWelcomeAccessEmail({
+        req,
+        buyerEmail: createdAccountEmail,
+        buyerName: createdAccountName,
+        clinicName: createdClinicName,
+        tempPassword,
+        licenseDays,
+      });
+    }
+
     await pool.execute(
       'UPDATE hotmart_webhook_events SET processed_at = NOW() WHERE event_key = ? LIMIT 1',
       [result.eventKey]
@@ -490,6 +729,7 @@ async function receive(req, res) {
       eventKey: result.eventKey,
       clinicId,
       licenseDays,
+      createdAccount,
     });
   } catch (error) {
     console.error('ERRO WEBHOOK HOTMART:', error);
