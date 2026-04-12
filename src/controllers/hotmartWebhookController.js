@@ -7,6 +7,8 @@ const DEFAULT_APPROVED_EVENTS = new Set([
   'APPROVED',
 ]);
 
+let hotmartTableChecked = false;
+
 function normalizeValue(value) {
   if (value === undefined || value === null) {
     return null;
@@ -150,6 +152,34 @@ function parseClinicaId(payload) {
   return id;
 }
 
+async function ensureHotmartWebhookTable() {
+  if (hotmartTableChecked) {
+    return;
+  }
+
+  await pool.execute(
+    `CREATE TABLE IF NOT EXISTS hotmart_webhook_events (
+      id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      event_key VARCHAR(191) NOT NULL,
+      event_name VARCHAR(120) NOT NULL,
+      hottok VARCHAR(255) NULL,
+      transaction_code VARCHAR(120) NULL,
+      buyer_email VARCHAR(190) NULL,
+      buyer_name VARCHAR(190) NULL,
+      product_name VARCHAR(255) NULL,
+      payload_json LONGTEXT NOT NULL,
+      received_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      processed_at TIMESTAMP NULL DEFAULT NULL,
+      UNIQUE KEY uk_hotmart_event_key (event_key),
+      INDEX idx_hotmart_event_name (event_name),
+      INDEX idx_hotmart_transaction_code (transaction_code),
+      INDEX idx_hotmart_buyer_email (buyer_email)
+    )`
+  );
+
+  hotmartTableChecked = true;
+}
+
 async function findClinicIdFromPayload(payload) {
   const clinicaId = parseClinicaId(payload);
   if (clinicaId) {
@@ -250,6 +280,8 @@ function isTokenValid(req) {
 }
 
 async function saveEvent(payload) {
+  await ensureHotmartWebhookTable();
+
   const eventName = readNested(payload, ['event', 'event.name', 'data.event', 'type']) || 'unknown_event';
   const eventKey = buildEventKey(payload, eventName);
   const transaction = readNested(payload, ['purchase.transaction', 'data.purchase.transaction', 'transaction']);
