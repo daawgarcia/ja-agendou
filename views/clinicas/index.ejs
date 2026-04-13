@@ -70,6 +70,7 @@
           <th>Telefone</th>
           <th>Status</th>
           <th>Validade</th>
+          <th>Último acesso</th>
           <th>Criada em</th>
           <th>Ações</th>
         </tr>
@@ -78,7 +79,7 @@
       <tbody>
         <% if (!clinicas.length) { %>
           <tr>
-            <td colspan="8">Nenhuma clínica cadastrada.</td>
+            <td colspan="9">Nenhuma clínica cadastrada.</td>
           </tr>
         <% } %>
 
@@ -100,6 +101,14 @@
               <% } else if (clinica.trial_fim_em) { %>
                 <div>Trial ate <%= new Date(clinica.trial_fim_em).toLocaleDateString('pt-BR') %></div>
                 <small>3 dias iniciais</small>
+              <% } else { %>
+                -
+              <% } %>
+            </td>
+            <td>
+              <% if (clinica.ultimo_acesso_em) { %>
+                <div><%= new Date(clinica.ultimo_acesso_em).toLocaleDateString('pt-BR') %></div>
+                <small><%= new Date(clinica.ultimo_acesso_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) %></small>
               <% } else { %>
                 -
               <% } %>

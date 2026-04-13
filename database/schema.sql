@@ -28,6 +28,9 @@ ALTER TABLE clinicas
   ADD COLUMN IF NOT EXISTS desbloqueado_em DATETIME NULL AFTER trial_fim_em;
 
 ALTER TABLE clinicas
+  ADD COLUMN IF NOT EXISTS ultimo_acesso_em DATETIME NULL AFTER desbloqueado_em;
+
+ALTER TABLE clinicas
   ADD COLUMN IF NOT EXISTS licenca_dias INT UNSIGNED NULL AFTER status,
   ADD COLUMN IF NOT EXISTS licenca_inicio_em DATETIME NULL AFTER licenca_dias,
   ADD COLUMN IF NOT EXISTS licenca_fim_em DATETIME NULL AFTER licenca_inicio_em;
@@ -38,12 +41,18 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nome VARCHAR(150) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   senha_hash VARCHAR(255) NOT NULL,
+  reset_password_token VARCHAR(128) NULL,
+  reset_password_expiry DATETIME NULL,
   perfil ENUM('super_admin', 'admin', 'recepcao') NOT NULL DEFAULT 'recepcao',
   status ENUM('ativo', 'inativo') NOT NULL DEFAULT 'ativo',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_usuarios_clinica FOREIGN KEY (clinica_id) REFERENCES clinicas(id) ON DELETE CASCADE
 );
+
+ALTER TABLE usuarios
+  ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(128) NULL AFTER senha_hash,
+  ADD COLUMN IF NOT EXISTS reset_password_expiry DATETIME NULL AFTER reset_password_token;
 
 CREATE TABLE IF NOT EXISTS pacientes (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

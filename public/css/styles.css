@@ -540,6 +540,22 @@ textarea { resize: vertical; }
 .auth-box input { margin-bottom: 14px; }
 .auth-box .btn  { width: 100%; padding: 10px; margin-top: 4px; }
 
+.auth-secondary-link {
+  margin: -4px 0 14px;
+  text-align: right;
+}
+
+.auth-secondary-link a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.auth-secondary-link a:hover {
+  text-decoration: underline;
+}
+
 .auth-alt-link {
   margin-top: 14px;
   font-size: 13px;

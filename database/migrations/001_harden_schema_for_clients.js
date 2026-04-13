@@ -169,6 +169,7 @@ module.exports = {
     await addColumnIfMissing(pool, 'clinicas', 'trial_inicio_em', 'DATETIME NULL AFTER licenca_fim_em');
     await addColumnIfMissing(pool, 'clinicas', 'trial_fim_em', 'DATETIME NULL AFTER trial_inicio_em');
     await addColumnIfMissing(pool, 'clinicas', 'desbloqueado_em', 'DATETIME NULL AFTER trial_fim_em');
+    await addColumnIfMissing(pool, 'clinicas', 'ultimo_acesso_em', 'DATETIME NULL AFTER desbloqueado_em');
 
     await addColumnIfMissing(pool, 'agendamentos', 'dentista_id', 'INT UNSIGNED NULL AFTER paciente_id');
     await addColumnIfMissing(pool, 'agendamentos', 'servico_id', 'INT UNSIGNED NULL AFTER dentista_id');

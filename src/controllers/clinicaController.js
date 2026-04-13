@@ -115,6 +115,7 @@ async function list(req, res) {
               trial_inicio_em,
               trial_fim_em,
               desbloqueado_em,
+              ultimo_acesso_em,
               DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at_formatado
        FROM clinicas
        ORDER BY id DESC`
