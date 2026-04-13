@@ -6,7 +6,61 @@
   <title>Já Agendou! | Agenda inteligente para clínicas odontológicas</title>
   <link rel="stylesheet" href="/css/styles.css?v=<%= Date.now() %>" />
 </head>
-<body class="sales-body">
+<body class="sales-body" data-sales-success="<%= success ? '1' : '0' %>" data-sales-error="<%= error ? '1' : '0' %>">
+  <div class="sales-modal-backdrop" data-trial-modal hidden>
+    <section class="sales-trial-modal reveal-up" role="dialog" aria-modal="true" aria-labelledby="trial-modal-title">
+      <button type="button" class="sales-modal-close" data-close-trial-popup aria-label="Fechar formulário de licença teste">&times;</button>
+
+      <div class="sales-trial-copy">
+        <p class="trial-badge">Você Ganhou Um Teste Gratuito</p>
+        <h2 id="trial-modal-title">Ative agora seu teste gratuito no JáAgendou.App</h2>
+        <p>
+          Preencha seus dados e receba a liberação para experimentar a agenda da sua clínica com mais controle, menos faltas e atendimento mais rápido.
+        </p>
+        <div class="sales-proof-inline trial-proof-inline">
+          <span>Sem cartão</span>
+          <span>Liberação comercial rápida</span>
+          <span>Teste real com sua equipe</span>
+        </div>
+
+        <div class="trial-benefits">
+          <article>
+            <strong>Veja sua operação com mais clareza desde o primeiro acesso</strong>
+            <span>Centralize agenda, confirmações e rotina da recepção em um único painel.</span>
+          </article>
+          <article>
+            <strong>Peça agora e avance com apoio do comercial</strong>
+            <span>Seu cadastro chega direto ao time responsável pela liberação e pelo próximo contato.</span>
+          </article>
+        </div>
+      </div>
+
+      <form method="POST" action="/venda/lead" class="sales-trial-form">
+        <input type="hidden" name="pacote" value="teste" />
+        <input type="hidden" name="origem_formulario" value="popup_teste" />
+        <input type="hidden" name="mensagem" value="Lead capturado pelo popup de licença teste da página de vendas." />
+
+        <h3>Quero ativar meu teste gratuito</h3>
+        <p class="trial-form-intro">Preencha abaixo para receber sua licença teste e o retorno do comercial.</p>
+
+        <label>Nome</label>
+        <input type="text" name="nome_responsavel" placeholder="Seu nome completo" required />
+
+        <label>E-mail</label>
+        <input type="email" name="email" placeholder="voce@clinica.com.br" required />
+
+        <label>Nome da clínica</label>
+        <input type="text" name="nome_clinica" placeholder="Clínica Sorriso" required />
+
+        <label>Telefone/WhatsApp</label>
+        <input type="text" name="telefone" placeholder="(11) 99999-9999" required />
+
+        <button type="submit" class="btn btn-pulse">Receber minha licença teste</button>
+        <button type="button" class="btn btn-outline trial-secondary-cta" data-close-trial-popup>Quero ver os planos antes</button>
+      </form>
+    </section>
+  </div>
+
   <header class="sales-header">
     <div class="sales-brand">
       <img src="/images/logo-ja-agendou.png" alt="Já Agendou" class="sales-logo" />
@@ -17,7 +71,7 @@
       <a href="#planos">Planos</a>
       <a href="#faq">FAQ</a>
       <a href="/login" class="btn btn-outline">Entrar</a>
-      <a href="/cadastro-dentista" class="btn">Começar teste grátis</a>
+      <a href="#trial-popup" class="btn" data-open-trial-popup>Receber licença teste</a>
     </nav>
   </header>
 
@@ -49,7 +103,7 @@
           <span>Controle de acesso por licença</span>
         </div>
         <div class="hero-sales-ctas">
-          <a href="/cadastro-dentista" class="btn btn-pulse">Quero liberar meu teste de 3 dias</a>
+          <a href="#trial-popup" class="btn btn-pulse" data-open-trial-popup>Quero minha licença teste</a>
           <a href="#contato-comercial" class="btn btn-outline">Escolher pacote e forma de pagamento</a>
         </div>
       </div>
@@ -132,7 +186,7 @@
           <h3>Teste gratuito</h3>
           <p class="plan-price">3 dias</p>
           <p>Cadastro enviado, aprovado pelo admin e liberado para validar o fluxo real da sua clínica.</p>
-          <a href="/cadastro-dentista" class="btn">Solicitar avaliação</a>
+          <a href="#trial-popup" class="btn" data-open-trial-popup>Solicitar licença teste</a>
         </article>
 
         <article class="sales-plan-card featured-plan">
@@ -158,6 +212,11 @@
               </tr>
             </thead>
             <tbody>
+              <tr>
+                <td>Teste</td>
+                <td>Licença experimental</td>
+                <td>Gratuito</td>
+              </tr>
               <tr>
                 <td>Starter</td>
                 <td>7 dias</td>
@@ -186,7 +245,7 @@
             </tbody>
           </table>
           <p class="sales-price-note">
-            Escolha um pacote e forma de pagamento no formulário. Os dados chegam por e-mail para o time comercial e o contato é feito em seguida.
+            Escolha um pacote no formulário. Para o pacote Teste não é preciso informar pagamento; nos demais planos o comercial recebe sua escolha e faz o contato em seguida.
           </p>
         </div>
 
@@ -201,7 +260,8 @@
           <input type="email" name="email" placeholder="contato@clinica.com" required />
 
           <label>Telefone/WhatsApp</label>
-          <input type="text" name="telefone" placeholder="(11) 99999-9999" />
+          <input type="text" name="telefone" placeholder="(11) 99999-9999" data-sales-phone />
+          <p class="sales-form-help" data-phone-help>Informe um WhatsApp para agilizar o retorno do comercial.</p>
 
           <label>Pacote desejado</label>
           <select name="pacote" required>
@@ -211,13 +271,16 @@
             <% }) %>
           </select>
 
-          <label>Forma de pagamento</label>
-          <select name="forma_pagamento" required>
-            <option value="">Selecione uma forma</option>
-            <% Object.keys(paymentMethods).forEach(function(key) { %>
-              <option value="<%= key %>"><%= paymentMethods[key] %></option>
-            <% }) %>
-          </select>
+          <div class="sales-form-field" data-payment-group>
+            <label>Forma de pagamento</label>
+            <select name="forma_pagamento" required>
+              <option value="">Selecione uma forma</option>
+              <% Object.keys(paymentMethods).forEach(function(key) { %>
+                <option value="<%= key %>"><%= paymentMethods[key] %></option>
+              <% }) %>
+            </select>
+          </div>
+          <p class="sales-form-help" data-payment-help>Selecione a forma de pagamento para seguir com os planos pagos.</p>
 
           <label>Observações (opcional)</label>
           <textarea name="mensagem" rows="4" placeholder="Se quiser, descreva o tamanho da equipe e melhor horário para contato."></textarea>
@@ -253,10 +316,116 @@
       <h2>Sua recepção não precisa continuar no modo improviso</h2>
       <p>Comece o teste, valide com sua equipe e escale com controle de licença.</p>
       <div class="hero-sales-ctas">
-        <a href="/cadastro-dentista" class="btn btn-pulse">Quero meu acesso agora</a>
+        <a href="#trial-popup" class="btn btn-pulse" data-open-trial-popup>Quero meu acesso agora</a>
         <a href="/login" class="btn btn-outline">Entrar na conta existente</a>
       </div>
     </section>
   </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modal = document.querySelector('[data-trial-modal]');
+      const openButtons = document.querySelectorAll('[data-open-trial-popup]');
+      const closeButtons = document.querySelectorAll('[data-close-trial-popup]');
+      const packageSelect = document.querySelector('select[name="pacote"]');
+      const paymentGroup = document.querySelector('[data-payment-group]');
+      const paymentSelect = document.querySelector('select[name="forma_pagamento"]');
+      const paymentHelp = document.querySelector('[data-payment-help]');
+      const phoneInput = document.querySelector('[data-sales-phone]');
+      const phoneHelp = document.querySelector('[data-phone-help]');
+      const sessionKey = 'jaagendou-sales-trial-popup-dismissed';
+
+      function openModal() {
+        if (!modal) {
+          return;
+        }
+
+        modal.hidden = false;
+        document.body.classList.add('sales-modal-open');
+
+        const firstField = modal.querySelector('input[name="nome_responsavel"]');
+        if (firstField) {
+          firstField.focus();
+        }
+      }
+
+      function closeModal() {
+        if (!modal) {
+          return;
+        }
+
+        modal.hidden = true;
+        document.body.classList.remove('sales-modal-open');
+        window.sessionStorage.setItem(sessionKey, '1');
+      }
+
+      function syncLeadForm() {
+        if (!packageSelect || !paymentSelect || !paymentGroup) {
+          return;
+        }
+
+        const isTrialSelected = packageSelect.value === 'teste';
+        paymentSelect.required = !isTrialSelected;
+        paymentSelect.disabled = isTrialSelected;
+        paymentGroup.classList.toggle('is-hidden', isTrialSelected);
+
+        if (isTrialSelected) {
+          paymentSelect.value = '';
+        }
+
+        if (paymentHelp) {
+          paymentHelp.textContent = isTrialSelected
+            ? 'No pacote Teste você pode avançar sem escolher meio de pagamento.'
+            : 'Selecione a forma de pagamento para seguir com os planos pagos.';
+        }
+
+        if (phoneInput) {
+          phoneInput.required = isTrialSelected;
+        }
+
+        if (phoneHelp) {
+          phoneHelp.textContent = isTrialSelected
+            ? 'Para o pacote Teste, o telefone/WhatsApp é obrigatório para o contato comercial.'
+            : 'Informe um WhatsApp para agilizar o retorno do comercial.';
+        }
+      }
+
+      openButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          window.sessionStorage.removeItem(sessionKey);
+          openModal();
+        });
+      });
+
+      closeButtons.forEach(function (button) {
+        button.addEventListener('click', closeModal);
+      });
+
+      if (modal) {
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) {
+            closeModal();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal && !modal.hidden) {
+          closeModal();
+        }
+      });
+
+      if (packageSelect) {
+        packageSelect.addEventListener('change', syncLeadForm);
+        syncLeadForm();
+      }
+
+      const hasFeedback = document.body.dataset.salesSuccess === '1' || document.body.dataset.salesError === '1';
+      if (modal && !hasFeedback && window.sessionStorage.getItem(sessionKey) !== '1') {
+        window.setTimeout(openModal, 450);
+      }
+    });
+  </script>
 </body>
 </html>

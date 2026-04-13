@@ -3,6 +3,7 @@ const { hashPassword } = require('../utils/hash');
 const { sendEmail, isEmailConfigured } = require('../services/emailService');
 
 const SALES_PACKAGES = {
+  teste: { label: 'Teste', price: 'Gratuito' },
   pacote_7: { label: '7 dias', price: 'R$ 9,97' },
   pacote_30: { label: '30 dias (1 mês)', price: 'R$ 35,97' },
   pacote_90: { label: '90 dias (3 meses)', price: 'R$ 107,91' },
@@ -15,6 +16,16 @@ const PAYMENT_METHODS = {
   cartao: 'Cartão',
   boleto: 'Boleto',
 };
+
+function getSalesLeadRecipients() {
+  const primaryRecipient = String(process.env.SALES_LEADS_EMAIL || 'otavio.garcia@outlook.com').trim().toLowerCase();
+  const copyRecipient = String(process.env.SALES_LEADS_CC_EMAIL || 'no-reply@jaagendou.app').trim().toLowerCase();
+
+  return {
+    to: primaryRecipient,
+    cc: copyRecipient && copyRecipient !== primaryRecipient ? copyRecipient : undefined,
+  };
+}
 
 async function notifyTrialSignupForApproval({ nomeDentista, nomeClinica, email, telefone }) {
   const approvalRecipient =
@@ -93,7 +104,9 @@ async function generateUniqueSlug(baseName) {
 function showSalesPage(req, res) {
   const success = req.query.sucesso === '1';
   const error = req.query.erro === 'campos_obrigatorios'
-    ? 'Preencha nome, clínica, e-mail, pacote e forma de pagamento.'
+    ? 'Preencha nome, clínica, e-mail, pacote e, para planos pagos, a forma de pagamento.'
+    : req.query.erro === 'campos_obrigatorios_teste'
+      ? 'Preencha nome, clínica, e-mail e telefone para solicitar a licença teste.'
     : req.query.erro === 'pacote_invalido'
       ? 'Pacote selecionado inválido. Tente novamente.'
       : req.query.erro === 'pagamento_invalido'
@@ -120,9 +133,15 @@ async function submitSalesLead(req, res) {
   const pacote = String(req.body.pacote || '').trim();
   const formaPagamento = String(req.body.forma_pagamento || '').trim();
   const mensagem = String(req.body.mensagem || '').trim();
+  const origemFormulario = String(req.body.origem_formulario || '').trim();
+  const isTrialPackage = pacote === 'teste';
 
-  if (!nomeResponsavel || !nomeClinica || !email || !pacote || !formaPagamento) {
+  if (!nomeResponsavel || !nomeClinica || !email || !pacote) {
     return res.redirect('/venda?erro=campos_obrigatorios#contato-comercial');
+  }
+
+  if (isTrialPackage && !telefone) {
+    return res.redirect('/venda?erro=campos_obrigatorios_teste#contato-comercial');
   }
 
   const selectedPackage = SALES_PACKAGES[pacote];
@@ -130,16 +149,20 @@ async function submitSalesLead(req, res) {
     return res.redirect('/venda?erro=pacote_invalido#contato-comercial');
   }
 
-  const paymentLabel = PAYMENT_METHODS[formaPagamento];
+  const paymentLabel = isTrialPackage ? 'Não se aplica - licença teste' : PAYMENT_METHODS[formaPagamento];
   if (!paymentLabel) {
     return res.redirect('/venda?erro=pagamento_invalido#contato-comercial');
   }
 
-  const salesEmailRecipient = process.env.SALES_LEADS_EMAIL || 'otavio.garcia@outlook.com';
+  const salesRecipients = getSalesLeadRecipients();
+  const sourceLabel = origemFormulario === 'popup_teste'
+    ? 'Popup de licença teste'
+    : 'Formulário comercial';
 
   const textBody = [
     'Novo interesse comercial - Já Agendou',
     '',
+    `Origem: ${sourceLabel}`,
     `Responsável: ${nomeResponsavel}`,
     `Clínica: ${nomeClinica}`,
     `E-mail: ${email}`,
@@ -151,6 +174,7 @@ async function submitSalesLead(req, res) {
 
   const htmlBody = `
     <h2>Novo interesse comercial - Já Agendou</h2>
+    <p><strong>Origem:</strong> ${sourceLabel}</p>
     <p><strong>Responsável:</strong> ${nomeResponsavel}</p>
     <p><strong>Clínica:</strong> ${nomeClinica}</p>
     <p><strong>E-mail:</strong> ${email}</p>
@@ -167,12 +191,14 @@ async function submitSalesLead(req, res) {
       email,
       pacote,
       formaPagamento,
+      origemFormulario,
     });
     return res.redirect('/venda?erro=email_indisponivel#contato-comercial');
   }
 
   const sendResult = await sendEmail({
-    to: salesEmailRecipient,
+    to: salesRecipients.to,
+    cc: salesRecipients.cc,
     subject: `Novo lead comercial - ${nomeClinica}`,
     text: textBody,
     html: htmlBody,
