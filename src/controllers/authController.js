@@ -10,6 +10,8 @@ const PERMANENT_SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || 'Otav
 const RESET_PASSWORD_TTL_MINUTES = Number(process.env.RESET_PASSWORD_TTL_MINUTES || 60);
 const MIN_PASSWORD_LENGTH = 6;
 
+let ensureResetColumnsPromise = null;
+
 function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
 }
@@ -54,6 +56,42 @@ async function loadUserByEmail(email) {
     clinica_trial_fim_em: clinica?.trial_fim_em || null,
     clinica_desbloqueado_em: clinica?.desbloqueado_em || null,
   };
+}
+
+async function hasColumn(tableName, columnName) {
+  const [rows] = await pool.execute(
+    `SELECT 1
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+       AND COLUMN_NAME = ?
+     LIMIT 1`,
+    [tableName, columnName]
+  );
+
+  return rows.length > 0;
+}
+
+async function addColumnIfMissing(tableName, columnName, definitionSql) {
+  if (await hasColumn(tableName, columnName)) {
+    return;
+  }
+
+  await pool.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definitionSql}`);
+}
+
+async function ensurePasswordResetColumns() {
+  if (!ensureResetColumnsPromise) {
+    ensureResetColumnsPromise = (async () => {
+      await addColumnIfMissing('usuarios', 'reset_password_token', 'VARCHAR(128) NULL AFTER senha_hash');
+      await addColumnIfMissing('usuarios', 'reset_password_expiry', 'DATETIME NULL AFTER reset_password_token');
+    })().catch((error) => {
+      ensureResetColumnsPromise = null;
+      throw error;
+    });
+  }
+
+  return ensureResetColumnsPromise;
 }
 
 async function ensureMasterClinic() {
@@ -149,6 +187,8 @@ async function loadUserByResetToken(token) {
     return null;
   }
 
+  await ensurePasswordResetColumns();
+
   const [rows] = await pool.execute(
     `SELECT *
      FROM usuarios
@@ -163,6 +203,8 @@ async function loadUserByResetToken(token) {
 }
 
 async function clearResetPasswordToken(userId) {
+  await ensurePasswordResetColumns();
+
   await pool.execute(
     `UPDATE usuarios
      SET reset_password_token = NULL,
@@ -173,6 +215,8 @@ async function clearResetPasswordToken(userId) {
 }
 
 async function sendResetPasswordEmail({ req, user }) {
+  await ensurePasswordResetColumns();
+
   const token = crypto.randomBytes(32).toString('hex');
   const expiry = new Date(Date.now() + RESET_PASSWORD_TTL_MINUTES * 60 * 1000);
 
