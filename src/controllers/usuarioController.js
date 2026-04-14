@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const { comparePassword, hashPassword } = require('../utils/hash');
 
 const MIN_PASSWORD_LENGTH = 6;
+let ensureResetColumnsPromise = null;
 
 function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
@@ -17,6 +18,42 @@ async function verifyPassword(inputPassword, storedValue) {
   }
 
   return inputPassword === storedValue;
+}
+
+async function hasColumn(tableName, columnName) {
+  const [rows] = await pool.execute(
+    `SELECT 1
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = ?
+       AND COLUMN_NAME = ?
+     LIMIT 1`,
+    [tableName, columnName]
+  );
+
+  return rows.length > 0;
+}
+
+async function addColumnIfMissing(tableName, columnName, definitionSql) {
+  if (await hasColumn(tableName, columnName)) {
+    return;
+  }
+
+  await pool.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definitionSql}`);
+}
+
+async function ensurePasswordResetColumns() {
+  if (!ensureResetColumnsPromise) {
+    ensureResetColumnsPromise = (async () => {
+      await addColumnIfMissing('usuarios', 'reset_password_token', 'VARCHAR(128) NULL AFTER senha_hash');
+      await addColumnIfMissing('usuarios', 'reset_password_expiry', 'DATETIME NULL AFTER reset_password_token');
+    })().catch((error) => {
+      ensureResetColumnsPromise = null;
+      throw error;
+    });
+  }
+
+  return ensureResetColumnsPromise;
 }
 
 async function index(req, res) {
@@ -130,6 +167,7 @@ async function changeOwnPassword(req, res) {
     }
 
     const newPasswordHash = await hashPassword(newPassword);
+    await ensurePasswordResetColumns();
     await pool.execute(
       `UPDATE usuarios
        SET senha_hash = ?,
