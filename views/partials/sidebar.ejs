@@ -20,6 +20,9 @@
     <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
       <a href="/usuarios" class="nav-link<%= p==='usuarios' ? ' active' : '' %>">Usuários</a>
     <% } %>
+    <% if (user) { %>
+      <a href="/usuarios/minha-senha" class="nav-link<%= p==='minha-senha' ? ' active' : '' %>">Minha senha</a>
+    <% } %>
     <% if (user && user.perfil === 'super_admin') { %>
       <a href="/clinicas" class="nav-link<%= p==='clinicas' ? ' active' : '' %>">Clínicas</a>
     <% } %>

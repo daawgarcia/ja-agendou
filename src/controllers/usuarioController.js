@@ -1,5 +1,23 @@
 const pool = require('../config/db');
-const { hashPassword } = require('../utils/hash');
+const { comparePassword, hashPassword } = require('../utils/hash');
+
+const MIN_PASSWORD_LENGTH = 6;
+
+function isBcryptHash(value) {
+  return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
+}
+
+async function verifyPassword(inputPassword, storedValue) {
+  if (typeof inputPassword !== 'string' || typeof storedValue !== 'string') {
+    return false;
+  }
+
+  if (isBcryptHash(storedValue)) {
+    return comparePassword(inputPassword, storedValue);
+  }
+
+  return inputPassword === storedValue;
+}
 
 async function index(req, res) {
   const clinicaId = req.session.user.clinica_id;
@@ -54,4 +72,84 @@ async function toggleStatus(req, res) {
   }
 }
 
-module.exports = { index, create, toggleStatus };
+function showChangePassword(req, res) {
+  return res.render('usuarios/change-password', {
+    error: null,
+    success: null,
+  });
+}
+
+async function changeOwnPassword(req, res) {
+  const userId = req.session.user.id;
+  const currentPassword = String(req.body.senha_atual || '');
+  const newPassword = String(req.body.nova_senha || '');
+  const confirmPassword = String(req.body.confirmar_senha || '');
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return res.status(400).render('usuarios/change-password', {
+      error: 'Preencha todos os campos para alterar sua senha.',
+      success: null,
+    });
+  }
+
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    return res.status(400).render('usuarios/change-password', {
+      error: `A nova senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+      success: null,
+    });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).render('usuarios/change-password', {
+      error: 'A confirmação da nova senha não confere.',
+      success: null,
+    });
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT id, senha_hash, senha FROM usuarios WHERE id = ? LIMIT 1',
+      [userId]
+    );
+
+    const user = rows[0] || null;
+    if (!user) {
+      return res.status(404).render('usuarios/change-password', {
+        error: 'Usuário não encontrado para alterar a senha.',
+        success: null,
+      });
+    }
+
+    const storedPassword = user.senha_hash || user.senha || null;
+    const validCurrentPassword = await verifyPassword(currentPassword, storedPassword);
+    if (!validCurrentPassword) {
+      return res.status(400).render('usuarios/change-password', {
+        error: 'A senha atual informada está incorreta.',
+        success: null,
+      });
+    }
+
+    const newPasswordHash = await hashPassword(newPassword);
+    await pool.execute(
+      `UPDATE usuarios
+       SET senha_hash = ?,
+           reset_password_token = NULL,
+           reset_password_expiry = NULL
+       WHERE id = ?`,
+      [newPasswordHash, userId]
+    );
+
+    return res.render('usuarios/change-password', {
+      error: null,
+      success: 'Sua senha foi atualizada com sucesso.',
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).render('usuarios/change-password', {
+      error: 'Não foi possível alterar sua senha agora. Tente novamente em alguns minutos.',
+      success: null,
+    });
+  }
+}
+
+module.exports = { index, create, toggleStatus, showChangePassword, changeOwnPassword };

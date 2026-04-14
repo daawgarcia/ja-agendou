@@ -7,6 +7,11 @@ function getLoginUrl(req) {
   return `${baseUrl.replace(/\/$/, '')}/login`;
 }
 
+function getForgotPasswordUrl(req) {
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  return `${baseUrl.replace(/\/$/, '')}/forgot-password`;
+}
+
 async function getClinicAccessContact(clinicaId) {
   const [rows] = await pool.execute(
     `SELECT c.nome AS clinica_nome,
@@ -44,6 +49,7 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
   }
 
   const loginUrl = getLoginUrl(req);
+  const forgotPasswordUrl = getForgotPasswordUrl(req);
   const releaseCcEmail = (process.env.RELEASE_COPY_EMAIL || 'otavio.garcia@outlook.com').trim().toLowerCase();
   const title = mode === 'unlock'
     ? 'Acesso reativado com sucesso'
@@ -65,6 +71,8 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
     `Clínica: ${contact.clinicaNome}`,
     `E-mail de acesso: ${contact.contatoEmail}`,
     `Link de acesso: ${loginUrl}`,
+    'Se precisar criar ou redefinir sua senha, acesse a tela de login e clique em "Esqueci minha senha".',
+    `Recuperação de senha: ${forgotPasswordUrl}`,
     '',
     'Equipe Já Agendou',
   ].join('\n');
@@ -80,9 +88,11 @@ async function sendAccessReleaseEmail({ req, clinicaId, mode }) {
           <p style="margin-top:0;">Olá, <strong>${contact.contatoNome}</strong>!</p>
           <p>Seu acesso da clínica <strong>${contact.clinicaNome}</strong> está liberado.</p>
           <p><strong>E-mail de acesso:</strong> ${contact.contatoEmail}</p>
+          <p>Se precisar criar ou redefinir sua senha, acesse a tela de login e clique em <strong>Esqueci minha senha</strong>.</p>
           <p style="margin:20px 0 24px;">
             <a href="${loginUrl}" style="display:inline-block;background:#1e5b92;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Acessar o sistema</a>
           </p>
+          <p style="margin:0 0 8px;color:#5a6b7d;font-size:13px;">Se preferir, vá direto para a recuperação de senha: <a href="${forgotPasswordUrl}">${forgotPasswordUrl}</a></p>
           <p style="margin:0;color:#5a6b7d;font-size:13px;">Se o botão não abrir, use este link: <a href="${loginUrl}">${loginUrl}</a></p>
         </div>
       </div>
