@@ -1,6 +1,27 @@
 const pool = require('../config/db');
 const XLSX = require('xlsx');
 
+/* ---------- garante coluna cep (roda uma vez) ---------- */
+let ensureCepPromise = null;
+function ensureCepColumn() {
+  if (!ensureCepPromise) {
+    ensureCepPromise = pool.execute(
+      `SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pacientes' AND COLUMN_NAME = 'cep' LIMIT 1`
+    ).then(([rows]) => {
+      if (!rows.length) {
+        return pool.execute(
+          `ALTER TABLE pacientes ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL AFTER endereco`
+        );
+      }
+    }).catch((err) => {
+      ensureCepPromise = null;
+      throw err;
+    });
+  }
+  return ensureCepPromise;
+}
+
 /* ---------- helpers ---------- */
 function parseDate(val) {
   if (!val) return null;
@@ -34,6 +55,7 @@ function clean(val) {
 async function list(req, res) {
   const clinicaId = req.session.user.clinica_id;
   try {
+    await ensureCepColumn();
     const [pacientes] = await pool.execute(
       `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, cep, responsavel,
               DATE_FORMAT(data_nascimento, '%Y-%m-%d') AS data_nascimento,
@@ -60,6 +82,7 @@ async function getJson(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const busca = String(req.query.busca || '').trim();
   try {
+    await ensureCepColumn();
     let query = `SELECT id, codigo_cliente, nome, telefone, email, cpf, cep, endereco, responsavel,
               DATE_FORMAT(data_nascimento, '%d/%m/%Y') AS data_nascimento_fmt
        FROM pacientes WHERE clinica_id = ?`;
@@ -98,6 +121,7 @@ async function editForm(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const { id } = req.params;
   try {
+    await ensureCepColumn();
     const [rows] = await pool.execute(
       `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, cep, responsavel,
               DATE_FORMAT(data_nascimento, '%Y-%m-%d') AS data_nascimento, observacoes
