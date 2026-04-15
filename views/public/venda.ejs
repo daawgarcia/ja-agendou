@@ -22,7 +22,7 @@
       <button type="button" class="sales-modal-close" data-close-trial-popup aria-label="Fechar formulário de licença teste">&times;</button>
 
       <div class="sales-trial-copy">
-        <p class="trial-badge">Teste Gratuito — 3 Dias</p>
+        <p class="trial-badge">Teste Gratuito — 7 Dias</p>
         <h2 id="trial-modal-title">Veja como organizar sua clínica em 5 minutos</h2>
         <p>
           Preencha seus dados e receba acesso ao sistema completo. Sem cartão, sem compromisso.
@@ -115,7 +115,7 @@
         </div>
         <div class="hero-sales-ctas">
           <a href="#trial-popup" class="btn btn-pulse" data-open-trial-popup>Quero minha licença teste</a>
-          <a href="#contato-comercial" class="btn btn-outline">Escolher pacote e forma de pagamento</a>
+          <a href="#planos" class="btn btn-outline">Ver planos e preços</a>
         </div>
       </div>
       <div class="hero-sales-card">
@@ -178,7 +178,7 @@
       <div>
         <h2>Antes x depois do Já Agendou</h2>
         <p>
-          Quem testa por 3 dias percebe rápido: o problema não era falta de paciente, era falta de processo visível para toda equipe.
+          Quem testa por 7 dias percebe rápido: o problema não era falta de paciente, era falta de processo visível para toda equipe.
         </p>
       </div>
       <div class="sales-checklist">
@@ -238,7 +238,7 @@
         <article class="sales-plan-card">
           <p class="plan-badge">Entrada</p>
           <h3>Teste gratuito</h3>
-          <p class="plan-price">3 dias grátis</p>
+          <p class="plan-price">7 dias grátis</p>
           <ul class="plan-features">
             <li>Acesso completo ao sistema</li>
             <li>Agenda, pacientes e equipe</li>
@@ -251,81 +251,37 @@
         <article class="sales-plan-card featured-plan">
           <p class="plan-badge">Mais escolhido</p>
           <h3>Mensal</h3>
-          <p class="plan-price">R$ 35,97<span class="plan-period">/mês</span></p>
+          <p class="plan-price">R$ 39,97<span class="plan-period">/mês</span></p>
+          <p class="plan-payment">Pagamento à vista</p>
           <ul class="plan-features">
             <li>Tudo do teste gratuito</li>
             <li>Lembretes ilimitados</li>
             <li>Relatórios e dashboard</li>
             <li>Suporte prioritário</li>
           </ul>
-          <a href="#contato-comercial" class="btn btn-pulse">Quero o plano mensal</a>
+          <a href="https://pay.hotmart.com/O105349552T?off=j6oa11xk" target="_blank" rel="noopener" class="btn btn-pulse">Assinar plano mensal</a>
         </article>
 
         <article class="sales-plan-card">
-          <p class="plan-badge plan-badge-save">Economia de 8%</p>
+          <p class="plan-badge plan-badge-save">Melhor custo-benefício</p>
           <h3>Anual</h3>
           <p class="plan-price">R$ 397,00<span class="plan-period">/ano</span></p>
+          <p class="plan-payment">Equivale a R$ 33,08/mês</p>
           <ul class="plan-features">
             <li>Tudo do plano mensal</li>
-            <li>Economia de R$ 34,64</li>
+            <li>Economia de R$ 82,64 no ano</li>
             <li>Acesso garantido por 1 ano</li>
             <li>Onboarding dedicado</li>
           </ul>
-          <a href="#contato-comercial" class="btn">Quero o plano anual</a>
+          <a href="https://pay.hotmart.com/O105349552T?off=wlx0u3px" target="_blank" rel="noopener" class="btn">Assinar plano anual</a>
         </article>
       </div>
     </section>
 
     <section class="sales-section reveal-up" id="contato-comercial">
-      <h2>Pacotes e proposta comercial</h2>
-      <div class="sales-lead-layout">
-        <div class="sales-price-table-wrap">
-          <table class="sales-price-table">
-            <thead>
-              <tr>
-                <th>Pacote</th>
-                <th>Duração</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Teste</td>
-                <td>Licença experimental</td>
-                <td>Gratuito</td>
-              </tr>
-              <tr>
-                <td>Starter</td>
-                <td>7 dias</td>
-                <td>R$ 9,97</td>
-              </tr>
-              <tr>
-                <td>Mensal</td>
-                <td>30 dias (1 mês)</td>
-                <td>R$ 35,97</td>
-              </tr>
-              <tr>
-                <td>Trimestral</td>
-                <td>90 dias (3 meses)</td>
-                <td>R$ 107,91</td>
-              </tr>
-              <tr>
-                <td>Semestral</td>
-                <td>180 dias (6 meses)</td>
-                <td>R$ 215,82</td>
-              </tr>
-              <tr>
-                <td>Anual</td>
-                <td>360 dias (1 ano)</td>
-                <td>R$ 397,00</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="sales-price-note">
-            Escolha um pacote no formulário. Para o pacote Teste não é preciso informar pagamento; nos demais planos o comercial recebe sua escolha e faz o contato em seguida.
-          </p>
-        </div>
-
+      <h2>Fale com o comercial</h2>
+      <p style="color:#475569;margin-bottom:16px">Tem dúvidas ou quer um atendimento personalizado? Preencha o formulário e retornamos rapidamente.</p>
+      <div class="sales-lead-centered">
         <form method="POST" action="/venda/lead" class="sales-lead-form">
           <label>Nome do responsável</label>
           <input type="text" name="nome_responsavel" placeholder="Nome completo" required />
@@ -337,32 +293,14 @@
           <input type="email" name="email" placeholder="contato@clinica.com" required />
 
           <label>Telefone/WhatsApp</label>
-          <input type="text" name="telefone" placeholder="(11) 99999-9999" data-sales-phone />
-          <p class="sales-form-help" data-phone-help>Informe um WhatsApp para agilizar o retorno do comercial.</p>
+          <input type="text" name="telefone" placeholder="(11) 99999-9999" />
 
-          <label>Pacote desejado</label>
-          <select name="pacote" required>
-            <option value="">Selecione um pacote</option>
-            <% Object.keys(salesPackages).forEach(function(key) { %>
-              <option value="<%= key %>"><%= salesPackages[key].label %> - <%= salesPackages[key].price %></option>
-            <% }) %>
-          </select>
-
-          <div class="sales-form-field" data-payment-group>
-            <label>Forma de pagamento</label>
-            <select name="forma_pagamento" required>
-              <option value="">Selecione uma forma</option>
-              <% Object.keys(paymentMethods).forEach(function(key) { %>
-                <option value="<%= key %>"><%= paymentMethods[key] %></option>
-              <% }) %>
-            </select>
-          </div>
-          <p class="sales-form-help" data-payment-help>Selecione a forma de pagamento para seguir com os planos pagos.</p>
+          <input type="hidden" name="pacote" value="contato" />
 
           <label>Observações (opcional)</label>
           <textarea name="mensagem" rows="4" placeholder="Se quiser, descreva o tamanho da equipe e melhor horário para contato."></textarea>
 
-          <button type="submit" class="btn btn-pulse">Enviar dados para contato comercial</button>
+          <button type="submit" class="btn btn-pulse">Enviar para contato comercial</button>
         </form>
       </div>
     </section>
@@ -425,12 +363,6 @@
       const modal = document.querySelector('[data-trial-modal]');
       const openButtons = document.querySelectorAll('[data-open-trial-popup]');
       const closeButtons = document.querySelectorAll('[data-close-trial-popup]');
-      const packageSelect = document.querySelector('select[name="pacote"]');
-      const paymentGroup = document.querySelector('[data-payment-group]');
-      const paymentSelect = document.querySelector('select[name="forma_pagamento"]');
-      const paymentHelp = document.querySelector('[data-payment-help]');
-      const phoneInput = document.querySelector('[data-sales-phone]');
-      const phoneHelp = document.querySelector('[data-phone-help]');
       const storageKey = 'jaagendou-popup-ts';
 
       var popupShown = false;
@@ -481,26 +413,6 @@
       // Fallback: 25 segundos
       setTimeout(function () { if (!popupShown) triggerAutoPopup(); }, 25000);
 
-      function syncLeadForm() {
-        if (!packageSelect || !paymentSelect || !paymentGroup) return;
-        var isTrialSelected = packageSelect.value === 'teste';
-        paymentSelect.required = !isTrialSelected;
-        paymentSelect.disabled = isTrialSelected;
-        paymentGroup.classList.toggle('is-hidden', isTrialSelected);
-        if (isTrialSelected) paymentSelect.value = '';
-        if (paymentHelp) {
-          paymentHelp.textContent = isTrialSelected
-            ? 'No pacote Teste você pode avançar sem escolher meio de pagamento.'
-            : 'Selecione a forma de pagamento para seguir com os planos pagos.';
-        }
-        if (phoneInput) phoneInput.required = isTrialSelected;
-        if (phoneHelp) {
-          phoneHelp.textContent = isTrialSelected
-            ? 'Para o pacote Teste, o telefone/WhatsApp é obrigatório para o contato comercial.'
-            : 'Informe um WhatsApp para agilizar o retorno do comercial.';
-        }
-      }
-
       openButtons.forEach(function (button) {
         button.addEventListener('click', function (event) {
           event.preventDefault();
@@ -521,11 +433,6 @@
       document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
       });
-
-      if (packageSelect) {
-        packageSelect.addEventListener('change', syncLeadForm);
-        syncLeadForm();
-      }
     });
   </script>
 </body>

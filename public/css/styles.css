@@ -1253,6 +1253,29 @@ textarea { resize: vertical; }
   color: #92400e;
 }
 
+.plan-payment {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: -8px;
+  margin-bottom: 4px;
+}
+
+/* ========== CONTACT FORM CENTERED ========== */
+.sales-lead-centered {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.sales-lead-centered .sales-lead-form {
+  background: #ffffff;
+  border: 1px solid #d4e1ee;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(13, 43, 72, 0.08);
+  padding: 24px;
+  display: grid;
+  gap: 8px;
+}
+
 /* ========== WHATSAPP FLUTUANTE ========== */
 .whatsapp-float {
   position: fixed;
