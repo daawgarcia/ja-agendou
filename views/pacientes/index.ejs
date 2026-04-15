@@ -3,139 +3,247 @@
 <main class="content">
   <%- include('../partials/topbar', { pageTitle: 'Pacientes', subtitle: 'Cadastre e gerencie pacientes. Importação via Excel/CSV disponível.' }) %>
   <div class="page-body">
-    <div class="two-col">
-      <!-- FORM -->
-      <div>
-        <div class="card">
-          <h3><%= editPaciente ? 'Editar paciente' : 'Novo paciente' %></h3>
-          <form method="POST" action="<%= editPaciente ? '/pacientes/' + editPaciente.id + '?_method=PUT' : '/pacientes' %>" class="form-grid">
-            <div class="full">
-              <label>Nome completo</label>
-              <input type="text" name="nome" value="<%= editPaciente?.nome||'' %>" required />
-            </div>
-            <div>
-              <label>Telefone</label>
-              <input type="text" name="telefone" value="<%= editPaciente?.telefone||'' %>" />
-            </div>
-            <div>
-              <label>E-mail</label>
-              <input type="email" name="email" value="<%= editPaciente?.email||'' %>" />
-            </div>
-            <div>
-              <label>Data de nascimento</label>
-              <input type="date" name="data_nascimento" value="<%= editPaciente?.data_nascimento||'' %>" />
-            </div>
-            <div>
-              <label>Convênio</label>
-              <input type="text" name="convenio" value="<%= editPaciente?.convenio||'' %>" />
-            </div>
-            <div class="full">
-              <label>Endereço</label>
-              <input type="text" name="endereco" value="<%= editPaciente?.endereco||'' %>" />
-            </div>
-            <div>
-              <label>Sexo</label>
-              <select name="sexo">
-                <option value="">Selecione</option>
-                <option value="F" <%= editPaciente?.sexo==='F'?'selected':'' %>>Feminino</option>
-                <option value="M" <%= editPaciente?.sexo==='M'?'selected':'' %>>Masculino</option>
-                <option value="O" <%= editPaciente?.sexo==='O'?'selected':'' %>>Outro</option>
-              </select>
-            </div>
-            <div>
-              <label>CPF</label>
-              <input type="text" name="cpf" value="<%= editPaciente?.cpf||'' %>" />
-            </div>
-            <div>
-              <label>RG</label>
-              <input type="text" name="rg" value="<%= editPaciente?.rg||'' %>" />
-            </div>
-            <div>
-              <label>Responsável</label>
-              <input type="text" name="responsavel" value="<%= editPaciente?.responsavel||'' %>" />
-            </div>
-            <div class="full">
-              <label>Observações</label>
-              <textarea name="observacoes" rows="3"><%= editPaciente?.observacoes||'' %></textarea>
-            </div>
-            <div class="form-actions full">
-              <button type="submit" class="btn"><%= editPaciente ? 'Atualizar paciente' : 'Salvar paciente' %></button>
-              <% if(editPaciente){ %><a href="/pacientes" class="btn btn-outline">Limpar</a><% } else { %>
-              <button type="reset" class="btn btn-outline">Limpar</button><% } %>
-            </div>
-          </form>
-        </div>
 
-        <div class="card">
-          <h3>Importar Excel / CSV</h3>
-
-          <% if (typeof importError !== 'undefined' && importError) { %>
-            <div class="alert alert-error" style="margin-bottom:12px"><%= importError %></div>
-          <% } %>
-          <% if (typeof importSuccess !== 'undefined' && importSuccess) { %>
-            <div class="alert alert-success" style="margin-bottom:12px"><%= importSuccess %></div>
-          <% } %>
-
-          <p style="font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:12px">
-            Baixe o template, preencha os dados dos pacientes e envie o arquivo para importar em lote.
-            A coluna <strong>Nome</strong> é obrigatória.
-          </p>
-
-          <a href="/templates/template-pacientes.xlsx" class="btn btn-outline btn-sm" style="margin-bottom:14px" download>
-            ⬇ Baixar template Excel
-          </a>
-
-          <form method="POST" action="/pacientes/import" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:end">
-            <div style="flex:1">
-              <label style="font-size:12px">Arquivo (.xlsx ou .csv)</label>
-              <input type="file" name="arquivo" accept=".xlsx,.xls,.csv" required style="font-size:13px" />
-            </div>
-            <button type="submit" class="btn btn-sm">Importar</button>
-          </form>
-        </div>
+    <!-- TOOLBAR -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:220px">
+        <input id="buscaLive" type="text" placeholder="Buscar por nome, telefone ou CPF..." style="flex:1;max-width:420px" />
+        <span id="totalCount" style="font-size:12px;color:#6b7280;white-space:nowrap"></span>
       </div>
-
-      <!-- LIST -->
-      <div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <h3 style="margin-bottom:0;border-bottom:none;padding-bottom:0">Pacientes cadastrados</h3>
-          </div>
-          <form method="GET" action="/pacientes" style="margin-bottom:12px;display:flex;gap:8px">
-            <input type="text" name="busca" value="<%= busca||'' %>" placeholder="Buscar por nome..." style="flex:1" />
-            <button type="submit" class="btn btn-sm">Buscar</button>
-          </form>
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>CPF</th>
-                <th>Telefone</th>
-                <th>Responsável</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if(!pacientes.length){ %>
-                <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:20px">Nenhum paciente encontrado.</td></tr>
-              <% } %>
-              <% pacientes.forEach(function(p){ %>
-                <tr>
-                  <td><%= p.nome %></td>
-                  <td><%= p.cpf||'-' %></td>
-                  <td><%= p.telefone||'-' %></td>
-                  <td><%= p.responsavel||'-' %></td>
-                  <td>
-                    <a href="/pacientes/<%= p.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-sm btn-outline" onclick="abrirImport()">⬆ Importar</button>
+        <button class="btn btn-sm" onclick="abrirModal()">+ Novo paciente</button>
       </div>
     </div>
+
+    <!-- NOTIFICAÇÕES -->
+    <% if (importError) { %>
+      <div class="alert alert-error" style="margin-bottom:12px"><%= importError %></div>
+    <% } %>
+    <% if (importSuccess) { %>
+      <div class="alert alert-success" style="margin-bottom:12px"><%= importSuccess %></div>
+    <% } %>
+
+    <!-- TABELA -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <table id="tabelaPacientes">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Telefone</th>
+            <th>CEP</th>
+            <th>Responsável</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabela">
+          <% if(!pacientes.length){ %>
+            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px">Nenhum paciente cadastrado.</td></tr>
+          <% } %>
+          <% pacientes.forEach(function(p){ %>
+            <tr data-nome="<%= (p.nome||'').toLowerCase() %>" data-tel="<%= (p.telefone||'').toLowerCase() %>" data-cpf="<%= (p.cpf||'').toLowerCase() %>">
+              <td><%= p.nome %></td>
+              <td><%= p.cpf||'-' %></td>
+              <td><%= p.telefone||'-' %></td>
+              <td><%= p.cep||'-' %></td>
+              <td><%= p.responsavel||'-' %></td>
+              <td>
+                <button class="btn btn-outline btn-sm" onclick="editarPaciente(<%= p.id %>)">Editar</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </main>
+
+<!-- MODAL PACIENTE -->
+<div id="modalPaciente" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;overflow-y:auto;padding:24px 0">
+  <div style="background:#fff;border-radius:12px;max-width:700px;width:94%;margin:0 auto;padding:28px 28px 20px;position:relative">
+    <button onclick="fecharModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280" title="Fechar">&times;</button>
+    <h3 id="modalTitulo" style="margin:0 0 20px">Novo paciente</h3>
+    <form id="formPaciente" method="POST" action="/pacientes" class="form-grid">
+      <input type="hidden" name="_method" id="formMethod" value="">
+      <div class="full">
+        <label>Nome completo *</label>
+        <input type="text" name="nome" id="fNome" required />
+      </div>
+      <div>
+        <label>Telefone</label>
+        <input type="text" name="telefone" id="fTelefone" />
+      </div>
+      <div>
+        <label>E-mail</label>
+        <input type="email" name="email" id="fEmail" />
+      </div>
+      <div>
+        <label>Data de nascimento</label>
+        <input type="date" name="data_nascimento" id="fDataNasc" />
+      </div>
+      <div>
+        <label>CPF</label>
+        <input type="text" name="cpf" id="fCpf" />
+      </div>
+      <div>
+        <label>RG</label>
+        <input type="text" name="rg" id="fRg" />
+      </div>
+      <div>
+        <label>Sexo</label>
+        <select name="sexo" id="fSexo">
+          <option value="">Selecione</option>
+          <option value="F">Feminino</option>
+          <option value="M">Masculino</option>
+          <option value="O">Outro</option>
+        </select>
+      </div>
+      <div>
+        <label>Convênio</label>
+        <input type="text" name="convenio" id="fConvenio" />
+      </div>
+      <div>
+        <label>CEP</label>
+        <input type="text" name="cep" id="fCep" maxlength="9" placeholder="00000-000" />
+      </div>
+      <div class="full">
+        <label>Endereço</label>
+        <input type="text" name="endereco" id="fEndereco" />
+      </div>
+      <div class="full">
+        <label>Responsável</label>
+        <input type="text" name="responsavel" id="fResponsavel" />
+      </div>
+      <div class="full">
+        <label>Observações</label>
+        <textarea name="observacoes" id="fObservacoes" rows="3"></textarea>
+      </div>
+      <div class="form-actions full" style="margin-top:8px">
+        <button type="submit" class="btn" id="btnSalvar">Salvar paciente</button>
+        <button type="button" class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR -->
+<div id="modalImport" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;padding:24px 0">
+  <div style="background:#fff;border-radius:12px;max-width:500px;width:94%;margin:0 auto;padding:28px;position:relative">
+    <button onclick="fecharImport()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">&times;</button>
+    <h3 style="margin:0 0 16px">Importar pacientes</h3>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">
+      Baixe o template, preencha os dados e envie. A coluna <strong>Nome</strong> é obrigatória.
+    </p>
+    <a href="/templates/template-pacientes.xlsx" class="btn btn-outline btn-sm" style="margin-bottom:16px;display:inline-block" download>⬇ Baixar template Excel</a>
+    <form method="POST" action="/pacientes/import" enctype="multipart/form-data">
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px">Arquivo (.xlsx ou .csv)</label>
+        <input type="file" name="arquivo" accept=".xlsx,.xls,.csv" required style="font-size:13px;margin-top:4px" />
+      </div>
+      <button type="submit" class="btn">Importar</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  const rows = Array.from(document.querySelectorAll('#corpoTabela tr[data-nome]'));
+  const totalCount = document.getElementById('totalCount');
+
+  function updateCount(n) {
+    totalCount.textContent = n + ' paciente' + (n !== 1 ? 's' : '');
+  }
+  updateCount(rows.length);
+
+  document.getElementById('buscaLive').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    let visible = 0;
+    rows.forEach(function (row) {
+      const match = !q
+        || row.dataset.nome.includes(q)
+        || row.dataset.tel.includes(q)
+        || row.dataset.cpf.includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    updateCount(visible);
+  });
+
+  // Modal paciente
+  window.abrirModal = function () {
+    document.getElementById('modalTitulo').textContent = 'Novo paciente';
+    document.getElementById('formPaciente').action = '/pacientes';
+    document.getElementById('formMethod').value = '';
+    document.getElementById('btnSalvar').textContent = 'Salvar paciente';
+    document.getElementById('formPaciente').reset();
+    document.getElementById('modalPaciente').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('fNome').focus();
+  };
+
+  window.fecharModal = function () {
+    document.getElementById('modalPaciente').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  window.editarPaciente = function (id) {
+    fetch('/pacientes/' + id + '/json')
+      .then(function (r) { return r.json(); })
+      .then(function (p) {
+        document.getElementById('modalTitulo').textContent = 'Editar paciente';
+        document.getElementById('formPaciente').action = '/pacientes/' + id + '?_method=PUT';
+        document.getElementById('formMethod').value = 'PUT';
+        document.getElementById('btnSalvar').textContent = 'Atualizar paciente';
+        document.getElementById('fNome').value        = p.nome || '';
+        document.getElementById('fTelefone').value    = p.telefone || '';
+        document.getElementById('fEmail').value       = p.email || '';
+        document.getElementById('fDataNasc').value    = p.data_nascimento || '';
+        document.getElementById('fCpf').value         = p.cpf || '';
+        document.getElementById('fRg').value          = p.rg || '';
+        document.getElementById('fSexo').value        = p.sexo || '';
+        document.getElementById('fConvenio').value    = p.convenio || '';
+        document.getElementById('fCep').value         = p.cep || '';
+        document.getElementById('fEndereco').value    = p.endereco || '';
+        document.getElementById('fResponsavel').value = p.responsavel || '';
+        document.getElementById('fObservacoes').value = p.observacoes || '';
+        document.getElementById('modalPaciente').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        document.getElementById('fNome').focus();
+      })
+      .catch(function () { alert('Não foi possível carregar os dados do paciente.'); });
+  };
+
+  // Modal importar
+  window.abrirImport = function () {
+    document.getElementById('modalImport').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  };
+  window.fecharImport = function () {
+    document.getElementById('modalImport').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  // Fechar modais ao clicar fora
+  document.getElementById('modalPaciente').addEventListener('click', function (e) {
+    if (e.target === this) fecharModal();
+  });
+  document.getElementById('modalImport').addEventListener('click', function (e) {
+    if (e.target === this) fecharImport();
+  });
+
+  // Máscara CEP
+  document.getElementById('fCep').addEventListener('input', function () {
+    var v = this.value.replace(/\D/g, '').slice(0, 8);
+    this.value = v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v;
+  });
+
+  // Abrir modal de importação se houver notificação
+  <% if (importError || importSuccess) { %>
+  // resultado de importação visível na tela
+  <% } %>
+})();
+</script>
 </body>
 </html>

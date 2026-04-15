@@ -4,8 +4,14 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
 
 dotenv.config();
+
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: SESSION_SECRET não definida em produção. Defina a variável de ambiente.');
+  process.exit(1);
+}
 
 const authRoutes = require('./src/routes/authRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
@@ -26,6 +32,23 @@ const { runMigrations } = require('./src/config/migrations');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
+      fontSrc: ["'self'", 'fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -41,6 +64,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 8,
     },
   })
@@ -81,6 +106,10 @@ const PORT = process.env.PORT || 3000;
 const MIGRATIONS_STRICT = String(process.env.MIGRATIONS_STRICT || 'false').toLowerCase() === 'true';
 
 async function bootstrap() {
+  if (process.env.NODE_ENV === 'production' && !process.env.HOTMART_WEBHOOK_TOKEN) {
+    console.warn('AVISO DE SEGURANÇA: HOTMART_WEBHOOK_TOKEN não definida. O endpoint de webhook aceita qualquer requisição.');
+  }
+
   try {
     const migrationResult = await runMigrations();
     if (migrationResult.executed > 0) {

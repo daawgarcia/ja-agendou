@@ -7,6 +7,8 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 *
 const router = express.Router();
 
 router.get('/', ensureAuthenticated, pacienteController.list);
+router.get('/json', ensureAuthenticated, pacienteController.getJson);
+router.get('/:id/json', ensureAuthenticated, pacienteController.editForm);
 router.get('/:id/editar', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), pacienteController.editForm);
 router.post('/', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), pacienteController.create);
 router.post('/import', ensureAuthenticated, ensureRole(['super_admin', 'admin', 'recepcao']), upload.single('arquivo'), pacienteController.importExcel);

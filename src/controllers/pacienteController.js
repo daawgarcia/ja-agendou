@@ -33,17 +33,15 @@ function clean(val) {
 
 async function list(req, res) {
   const clinicaId = req.session.user.clinica_id;
-  const busca = req.query.busca || '';
   try {
-    let query = `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, responsavel,
+    const [pacientes] = await pool.execute(
+      `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, cep, responsavel,
               DATE_FORMAT(data_nascimento, '%Y-%m-%d') AS data_nascimento,
               DATE_FORMAT(data_nascimento, '%d/%m/%Y') AS data_nascimento_fmt,
               observacoes
-       FROM pacientes WHERE clinica_id = ?`;
-    const params = [clinicaId];
-    if (busca) { query += ' AND nome LIKE ?'; params.push(`%${busca}%`); }
-    query += ' ORDER BY nome ASC';
-    const [pacientes] = await pool.execute(query, params);
+       FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC`,
+      [clinicaId]
+    );
     const [[{ mes_atual }]] = await pool.execute('SELECT MONTH(CURDATE()) AS mes_atual');
     const [aniversariantes] = await pool.execute(
       `SELECT nome, telefone, DATE_FORMAT(data_nascimento, '%d/%m') AS dia_mes
@@ -51,21 +49,43 @@ async function list(req, res) {
        ORDER BY DAY(data_nascimento) ASC`,
       [clinicaId, mes_atual]
     );
-    return res.render('pacientes/index', { pacientes, editPaciente: null, error: null, busca, aniversariantes, importError: req.query.importError || null, importSuccess: req.query.importSuccess || null });
+    return res.render('pacientes/index', { pacientes, error: null, aniversariantes, importError: req.query.importError || null, importSuccess: req.query.importSuccess || null });
   } catch (error) {
     console.error(error);
     return res.status(500).render('partials/error', { title: 'Erro ao listar pacientes', message: 'Não foi possível carregar os pacientes.' });
   }
 }
 
+async function getJson(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const busca = String(req.query.busca || '').trim();
+  try {
+    let query = `SELECT id, codigo_cliente, nome, telefone, email, cpf, cep, endereco, responsavel,
+              DATE_FORMAT(data_nascimento, '%d/%m/%Y') AS data_nascimento_fmt
+       FROM pacientes WHERE clinica_id = ?`;
+    const params = [clinicaId];
+    if (busca) {
+      query += ' AND (nome LIKE ? OR telefone LIKE ? OR cpf LIKE ?)';
+      const like = `%${busca}%`;
+      params.push(like, like, like);
+    }
+    query += ' ORDER BY nome ASC LIMIT 200';
+    const [pacientes] = await pool.execute(query, params);
+    return res.json(pacientes);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Erro ao buscar pacientes.' });
+  }
+}
+
 async function create(req, res) {
   const clinicaId = req.session.user.clinica_id;
-  const { nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, responsavel, observacoes } = req.body;
+  const { nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, cep, responsavel, observacoes } = req.body;
   try {
     await pool.execute(
-      `INSERT INTO pacientes (clinica_id, nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, responsavel, observacoes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [clinicaId, nome, telefone || null, email || null, data_nascimento || null, cpf || null, rg || null, sexo || null, convenio || null, endereco || null, responsavel || null, observacoes || null]
+      `INSERT INTO pacientes (clinica_id, nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, cep, responsavel, observacoes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [clinicaId, nome, telefone || null, email || null, data_nascimento || null, cpf || null, rg || null, sexo || null, convenio || null, endereco || null, cep || null, responsavel || null, observacoes || null]
     );
     return res.redirect('/pacientes');
   } catch (error) {
@@ -78,35 +98,29 @@ async function editForm(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const { id } = req.params;
   try {
-    const [pacientes] = await pool.execute(
-      `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, responsavel,
-              DATE_FORMAT(data_nascimento, '%Y-%m-%d') AS data_nascimento, observacoes
-       FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC`,
-      [clinicaId]
-    );
     const [rows] = await pool.execute(
-      `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, responsavel,
+      `SELECT id, codigo_cliente, nome, telefone, email, cpf, rg, sexo, convenio, endereco, cep, responsavel,
               DATE_FORMAT(data_nascimento, '%Y-%m-%d') AS data_nascimento, observacoes
        FROM pacientes WHERE id = ? AND clinica_id = ? LIMIT 1`,
       [id, clinicaId]
     );
-    if (!rows.length) return res.redirect('/pacientes');
-    return res.render('pacientes/index', { pacientes, editPaciente: rows[0], error: null, busca: '', aniversariantes: [], importError: null, importSuccess: null });
+    if (!rows.length) return res.status(404).json({ error: 'Paciente não encontrado.' });
+    return res.json(rows[0]);
   } catch (error) {
     console.error(error);
-    return res.status(500).render('partials/error', { title: 'Erro ao editar paciente', message: 'Não foi possível carregar o paciente.' });
+    return res.status(500).json({ error: 'Não foi possível carregar o paciente.' });
   }
 }
 
 async function update(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const { id } = req.params;
-  const { nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, responsavel, observacoes } = req.body;
+  const { nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, cep, responsavel, observacoes } = req.body;
   try {
     await pool.execute(
-      `UPDATE pacientes SET nome = ?, telefone = ?, email = ?, data_nascimento = ?, cpf = ?, rg = ?, sexo = ?, convenio = ?, endereco = ?, responsavel = ?, observacoes = ?
+      `UPDATE pacientes SET nome = ?, telefone = ?, email = ?, data_nascimento = ?, cpf = ?, rg = ?, sexo = ?, convenio = ?, endereco = ?, cep = ?, responsavel = ?, observacoes = ?
        WHERE id = ? AND clinica_id = ?`,
-      [nome, telefone || null, email || null, data_nascimento || null, cpf || null, rg || null, sexo || null, convenio || null, endereco || null, responsavel || null, observacoes || null, id, clinicaId]
+      [nome, telefone || null, email || null, data_nascimento || null, cpf || null, rg || null, sexo || null, convenio || null, endereco || null, cep || null, responsavel || null, observacoes || null, id, clinicaId]
     );
     return res.redirect('/pacientes');
   } catch (error) {
@@ -154,6 +168,7 @@ async function importExcel(req, res) {
       sexo:            ['sexo', 'sexo (f/m/o)', 'gênero', 'genero'],
       convenio:        ['convênio', 'convenio', 'plano'],
       endereco:        ['endereço', 'endereco', 'end'],
+      cep:             ['cep', 'cód. postal', 'cod postal', 'codigo postal'],
       responsavel:     ['responsável', 'responsavel'],
       observacoes:     ['observações', 'observacoes', 'obs'],
     };
@@ -182,13 +197,14 @@ async function importExcel(req, res) {
       const sexo       = normSexo(colMap.sexo ? row[colMap.sexo] : null);
       const convenio   = clean(colMap.convenio ? row[colMap.convenio] : null);
       const endereco   = clean(colMap.endereco ? row[colMap.endereco] : null);
+      const cep        = clean(colMap.cep ? row[colMap.cep] : null);
       const responsavel = clean(colMap.responsavel ? row[colMap.responsavel] : null);
       const observacoes = clean(colMap.observacoes ? row[colMap.observacoes] : null);
 
       await pool.execute(
-        `INSERT INTO pacientes (clinica_id, nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, responsavel, observacoes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [clinicaId, nome, telefone, email, dataNasc, cpf, rg, sexo, convenio, endereco, responsavel, observacoes]
+        `INSERT INTO pacientes (clinica_id, nome, telefone, email, data_nascimento, cpf, rg, sexo, convenio, endereco, cep, responsavel, observacoes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [clinicaId, nome, telefone, email, dataNasc, cpf, rg, sexo, convenio, endereco, cep, responsavel, observacoes]
       );
       imported++;
     }
@@ -200,4 +216,4 @@ async function importExcel(req, res) {
   }
 }
 
-module.exports = { list, create, editForm, update, remove, importExcel };
+module.exports = { list, getJson, create, editForm, update, remove, importExcel };
