@@ -180,7 +180,6 @@ async function list(req, res) {
               DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
               TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
               TIME_FORMAT(a.hora_fim, '%H:%i') AS hora_fim,
-              DATE_FORMAT(a.lembrete_enviado_em, '%d/%m %H:%i') AS lembrete_enviado_fmt,
               a.status, a.observacoes, a.dentista_id, a.servico_id, a.procedimento, a.valor_estimado,
               p.nome AS paciente_nome, p.id AS paciente_id, COALESCE(p.telefone,'') AS telefone,
               d.nome AS dentista_nome, s.nome AS servico_nome
