@@ -1128,6 +1128,159 @@ textarea { resize: vertical; }
   margin-bottom: 14px;
 }
 
+/* ========== DEPOIMENTOS ========== */
+.sales-testimonials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.testimonial-card {
+  background: #ffffff;
+  border: 1px solid #d4e1ee;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 24px rgba(13, 43, 72, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.testimonial-stars {
+  color: #f59e0b;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.testimonial-text {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.6;
+  font-style: italic;
+  flex: 1;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #edf3f8;
+}
+
+.testimonial-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f4a7e, #1f6fad);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.testimonial-author strong {
+  display: block;
+  font-size: 14px;
+  color: #0b2d4f;
+}
+
+.testimonial-author span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.testimonial-counter {
+  text-align: center;
+  margin-top: 20px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #e8f4ff, #edfff7);
+  border: 1px solid #d5e7f4;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #0b355e;
+}
+
+.testimonial-counter strong {
+  color: #0e4f86;
+  font-size: 18px;
+}
+
+/* ========== PRICING 3 COLUMNS ========== */
+.sales-pricing-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.plan-features li {
+  font-size: 13px;
+  color: #334155;
+  padding-left: 22px;
+  position: relative;
+}
+
+.plan-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.plan-period {
+  font-size: 14px;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.plan-badge-save {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ========== WHATSAPP FLUTUANTE ========== */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: wppBounce 2s infinite;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
+}
+
+@keyframes wppBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 .btn-pulse {
   animation: pulseGlow 2.4s infinite;
 }
@@ -1215,7 +1368,12 @@ textarea { resize: vertical; }
     grid-template-columns: 1fr;
   }
 
-  .sales-pricing-grid {
+  .sales-pricing-grid,
+  .sales-pricing-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-testimonials {
     grid-template-columns: 1fr;
   }
 
@@ -1253,6 +1411,21 @@ textarea { resize: vertical; }
   .sales-grid-3,
   .sales-highlight {
     grid-template-columns: 1fr;
+  }
+
+  .sales-testimonials {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-pricing-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .whatsapp-float {
+    width: 52px;
+    height: 52px;
+    bottom: 16px;
+    right: 16px;
   }
 
   .sales-trial-modal {

@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Já Agendou! | Agenda inteligente para clínicas odontológicas</title>
+  <meta name="description" content="Sistema de agenda online para clínicas odontológicas. Reduza faltas, envie lembretes por WhatsApp e controle pacientes, equipe e financeiro em um só lugar." />
+  <meta name="keywords" content="agenda odontológica, sistema para dentista, software clínica odontológica, agendamento online dentista, gestão clínica dental" />
+  <meta property="og:title" content="Já Agendou! — Agenda inteligente para clínicas odontológicas" />
+  <meta property="og:description" content="Menos faltas, mais confirmações. Centralize agenda, pacientes e financeiro da sua clínica." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jaagendou.app/venda" />
+  <meta property="og:image" content="https://jaagendou.app/images/logo-ja-agendou.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://jaagendou.app/venda" />
   <link rel="stylesheet" href="/css/styles.css?v=<%= Date.now() %>" />
 </head>
 <body class="sales-body" data-sales-success="<%= success ? '1' : '0' %>" data-sales-error="<%= error ? '1' : '0' %>">
@@ -12,10 +22,10 @@
       <button type="button" class="sales-modal-close" data-close-trial-popup aria-label="Fechar formulário de licença teste">&times;</button>
 
       <div class="sales-trial-copy">
-        <p class="trial-badge">Você Ganhou Um Teste Gratuito</p>
-        <h2 id="trial-modal-title">Ative agora seu teste gratuito no JáAgendou.App</h2>
+        <p class="trial-badge">Teste Gratuito — 3 Dias</p>
+        <h2 id="trial-modal-title">Veja como organizar sua clínica em 5 minutos</h2>
         <p>
-          Preencha seus dados e receba a liberação para experimentar a agenda da sua clínica com mais controle, menos faltas e atendimento mais rápido.
+          Preencha seus dados e receba acesso ao sistema completo. Sem cartão, sem compromisso.
         </p>
         <div class="sales-proof-inline trial-proof-inline">
           <span>Sem cartão</span>
@@ -68,6 +78,7 @@
     <nav class="sales-nav">
       <a href="#funcionalidades">Funcionalidades</a>
       <a href="#resultados">Resultados</a>
+      <a href="#depoimentos">Depoimentos</a>
       <a href="#planos">Planos</a>
       <a href="#faq">FAQ</a>
       <a href="/login" class="btn btn-outline">Entrar</a>
@@ -178,23 +189,89 @@
       </div>
     </section>
 
+    <!-- ====== DEPOIMENTOS ====== -->
+    <section id="depoimentos" class="sales-section reveal-up">
+      <h2>O que dizem nossos primeiros usuários</h2>
+      <div class="sales-testimonials">
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"A gente vivia apagando incêndio com agenda no papel. Depois que colocamos o Já Agendou, a recepção ganhou quase 2 horas por dia e os pacientes pararam de faltar sem avisar."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">DR</div>
+            <div>
+              <strong>Dra. Renata Oliveira</strong>
+              <span>Clínica Sorrir Mais — SP</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"O lembrete por WhatsApp mudou tudo. Antes eu ligava pra cada paciente de manhã, agora envio em 1 clique e a taxa de confirmação subiu demais. Recomendo."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">CM</div>
+            <div>
+              <strong>Carla Mendes</strong>
+              <span>Recepcionista — Odonto Prime, RJ</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Eu consigo ver pelo celular como está a agenda do dia inteiro, quem confirmou e quem não veio. Antes eu só sabia quando chegava na clínica. Muito mais controle."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">FM</div>
+            <div>
+              <strong>Dr. Felipe Martins</strong>
+              <span>Consultório Dr. Felipe — MG</span>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="testimonial-counter">
+        <strong>+40 clínicas</strong> já usam o Já Agendou para organizar a rotina e reduzir faltas.
+      </div>
+    </section>
+
     <section id="planos" class="sales-section reveal-up">
       <h2>Comece sem risco e avance com licença controlada</h2>
-      <div class="sales-pricing-grid">
+      <div class="sales-pricing-grid-3">
         <article class="sales-plan-card">
           <p class="plan-badge">Entrada</p>
           <h3>Teste gratuito</h3>
-          <p class="plan-price">3 dias</p>
-          <p>Cadastro enviado, aprovado pelo admin e liberado para validar o fluxo real da sua clínica.</p>
-          <a href="#trial-popup" class="btn" data-open-trial-popup>Solicitar licença teste</a>
+          <p class="plan-price">3 dias grátis</p>
+          <ul class="plan-features">
+            <li>Acesso completo ao sistema</li>
+            <li>Agenda, pacientes e equipe</li>
+            <li>WhatsApp em 1 clique</li>
+            <li>Sem cartão de crédito</li>
+          </ul>
+          <a href="#trial-popup" class="btn" data-open-trial-popup>Solicitar teste grátis</a>
         </article>
 
         <article class="sales-plan-card featured-plan">
           <p class="plan-badge">Mais escolhido</p>
-          <h3>Licença personalizada</h3>
-          <p class="plan-price">Acesso contínuo com renovação</p>
-          <p>Após o trial, o acesso pode ser renovado para manter sua operação ativa sem interrupções.</p>
-          <a href="/cadastro-dentista" class="btn btn-pulse">Quero ativar minha clínica</a>
+          <h3>Mensal</h3>
+          <p class="plan-price">R$ 35,97<span class="plan-period">/mês</span></p>
+          <ul class="plan-features">
+            <li>Tudo do teste gratuito</li>
+            <li>Lembretes ilimitados</li>
+            <li>Relatórios e dashboard</li>
+            <li>Suporte prioritário</li>
+          </ul>
+          <a href="#contato-comercial" class="btn btn-pulse">Quero o plano mensal</a>
+        </article>
+
+        <article class="sales-plan-card">
+          <p class="plan-badge plan-badge-save">Economia de 8%</p>
+          <h3>Anual</h3>
+          <p class="plan-price">R$ 397,00<span class="plan-period">/ano</span></p>
+          <ul class="plan-features">
+            <li>Tudo do plano mensal</li>
+            <li>Economia de R$ 34,64</li>
+            <li>Acesso garantido por 1 ano</li>
+            <li>Onboarding dedicado</li>
+          </ul>
+          <a href="#contato-comercial" class="btn">Quero o plano anual</a>
         </article>
       </div>
     </section>
@@ -295,7 +372,7 @@
       <div class="sales-faq-grid">
         <details>
           <summary>Preciso colocar cartão para iniciar?</summary>
-          <p>Não. O cadastro entra em aprovação e seu trial começa após liberação do admin.</p>
+          <p>Não. O cadastro entra em aprovação e seu trial começa após liberação do admin. Sem compromisso.</p>
         </details>
         <details>
           <summary>O que acontece quando os dias de licença terminam?</summary>
@@ -308,6 +385,22 @@
         <details>
           <summary>Consigo usar no celular?</summary>
           <p>Sim. A página é responsiva e os principais fluxos funcionam bem em desktop e mobile.</p>
+        </details>
+        <details>
+          <summary>Meus dados ficam seguros?</summary>
+          <p>Sim. Usamos criptografia de senhas, conexão segura HTTPS, sessões protegidas e isolamento total entre clínicas. Seus dados nunca são compartilhados.</p>
+        </details>
+        <details>
+          <summary>Posso migrar de outro sistema?</summary>
+          <p>Sim. Você pode importar pacientes em massa por planilha Excel. Se precisar de ajuda na migração, nosso comercial auxilia no processo.</p>
+        </details>
+        <details>
+          <summary>Funciona com quantos dentistas?</summary>
+          <p>Sem limite. Você cadastra quantos dentistas precisar e cada um aparece na agenda com filtro rápido.</p>
+        </details>
+        <details>
+          <summary>Tem suporte técnico?</summary>
+          <p>Sim. Suporte direto por WhatsApp com resposta rápida. Nos planos pagos o atendimento é prioritário.</p>
         </details>
       </div>
     </section>
@@ -322,6 +415,11 @@
     </section>
   </main>
 
+  <!-- WhatsApp Flutuante -->
+  <a href="https://wa.me/5511925366081?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20J%C3%A1%20Agendou%20para%20minha%20cl%C3%ADnica!" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Fale conosco pelo WhatsApp">
+    <svg viewBox="0 0 32 32" width="28" height="28" fill="#fff"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16.004c0 3.5 1.128 6.744 3.046 9.378L1.054 31.29l6.118-1.958A15.9 15.9 0 0016.004 32C24.826 32 32 24.826 32 16.004S24.826 0 16.004 0zm9.338 22.594c-.39 1.1-2.286 2.1-3.15 2.166-.796.06-1.78.086-2.872-.18a26.207 26.207 0 01-2.6-.962c-4.574-1.978-7.56-6.618-7.79-6.926-.228-.308-1.868-2.486-1.868-4.742s1.182-3.366 1.602-3.826c.42-.46.916-.576 1.222-.576.304 0 .61.002.876.016.282.014.66-.108.032 1.496-.116.296-.702 1.716-.764 1.84-.062.124-.104.27-.02.432.082.162.124.264.248.408.124.144.26.322.372.432.248.248.506.518.688.698.248.248.506.534.69.716.372.372.38.692.124 1.076-.256.382-1.072 1.396-1.154 1.5-.082.106-.166.15-.03.302.136.15.608.704 1.304 1.142.894.564 1.648.74 1.884.824.236.082.374.07.512-.042s.594-.694.752-.932c.158-.238.316-.198.532-.118.218.08 1.378.65 1.614.768.236.118.394.178.452.274.058.096.058.556-.332 1.656z"/></svg>
+  </a>
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const modal = document.querySelector('[data-trial-modal]');
@@ -333,56 +431,69 @@
       const paymentHelp = document.querySelector('[data-payment-help]');
       const phoneInput = document.querySelector('[data-sales-phone]');
       const phoneHelp = document.querySelector('[data-phone-help]');
-      const sessionKey = 'jaagendou-sales-trial-popup-dismissed';
+      const storageKey = 'jaagendou-popup-ts';
+
+      var popupShown = false;
+
+      function canShowPopup() {
+        var last = localStorage.getItem(storageKey);
+        if (!last) return true;
+        return (Date.now() - Number(last)) > 3 * 24 * 60 * 60 * 1000; // 3 dias
+      }
 
       function openModal() {
-        if (!modal) {
-          return;
-        }
-
+        if (!modal) return;
         modal.hidden = false;
         document.body.classList.add('sales-modal-open');
-
-        const firstField = modal.querySelector('input[name="nome_responsavel"]');
-        if (firstField) {
-          firstField.focus();
-        }
+        var firstField = modal.querySelector('input[name="nome_responsavel"]');
+        if (firstField) firstField.focus();
       }
 
       function closeModal() {
-        if (!modal) {
-          return;
-        }
-
+        if (!modal) return;
         modal.hidden = true;
         document.body.classList.remove('sales-modal-open');
-        window.sessionStorage.setItem(sessionKey, '1');
+        localStorage.setItem(storageKey, String(Date.now()));
+        popupShown = true;
       }
 
-      function syncLeadForm() {
-        if (!packageSelect || !paymentSelect || !paymentGroup) {
-          return;
-        }
+      function triggerAutoPopup() {
+        if (popupShown) return;
+        var hasFeedback = document.body.dataset.salesSuccess === '1' || document.body.dataset.salesError === '1';
+        if (hasFeedback) return;
+        if (!canShowPopup()) return;
+        popupShown = true;
+        openModal();
+      }
 
-        const isTrialSelected = packageSelect.value === 'teste';
+      // Exit-intent: mouse leaves viewport por cima
+      document.addEventListener('mouseout', function (e) {
+        if (e.clientY <= 0 && !popupShown) triggerAutoPopup();
+      });
+
+      // Scroll 60%: se scrollou 60% da página
+      window.addEventListener('scroll', function () {
+        if (popupShown) return;
+        var scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        if (scrollPct >= 0.6) triggerAutoPopup();
+      }, { passive: true });
+
+      // Fallback: 25 segundos
+      setTimeout(function () { if (!popupShown) triggerAutoPopup(); }, 25000);
+
+      function syncLeadForm() {
+        if (!packageSelect || !paymentSelect || !paymentGroup) return;
+        var isTrialSelected = packageSelect.value === 'teste';
         paymentSelect.required = !isTrialSelected;
         paymentSelect.disabled = isTrialSelected;
         paymentGroup.classList.toggle('is-hidden', isTrialSelected);
-
-        if (isTrialSelected) {
-          paymentSelect.value = '';
-        }
-
+        if (isTrialSelected) paymentSelect.value = '';
         if (paymentHelp) {
           paymentHelp.textContent = isTrialSelected
             ? 'No pacote Teste você pode avançar sem escolher meio de pagamento.'
             : 'Selecione a forma de pagamento para seguir com os planos pagos.';
         }
-
-        if (phoneInput) {
-          phoneInput.required = isTrialSelected;
-        }
-
+        if (phoneInput) phoneInput.required = isTrialSelected;
         if (phoneHelp) {
           phoneHelp.textContent = isTrialSelected
             ? 'Para o pacote Teste, o telefone/WhatsApp é obrigatório para o contato comercial.'
@@ -393,7 +504,6 @@
       openButtons.forEach(function (button) {
         button.addEventListener('click', function (event) {
           event.preventDefault();
-          window.sessionStorage.removeItem(sessionKey);
           openModal();
         });
       });
@@ -404,26 +514,17 @@
 
       if (modal) {
         modal.addEventListener('click', function (event) {
-          if (event.target === modal) {
-            closeModal();
-          }
+          if (event.target === modal) closeModal();
         });
       }
 
       document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && modal && !modal.hidden) {
-          closeModal();
-        }
+        if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
       });
 
       if (packageSelect) {
         packageSelect.addEventListener('change', syncLeadForm);
         syncLeadForm();
-      }
-
-      const hasFeedback = document.body.dataset.salesSuccess === '1' || document.body.dataset.salesError === '1';
-      if (modal && !hasFeedback && window.sessionStorage.getItem(sessionKey) !== '1') {
-        window.setTimeout(openModal, 450);
       }
     });
   </script>
