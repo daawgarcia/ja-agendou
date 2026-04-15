@@ -1,4 +1,10 @@
-<aside class="sidebar">
+<!-- Backdrop overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Hamburger button (mobile only) -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu">&#9776;</button>
+
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="/images/logo-ja-agendou.png" alt="Já Agendou!" class="brand-logo" />
   </div>
@@ -34,3 +40,36 @@
     <a href="/logout">Sair</a>
   </div>
 </aside>
+
+<script>
+(function () {
+  var toggle = document.getElementById('sidebarToggle');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    sidebar.classList.add('sidebar-open');
+    overlay.classList.add('active');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('sidebar-open');
+    overlay.classList.remove('active');
+  }
+
+  toggle.addEventListener('click', function () {
+    if (sidebar.classList.contains('sidebar-open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  // Close sidebar when a nav link is tapped on mobile
+  sidebar.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('click', closeSidebar);
+  });
+}());
+</script>
