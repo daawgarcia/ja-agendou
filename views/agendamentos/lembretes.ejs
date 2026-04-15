@@ -24,6 +24,12 @@
     </div>
   <% } %>
 
+  <% if (whatsappFeedback && whatsappFeedback.message) { %>
+    <div class="alert <%= whatsappFeedback.status === 'erro' ? 'alert-error' : '' %>" style="margin-bottom: 18px;">
+      <%= whatsappFeedback.message %>
+    </div>
+  <% } %>
+
   <section class="card">
     <div class="section-header">
       <h3>Disparo por e-mail da agenda</h3>
@@ -64,6 +70,20 @@
     </form>
     <p class="muted-inline" style="margin-top:10px; display:block;">
       Este envio manda para os dentistas ativos com e-mail cadastrado. No novo agendamento, paciente e dentista também recebem e-mail automático.
+    </p>
+  </section>
+
+  <section class="card">
+    <div class="section-header">
+      <h3>Disparo por WhatsApp</h3>
+      <% if (!whatsappConfigured) { %>
+        <span class="badge badge-cancelado">API nao configurada</span>
+      <% } else { %>
+        <span class="badge badge-concluido">API ativa</span>
+      <% } %>
+    </div>
+    <p class="muted-inline" style="display:block; margin-top:4px;">
+      O envio direto usa a WhatsApp Cloud API. Se a Meta bloquear texto livre fora da janela de atendimento, sera necessario trocar para template aprovado.
     </p>
   </section>
 
@@ -127,8 +147,12 @@
               <% } %>
             </td>
             <td class="actions-cell">
+              <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-whatsapp">
+                <button type="submit" class="btn btn-whatsapp btn-small" <%= !whatsappConfigured ? 'disabled' : '' %>>Enviar via API</button>
+              </form>
+
               <% if (phone) { %>
-                <a href="https://wa.me/<%= phone %>?text=<%= buildReminderMessage(item) %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">Enviar</a>
+                <a href="https://wa.me/<%= phone %>?text=<%= buildReminderMessage(item) %>" target="_blank" rel="noopener" class="btn btn-whatsapp btn-small">Abrir WhatsApp</a>
               <% } else { %>
                 <span class="muted-inline">Sem telefone</span>
               <% } %>
