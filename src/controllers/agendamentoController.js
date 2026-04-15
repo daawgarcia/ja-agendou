@@ -1,5 +1,6 @@
 ﻿const pool = require('../config/db');
 const { isEmailConfigured, sendEmail } = require('../services/emailService');
+const { isWhatsAppConfigured, sendWhatsAppTextMessage } = require('../services/whatsappService');
 
 function parseDateISO(value) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -22,6 +23,11 @@ function normalizeEmail(value) {
   const email = String(value || '').trim().toLowerCase();
   if (!email) return '';
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+}
+
+function buildPatientReminderWhatsApp(item) {
+  const clinicaNome = resolveClinicName(item.clinica_nome);
+  return `Ola ${item.paciente_nome}, lembrando do seu agendamento de ${item.data_formatada} as ${item.hora_inicio}. Em caso de imprevisto, nos avise. - ${clinicaNome}`;
 }
 
 function getWeekRange(dateISO) {
@@ -186,17 +192,25 @@ async function list(req, res) {
     const agendamentoParams = [clinicaId];
 
     if (busca) {
-      agendamentoQuery += ' AND (p.nome LIKE ? OR COALESCE(p.telefone, \"\") LIKE ? OR COALESCE(d.nome, \"\") LIKE ?)';
+      agendamentoQuery += ' AND (p.nome LIKE ? OR COALESCE(p.telefone, "") LIKE ? OR COALESCE(d.nome, "") LIKE ?)';
       const pattern = `%${busca}%`;
       agendamentoParams.push(pattern, pattern, pattern);
     }
 
     agendamentoQuery += ' ORDER BY a.data DESC, a.hora_inicio ASC';
 
-    const [agendamentos] = await pool.execute(agendamentoQuery, agendamentoParams);
-    const [pacientes] = await pool.execute('SELECT id, nome, COALESCE(telefone, \"\") AS telefone FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]);
-    const [dentistas] = await pool.execute('SELECT id, nome, COALESCE(email, \"\") AS email FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
-    const [servicos] = await pool.execute('SELECT id, nome, valor_padrao FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]);
+    const [
+      [agendamentos],
+      [pacientes],
+      [dentistas],
+      [servicos],
+    ] = await Promise.all([
+      pool.execute(agendamentoQuery, agendamentoParams),
+      pool.execute('SELECT id, nome, COALESCE(telefone, "") AS telefone FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]),
+      pool.execute('SELECT id, nome, COALESCE(email, "") AS email FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]),
+      pool.execute('SELECT id, nome, valor FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]),
+    ]);
+
     return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: null, busca });
   } catch (error) {
     console.error(error);
@@ -250,9 +264,14 @@ async function lembretes(req, res) {
       agendamentos,
       dentistas,
       mailConfigured: isEmailConfigured(),
+      whatsappConfigured: isWhatsAppConfigured(),
       emailFeedback: {
         status: req.query.email_status || '',
         message: req.query.email_msg || '',
+      },
+      whatsappFeedback: {
+        status: req.query.whatsapp_status || '',
+        message: req.query.whatsapp_msg || '',
       },
       resumo: {
         total: agendamentos.length,
@@ -401,6 +420,69 @@ async function marcarLembreteEnviado(req, res) {
   }
 }
 
+async function enviarLembreteWhatsapp(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const { id } = req.params;
+
+  if (!isWhatsAppConfigured()) {
+    return res.redirect('/agendamentos/lembretes?whatsapp_status=erro&whatsapp_msg=' + encodeURIComponent('WhatsApp API nao configurada. Defina WHATSAPP_PHONE_NUMBER_ID e WHATSAPP_ACCESS_TOKEN no ambiente.'));
+  }
+
+  try {
+    const [rows] = await pool.execute(
+      `SELECT a.id,
+              DATE_FORMAT(a.data, '%Y-%m-%d') AS data,
+              DATE_FORMAT(a.data, '%d/%m/%Y') AS data_formatada,
+              TIME_FORMAT(a.hora_inicio, '%H:%i') AS hora_inicio,
+              p.nome AS paciente_nome,
+              COALESCE(p.telefone, '') AS telefone,
+              COALESCE(c.nome, '') AS clinica_nome
+       FROM agendamentos a
+       INNER JOIN pacientes p ON p.id = a.paciente_id
+       INNER JOIN clinicas c ON c.id = a.clinica_id
+       WHERE a.id = ? AND a.clinica_id = ?
+       LIMIT 1`,
+      [id, clinicaId]
+    );
+
+    if (!rows.length) {
+      return res.redirect('/agendamentos/lembretes?whatsapp_status=erro&whatsapp_msg=' + encodeURIComponent('Agendamento nao encontrado para envio de WhatsApp.'));
+    }
+
+    const item = rows[0];
+    const result = await sendWhatsAppTextMessage({
+      to: item.telefone,
+      body: buildPatientReminderWhatsApp(item),
+    });
+
+    if (!result.ok) {
+      let message = 'Nao foi possivel enviar a mensagem por WhatsApp.';
+
+      if (result.skipped && result.reason === 'invalid-recipient') {
+        message = 'Telefone do paciente invalido para WhatsApp.';
+      } else if (result.statusCode) {
+        message = `WhatsApp API retornou status ${result.statusCode}. Verifique token, numero e politica de envio.`;
+      }
+
+      if (result.error) {
+        console.error('Erro no envio de WhatsApp:', result.error);
+      }
+
+      return res.redirect(`/agendamentos/lembretes?data=${item.data}&whatsapp_status=erro&whatsapp_msg=${encodeURIComponent(message)}`);
+    }
+
+    await pool.execute(
+      'UPDATE agendamentos SET lembrete_enviado_em = NOW() WHERE id = ? AND clinica_id = ?',
+      [id, clinicaId]
+    );
+
+    return res.redirect(`/agendamentos/lembretes?data=${item.data}&whatsapp_status=ok&whatsapp_msg=${encodeURIComponent('Mensagem enviada com sucesso pelo WhatsApp API.')}`);
+  } catch (error) {
+    console.error('Erro ao enviar lembrete por WhatsApp:', error);
+    return res.redirect('/agendamentos/lembretes?whatsapp_status=erro&whatsapp_msg=' + encodeURIComponent('Falha interna ao enviar o lembrete por WhatsApp.'));
+  }
+}
+
 async function limparLembreteEnviado(req, res) {
   const clinicaId = req.session.user.clinica_id;
   const { id } = req.params;
@@ -541,6 +623,7 @@ module.exports = {
   list,
   lembretes,
   enviarAgendaPorEmail,
+  enviarLembreteWhatsapp,
   marcarLembreteEnviado,
   limparLembreteEnviado,
   create,

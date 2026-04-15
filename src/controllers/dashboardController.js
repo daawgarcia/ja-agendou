@@ -234,26 +234,6 @@ async function index(req, res) {
   try {
     await ensureDashboardSchemaCompatibility();
 
-    const [[clinicaAccess]] = await pool.execute(
-      `SELECT licenca_dias, licenca_fim_em, trial_fim_em
-       FROM clinicas
-       WHERE id = ?
-       LIMIT 1`,
-      [clinicaId]
-    );
-
-    const licenseInfo = getLicenseInfo(clinicaAccess);
-
-    const [[pacientesCount]] = await pool.execute(
-      'SELECT COUNT(*) AS total FROM pacientes WHERE clinica_id = ?',
-      [clinicaId]
-    );
-
-    const [dentistas] = await pool.execute(
-      'SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC',
-      [clinicaId]
-    );
-
     let agendaQuery = `
       SELECT a.id,
              DATE_FORMAT(a.data, '%Y-%m-%d') AS data,
@@ -290,7 +270,87 @@ async function index(req, res) {
 
     agendaQuery += ' ORDER BY a.data ASC, a.hora_inicio ASC';
 
-    const [agendamentosMes] = await pool.execute(agendaQuery, agendaParams);
+    // Rodada 1: todas as queries independentes em paralelo
+    const [
+      [[clinicaAccess]],
+      [[pacientesCount]],
+      [dentistas],
+      [agendamentosMes],
+    ] = await Promise.all([
+      pool.execute(
+        'SELECT licenca_dias, licenca_fim_em, trial_fim_em FROM clinicas WHERE id = ? LIMIT 1',
+        [clinicaId]
+      ),
+      pool.execute(
+        'SELECT COUNT(*) AS total FROM pacientes WHERE clinica_id = ?',
+        [clinicaId]
+      ),
+      pool.execute(
+        'SELECT id, nome FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC',
+        [clinicaId]
+      ),
+      pool.execute(agendaQuery, agendaParams),
+    ]);
+
+    const licenseInfo = getLicenseInfo(clinicaAccess);
+
+    // Rodada 2: queries que não dependem de resultado da rodada 1
+    const [
+      [[receitaMes]],
+      [aniversariantes],
+      [ultimosRecibos],
+      [producaoDentistas],
+    ] = await Promise.all([
+      canViewFinancial
+        ? pool.execute(
+          `SELECT COALESCE(SUM(valor), 0) AS total
+           FROM recibos
+           WHERE clinica_id = ?
+             AND data_recibo BETWEEN ? AND ?`,
+          [clinicaId, monthStartIso, monthEndIso]
+        )
+        : Promise.resolve([[{ total: 0 }]]),
+      pool.execute(
+        `SELECT id,
+                nome,
+                COALESCE(telefone, '') AS telefone,
+                DATE_FORMAT(data_nascimento, '%d/%m') AS data_nasc_fmt
+         FROM pacientes
+         WHERE clinica_id = ?
+           AND MONTH(data_nascimento) = MONTH(?)
+         ORDER BY DAY(data_nascimento) ASC
+         LIMIT 8`,
+        [clinicaId, selectedDateIso]
+      ),
+      canViewFinancial
+        ? pool.execute(
+          `SELECT r.id,
+                  DATE_FORMAT(r.data_recibo, '%d/%m/%Y') AS data_fmt,
+                  r.valor,
+                  COALESCE(r.descricao, 'Recibo') AS descricao,
+                  p.nome AS paciente_nome
+           FROM recibos r
+           LEFT JOIN pacientes p ON p.id = r.paciente_id
+           WHERE r.clinica_id = ?
+           ORDER BY r.data_recibo DESC, r.id DESC
+           LIMIT 5`,
+          [clinicaId]
+        )
+        : Promise.resolve([[]]),
+      pool.execute(
+        `SELECT COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
+                COUNT(*) AS total,
+                COALESCE(SUM(CASE WHEN a.status != 'cancelado' THEN a.valor_estimado ELSE 0 END), 0) AS valor_total
+         FROM agendamentos a
+         LEFT JOIN dentistas d ON d.id = a.dentista_id
+         WHERE a.clinica_id = ?
+           AND a.data BETWEEN ? AND ?
+         GROUP BY d.id, d.nome
+         ORDER BY total DESC, valor_total DESC
+         LIMIT 5`,
+        [clinicaId, monthStartIso, monthEndIso]
+      ),
+    ]);
 
     const agendaDia = agendamentosMes.filter((item) => item.data === selectedDateIso);
     const agendaSemana = [];
@@ -306,59 +366,6 @@ async function index(req, res) {
         appointments: agendamentosMes.filter((item) => item.data === iso),
       });
     }
-
-    const [[receitaMes]] = canViewFinancial
-      ? await pool.execute(
-        `SELECT COALESCE(SUM(valor), 0) AS total
-         FROM recibos
-         WHERE clinica_id = ?
-           AND data_recibo BETWEEN ? AND ?`,
-        [clinicaId, monthStartIso, monthEndIso]
-      )
-      : [[{ total: 0 }]];
-
-    const [aniversariantes] = await pool.execute(
-      `SELECT id,
-              nome,
-              COALESCE(telefone, '') AS telefone,
-              DATE_FORMAT(data_nascimento, '%d/%m') AS data_nasc_fmt
-       FROM pacientes
-       WHERE clinica_id = ?
-         AND MONTH(data_nascimento) = MONTH(?)
-       ORDER BY DAY(data_nascimento) ASC
-       LIMIT 8`,
-      [clinicaId, selectedDateIso]
-    );
-
-    const [ultimosRecibos] = canViewFinancial
-      ? await pool.execute(
-        `SELECT r.id,
-                DATE_FORMAT(r.data_recibo, '%d/%m/%Y') AS data_fmt,
-                r.valor,
-                COALESCE(r.descricao, 'Recibo') AS descricao,
-                p.nome AS paciente_nome
-         FROM recibos r
-         LEFT JOIN pacientes p ON p.id = r.paciente_id
-         WHERE r.clinica_id = ?
-         ORDER BY r.data_recibo DESC, r.id DESC
-         LIMIT 5`,
-        [clinicaId]
-      )
-      : [[]];
-
-    const [producaoDentistas] = await pool.execute(
-      `SELECT COALESCE(d.nome, 'Sem dentista') AS dentista_nome,
-              COUNT(*) AS total,
-              COALESCE(SUM(CASE WHEN a.status != 'cancelado' THEN a.valor_estimado ELSE 0 END), 0) AS valor_total
-       FROM agendamentos a
-       LEFT JOIN dentistas d ON d.id = a.dentista_id
-       WHERE a.clinica_id = ?
-         AND a.data BETWEEN ? AND ?
-       GROUP BY d.id, d.nome
-       ORDER BY total DESC, valor_total DESC
-       LIMIT 5`,
-      [clinicaId, monthStartIso, monthEndIso]
-    );
 
     const agendaSemanaItems = agendamentosMes.filter(
       (item) => item.data >= weekStartIso && item.data <= weekEndIso
