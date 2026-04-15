@@ -733,6 +733,72 @@ textarea { resize: vertical; }
   box-shadow: 0 18px 38px rgba(12, 40, 70, 0.25);
 }
 
+.hero-sales-screenshot {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(12, 40, 70, 0.22);
+  border: 1px solid #d2e3f3;
+  background: #fff;
+}
+
+.hero-sales-screenshot img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.screenshot-caption {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b2d4f;
+  text-align: center;
+  background: linear-gradient(135deg, #f6faff, #f0f7ff);
+  border-top: 1px solid #e0ecf7;
+}
+
+/* ========== SCREENSHOT GALLERY ========== */
+.screenshot-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.screenshot-item {
+  background: #ffffff;
+  border: 1px solid #d4e1ee;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(13, 43, 72, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.screenshot-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(13, 43, 72, 0.14);
+}
+
+.screenshot-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-bottom: 1px solid #e0ecf7;
+}
+
+.screenshot-item h4 {
+  font-size: 16px;
+  color: #0b2d4f;
+  padding: 14px 16px 4px;
+  margin: 0;
+}
+
+.screenshot-item p {
+  font-size: 13px;
+  color: #475569;
+  padding: 0 16px 16px;
+  margin: 0;
+}
+
 .hero-sales-card h3 {
   border-bottom: 1px solid rgba(255,255,255,0.25);
   color: #ffffff;
@@ -1400,6 +1466,10 @@ textarea { resize: vertical; }
     grid-template-columns: 1fr;
   }
 
+  .screenshot-gallery {
+    grid-template-columns: 1fr;
+  }
+
   .featured-plan {
     transform: none;
   }
@@ -1441,6 +1511,10 @@ textarea { resize: vertical; }
   }
 
   .sales-pricing-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .screenshot-gallery {
     grid-template-columns: 1fr;
   }
 
