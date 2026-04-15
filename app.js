@@ -42,7 +42,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", 'https://viacep.com.br'],
       frameAncestors: ["'none'"],
     },
   },

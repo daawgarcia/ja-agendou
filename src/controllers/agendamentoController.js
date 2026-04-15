@@ -212,8 +212,11 @@ async function list(req, res) {
 
     return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: null, busca });
   } catch (error) {
-    console.error(error);
-    return res.status(500).render('partials/error', { title: 'Erro ao listar agendamentos', message: 'Nao foi possivel carregar os agendamentos.' });
+    console.error('AGENDAMENTOS_LIST_ERROR:', error);
+    return res.status(500).render('partials/error', {
+      title: 'Erro ao listar agendamentos',
+      message: error && error.message ? error.message : 'Nao foi possivel carregar os agendamentos.'
+    });
   }
 }
 
