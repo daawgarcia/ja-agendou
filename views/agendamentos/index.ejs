@@ -159,6 +159,49 @@
 
     </div><!-- end two-col -->
 
+    <!-- TABS -->
+    <div style="display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)">
+      <button class="agenda-tab active" data-tab="lista" onclick="switchTab('lista')">Lista</button>
+      <button class="agenda-tab" data-tab="semana" onclick="switchTab('semana')">Semana</button>
+      <button class="agenda-tab" data-tab="mes" onclick="switchTab('mes')">Mês</button>
+    </div>
+
+    <style>
+      .agenda-tab{background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s}
+      .agenda-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+      .agenda-tab:hover{color:var(--primary)}
+      .agenda-panel{display:none}.agenda-panel.active{display:block}
+      .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+      .cal-nav button{background:var(--primary);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px}
+      .cal-nav button:hover{background:var(--primary-hover)}
+      .cal-nav span{font-weight:700;font-size:15px}
+      .cal-week{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+      .cal-week th{background:var(--primary);color:#fff;padding:8px 4px;text-align:center;font-weight:600;font-size:12px;position:sticky;top:0;z-index:2}
+      .cal-week td{border:1px solid var(--border);vertical-align:top;height:48px;padding:2px 3px;cursor:pointer;transition:background .1s}
+      .cal-week td:hover{background:#eef3fb}
+      .cal-week td.cal-hour{background:#f9fafb;font-weight:600;font-size:11px;color:var(--text-muted);cursor:default;width:54px;text-align:center}
+      .cal-week td.cal-hour:hover{background:#f9fafb}
+      .cal-week .cal-evt{font-size:11px;padding:2px 4px;border-radius:4px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;line-height:1.3}
+      .cal-evt-agendado{background:#cce5ff;color:#004085}.cal-evt-confirmado{background:#d4edda;color:#155724}
+      .cal-evt-concluido{background:#b8daff;color:#004085}.cal-evt-cancelado{background:#f8d7da;color:#721c24}
+      .cal-evt-falta{background:#fff3cd;color:#856404}
+      .cal-month{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+      .cal-month th{background:var(--primary);color:#fff;padding:8px;text-align:center;font-weight:600;font-size:12px}
+      .cal-month td{border:1px solid var(--border);vertical-align:top;height:80px;padding:4px 6px;cursor:pointer;transition:background .1s}
+      .cal-month td:hover{background:#eef3fb}
+      .cal-month td.outro-mes{color:#ccc;background:#fafafa}
+      .cal-month .dia-num{font-weight:700;font-size:13px;margin-bottom:2px}
+      .cal-month .dia-hoje .dia-num{background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+      .cal-month .cal-mini{font-size:10px;line-height:1.4;overflow:hidden;max-height:52px}
+      @media(max-width:768px){
+        .cal-week td{height:40px;font-size:11px}.cal-week .cal-evt{font-size:10px}
+        .cal-month td{height:60px;font-size:11px}
+        .agenda-tab{padding:8px 12px;font-size:13px}
+      }
+    </style>
+
+    <!-- TAB: LISTA -->
+    <div class="agenda-panel active" id="panel-lista">
     <!-- AGENDAMENTOS ATIVOS -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -215,6 +258,33 @@
         </tbody>
       </table>
     </div>
+    </div><!-- end panel-lista -->
+
+    <!-- TAB: SEMANA -->
+    <div class="agenda-panel" id="panel-semana">
+      <div class="card">
+        <div class="cal-nav">
+          <button onclick="navWeek(-1)">&larr; Anterior</button>
+          <span id="weekLabel"></span>
+          <button onclick="navWeek(1)">Próxima &rarr;</button>
+        </div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <table class="cal-week" id="weekGrid"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: MÊS -->
+    <div class="agenda-panel" id="panel-mes">
+      <div class="card">
+        <div class="cal-nav">
+          <button onclick="navMonth(-1)">&larr; Anterior</button>
+          <span id="monthLabel"></span>
+          <button onclick="navMonth(1)">Próximo &rarr;</button>
+        </div>
+        <table class="cal-month" id="monthGrid"></table>
+      </div>
+    </div>
 
   </div>
 </main>
@@ -260,6 +330,151 @@
     });
     document.addEventListener('click',function(e){ if(e.target!==inp) ul.style.display='none'; });
   }
+
+  // ========== CALENDAR DATA ==========
+  var calData=<%- JSON.stringify((agendamentos||[]).map(function(a){return{id:a.id,data:a.data,hi:a.hora_inicio,hf:a.hora_fim,pac:a.paciente_nome,den:a.dentista_nome||'',st:a.status}})) %>;
+  var HOURS_START=7,HOURS_END=20;
+  var DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  var MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  // Current calendar state
+  var curWeekStart=mondayOf(new Date());
+  var curMonth=new Date().getMonth();
+  var curYear=new Date().getFullYear();
+
+  function mondayOf(d){var dt=new Date(d);var day=dt.getDay();var diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);dt.setHours(0,0,0,0);return dt;}
+  function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function fmtBR(d){return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
+  function todayISO(){return fmtISO(new Date());}
+
+  // ========== TABS ==========
+  window.switchTab=function(tab){
+    document.querySelectorAll('.agenda-tab').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});
+    document.querySelectorAll('.agenda-panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+tab);});
+    if(tab==='semana') renderWeek();
+    if(tab==='mes') renderMonth();
+  };
+
+  // ========== PRE-FILL FORM ==========
+  function prefillForm(dateISO,hour){
+    var f=document.querySelector('form[action="/agendamentos"]')||document.querySelector('form[action^="/agendamentos"]');
+    if(!f) return;
+    var di=f.querySelector('[name="data"]');if(di)di.value=dateISO;
+    var hi=f.querySelector('[name="hora_inicio"]');if(hi)hi.value=String(hour).padStart(2,'0')+':00';
+    var hf=f.querySelector('[name="hora_fim"]');if(hf)hf.value=String(hour+1).padStart(2,'0')+':00';
+    f.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  // ========== WEEKLY VIEW ==========
+  function eventsForDate(iso){return calData.filter(function(e){return e.data===iso;});}
+
+  function renderWeek(){
+    var grid=document.getElementById('weekGrid');
+    var label=document.getElementById('weekLabel');
+    var days=[];
+    for(var i=0;i<7;i++){var d=new Date(curWeekStart);d.setDate(d.getDate()+i);days.push(d);}
+    label.textContent=fmtBR(days[0])+' - '+fmtBR(days[6])+'/'+days[6].getFullYear();
+
+    var html='<thead><tr><th></th>';
+    days.forEach(function(d){html+='<th>'+DIAS[d.getDay()]+'<br>'+fmtBR(d)+'</th>';});
+    html+='</tr></thead><tbody>';
+
+    for(var h=HOURS_START;h<HOURS_END;h++){
+      html+='<tr>';
+      html+='<td class="cal-hour">'+String(h).padStart(2,'0')+':00</td>';
+      days.forEach(function(d){
+        var iso=fmtISO(d);
+        var evts=eventsForDate(iso).filter(function(e){
+          var eh=parseInt(e.hi.split(':')[0],10);
+          return eh===h;
+        });
+        if(evts.length){
+          html+='<td>';
+          evts.forEach(function(e){
+            html+='<div class="cal-evt cal-evt-'+e.st+'" title="'+e.pac+' ('+e.den+') '+e.hi+'-'+e.hf+'" onclick="window.location=\'/agendamentos/'+e.id+'/editar\'">'+e.hi+' '+e.pac+'</div>';
+          });
+          html+='</td>';
+        } else {
+          html+='<td onclick="prefillForm(\''+iso+'\','+h+')" title="Clique para agendar às '+String(h).padStart(2,'0')+':00"></td>';
+        }
+      });
+      html+='</tr>';
+    }
+    html+='</tbody>';
+    grid.innerHTML=html;
+  }
+
+  window.navWeek=function(dir){
+    curWeekStart=new Date(curWeekStart);
+    curWeekStart.setDate(curWeekStart.getDate()+dir*7);
+    renderWeek();
+  };
+
+  // ========== MONTHLY VIEW ==========
+  function renderMonth(){
+    var grid=document.getElementById('monthGrid');
+    var label=document.getElementById('monthLabel');
+    label.textContent=MESES[curMonth]+' '+curYear;
+
+    var firstDay=new Date(curYear,curMonth,1);
+    var startOffset=firstDay.getDay();
+    var daysInMonth=new Date(curYear,curMonth+1,0).getDate();
+    var prevDays=new Date(curYear,curMonth,0).getDate();
+    var today=todayISO();
+
+    var html='<thead><tr>';
+    DIAS.forEach(function(d){html+='<th>'+d+'</th>';});
+    html+='</tr></thead><tbody><tr>';
+
+    // Previous month padding
+    for(var i=0;i<startOffset;i++){
+      var pd=prevDays-startOffset+1+i;
+      html+='<td class="outro-mes"><div class="dia-num">'+pd+'</div></td>';
+    }
+
+    var col=startOffset;
+    for(var day=1;day<=daysInMonth;day++){
+      if(col>0&&col%7===0) html+='</tr><tr>';
+      var iso=curYear+'-'+String(curMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+      var evts=eventsForDate(iso);
+      var isToday=iso===today;
+      html+='<td class="'+(isToday?'dia-hoje':'')+'" onclick="goToWeek(\''+iso+'\')">';
+      html+='<div class="dia-num">'+day+'</div>';
+      if(evts.length){
+        html+='<div class="cal-mini">';
+        html+='<strong>'+evts.length+' agend.</strong><br>';
+        evts.slice(0,3).forEach(function(e){
+          html+='<span class="cal-evt cal-evt-'+e.st+'" style="display:block;margin:1px 0">'+e.hi+' '+e.pac.split(' ')[0]+'</span>';
+        });
+        if(evts.length>3) html+='<span style="color:#6b7280">+'+String(evts.length-3)+' mais</span>';
+        html+='</div>';
+      }
+      html+='</td>';
+      col++;
+    }
+
+    // Next month padding
+    var remaining=(7-col%7)%7;
+    for(var j=1;j<=remaining;j++){
+      html+='<td class="outro-mes"><div class="dia-num">'+j+'</div></td>';
+    }
+    html+='</tr></tbody>';
+    grid.innerHTML=html;
+  }
+
+  window.navMonth=function(dir){
+    curMonth+=dir;
+    if(curMonth>11){curMonth=0;curYear++;}
+    if(curMonth<0){curMonth=11;curYear--;}
+    renderMonth();
+  };
+
+  window.goToWeek=function(iso){
+    var parts=iso.split('-');
+    var dt=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
+    curWeekStart=mondayOf(dt);
+    switchTab('semana');
+  };
 })();
 </script>
 </body>
