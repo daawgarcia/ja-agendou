@@ -207,16 +207,13 @@ async function list(req, res) {
       pool.execute(agendamentoQuery, agendamentoParams),
       pool.execute('SELECT id, nome, COALESCE(telefone, "") AS telefone FROM pacientes WHERE clinica_id = ? ORDER BY nome ASC', [clinicaId]),
       pool.execute('SELECT id, nome, COALESCE(email, "") AS email FROM dentistas WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]),
-      pool.execute('SELECT id, nome, valor FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]),
+      pool.execute('SELECT id, nome, valor_padrao FROM servicos WHERE clinica_id = ? AND ativo = 1 ORDER BY nome ASC', [clinicaId]),
     ]);
 
     return res.render('agendamentos/index', { agendamentos, pacientes, dentistas, servicos, editAgendamento: null, busca });
   } catch (error) {
     console.error('AGENDAMENTOS_LIST_ERROR:', error);
-    return res.status(500).render('partials/error', {
-      title: 'Erro ao listar agendamentos',
-      message: error && error.message ? error.message : 'Nao foi possivel carregar os agendamentos.'
-    });
+    return res.status(500).render('partials/error', { title: 'Erro ao listar agendamentos', message: 'Nao foi possivel carregar os agendamentos.' });
   }
 }
 
