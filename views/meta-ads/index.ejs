@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta Ads — Já Agendou</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: #0f1117; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; }
+    .badge-active { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .badge-paused { background: #1c1917; color: #a8a29e; border: 1px solid #44403c; }
+    .metric-val { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .rec-warning { background: #1c1100; border-left: 3px solid #f59e0b; }
+    .rec-danger  { background: #1c0000; border-left: 3px solid #ef4444; }
+    .rec-good    { background: #001c10; border-left: 3px solid #22c55e; }
+    .rec-info    { background: #001226; border-left: 3px solid #3b82f6; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #1a1d27; }
+    ::-webkit-scrollbar-thumb { background: #3a3d4a; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Meta Ads Dashboard</h1>
+      <p class="text-slate-400 text-sm mt-1" id="account-name">Carregando...</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-right">
+        <p class="text-slate-500 text-xs">Última atualização</p>
+        <p class="text-slate-300 text-sm"><%= updatedAt %></p>
+        <p class="text-slate-500 text-xs mt-0.5">Próxima em <%= nextUpdateMin %> min</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="forceRefresh()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg font-semibold transition-colors">
+          Atualizar agora
+        </button>
+        <a href="/meta-ads/logout" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-lg font-semibold transition-colors">
+          Sair
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <% if (error) { %>
+  <div class="bg-red-900/30 border border-red-800 text-red-300 rounded-lg p-4 mb-6 text-sm">
+    Erro ao buscar dados do Meta: <%= error %>
+  </div>
+  <% } %>
+
+  <!-- Métricas gerais -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="card p-4"><p class="text-slate-400 text-xs mb-1">Total Gasto (30d)</p><p class="metric-val text-emerald-400" id="m-spend">—</p></div>
+    <div class="card p-4"><p class="text-slate-400 text-xs mb-1">Impressões (30d)</p><p class="metric-val text-blue-400" id="m-impressions">—</p></div>
+    <div class="card p-4"><p class="text-slate-400 text-xs mb-1">Cliques (30d)</p><p class="metric-val text-violet-400" id="m-clicks">—</p></div>
+    <div class="card p-4"><p class="text-slate-400 text-xs mb-1">CTR Médio</p><p class="metric-val text-amber-400" id="m-ctr">—</p></div>
+  </div>
+
+  <!-- Campanhas -->
+  <h2 class="text-lg font-semibold text-white mb-4">Campanhas</h2>
+  <div class="grid gap-4 mb-8" id="campaigns-grid">
+    <div class="card p-5 text-slate-400 text-sm">Carregando campanhas...</div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="card p-5"><h3 class="text-sm font-semibold text-slate-300 mb-4">Gasto diário (R$)</h3><canvas id="chartSpend" height="220"></canvas></div>
+    <div class="card p-5"><h3 class="text-sm font-semibold text-slate-300 mb-4">CTR por dia (%)</h3><canvas id="chartCtr" height="220"></canvas></div>
+    <div class="card p-5"><h3 class="text-sm font-semibold text-slate-300 mb-4">CPC × CPM por dia (R$)</h3><canvas id="chartCpcCpm" height="220"></canvas></div>
+    <div class="card p-5"><h3 class="text-sm font-semibold text-slate-300 mb-4">Impressões × Alcance</h3><canvas id="chartReach" height="220"></canvas></div>
+  </div>
+
+  <!-- Adsets -->
+  <h2 class="text-lg font-semibold text-white mb-4">Conjuntos de Anúncios</h2>
+  <div id="adsets-grid" class="grid gap-4 mb-8"></div>
+
+  <!-- Recomendações -->
+  <h2 class="text-lg font-semibold text-white mb-4">Diagnóstico & Recomendações</h2>
+  <div id="recommendations" class="space-y-3 mb-8"></div>
+
+  <!-- Relatório texto -->
+  <details class="card p-5 mb-8">
+    <summary class="cursor-pointer text-sm font-semibold text-slate-300">Ver relatório completo em texto</summary>
+    <pre id="report-text" class="mt-4 text-xs text-slate-400 whitespace-pre-wrap leading-relaxed"></pre>
+  </details>
+
+<script>
+const fmt = {
+  brl:   v => 'R$ ' + Number(v).toFixed(2).replace('.', ','),
+  pct:   v => Number(v).toFixed(2) + '%',
+  int:   v => Number(v).toLocaleString('pt-BR'),
+};
+const OBJECTIVE_LABELS = {
+  OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_LEADS: 'Geração de Leads',
+  OUTCOME_ENGAGEMENT: 'Engajamento', OUTCOME_AWARENESS: 'Reconhecimento',
+  OUTCOME_SALES: 'Vendas', LINK_CLICKS: 'Cliques no Link',
+};
+const OPT_LABELS = {
+  PROFILE_VISIT: 'Visitas ao Perfil', LEAD_GENERATION: 'Geração de Lead',
+  LINK_CLICKS: 'Cliques no Link', REACH: 'Alcance', IMPRESSIONS: 'Impressões',
+};
+
+async function loadData() {
+  const res = await fetch('/meta-ads/api/data');
+  return res.json();
+}
+
+async function forceRefresh() {
+  const btn = document.querySelector('[onclick="forceRefresh()"]');
+  btn.textContent = 'Atualizando...';
+  btn.disabled = true;
+  await fetch('/meta-ads/api/refresh');
+  setTimeout(() => location.reload(), 1500);
+}
+
+function statusBadge(s) {
+  if (s === 'ACTIVE') return '<span class="badge-active text-xs px-2 py-0.5 rounded-full font-semibold">● Ativo</span>';
+  return '<span class="badge-paused text-xs px-2 py-0.5 rounded-full font-semibold">⏸ Pausado</span>';
+}
+
+function renderCampaigns(campaigns, insightsDaily) {
+  const totals = {};
+  (insightsDaily?.data || []).forEach(r => {
+    const id = r.campaign_id;
+    if (!totals[id]) totals[id] = { spend:0, impressions:0, clicks:0, reach:0, ctr_sum:0, cpc_sum:0, cpm_sum:0, days:0 };
+    totals[id].spend       += parseFloat(r.spend || 0);
+    totals[id].impressions += parseInt(r.impressions || 0);
+    totals[id].clicks      += parseInt(r.clicks || 0);
+    totals[id].reach       += parseInt(r.reach || 0);
+    totals[id].ctr_sum     += parseFloat(r.ctr || 0);
+    totals[id].cpc_sum     += parseFloat(r.cpc || 0);
+    totals[id].cpm_sum     += parseFloat(r.cpm || 0);
+    totals[id].days++;
+  });
+  const grid = document.getElementById('campaigns-grid');
+  grid.innerHTML = '';
+  (campaigns?.data || []).forEach(c => {
+    const t = totals[c.id] || {};
+    const avgCtr = t.days ? (t.ctr_sum / t.days) : 0;
+    const avgCpc = t.days ? (t.cpc_sum / t.days) : 0;
+    const avgCpm = t.days ? (t.cpm_sum / t.days) : 0;
+    const budget = c.daily_budget ? `R$ ${(c.daily_budget/100).toFixed(2)}/dia`
+      : c.lifetime_budget ? `R$ ${(c.lifetime_budget/100).toFixed(2)} vitalício` : '—';
+    grid.innerHTML += `
+      <div class="card p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">${statusBadge(c.status)}<span class="text-xs text-slate-500">${OBJECTIVE_LABELS[c.objective] || c.objective}</span></div>
+            <h3 class="text-white font-semibold text-base">${c.name}</h3>
+            <p class="text-slate-500 text-xs mt-1">Criada em ${new Date(c.created_time).toLocaleDateString('pt-BR')} · ${budget}</p>
+          </div>
+          ${t.spend ? `<div class="text-right"><p class="text-xs text-slate-400">Total gasto (30d)</p><p class="text-emerald-400 font-bold text-xl">${fmt.brl(t.spend)}</p></div>` : '<div class="text-xs text-slate-500 italic">Sem dados ainda</div>'}
+        </div>
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+          <div><p class="text-xs text-slate-500">Impressões</p><p class="text-white font-semibold">${t.impressions ? fmt.int(t.impressions) : '—'}</p></div>
+          <div><p class="text-xs text-slate-500">Alcance</p><p class="text-white font-semibold">${t.reach ? fmt.int(t.reach) : '—'}</p></div>
+          <div><p class="text-xs text-slate-500">Cliques</p><p class="text-white font-semibold">${t.clicks ? fmt.int(t.clicks) : '—'}</p></div>
+          <div><p class="text-xs text-slate-500">CTR</p><p class="text-white font-semibold">${avgCtr ? fmt.pct(avgCtr) : '—'}</p></div>
+          <div><p class="text-xs text-slate-500">CPC</p><p class="text-white font-semibold">${avgCpc ? fmt.brl(avgCpc) : '—'}</p></div>
+          <div><p class="text-xs text-slate-500">CPM</p><p class="text-white font-semibold">${avgCpm ? fmt.brl(avgCpm) : '—'}</p></div>
+        </div>
+      </div>`;
+  });
+}
+
+function renderAdsets(adsets) {
+  const grid = document.getElementById('adsets-grid');
+  grid.innerHTML = '';
+  (adsets?.data || []).forEach(a => {
+    const geo = a.targeting?.geo_locations || {};
+    const cities  = (geo.cities  || []).map(c => `${c.name} (${c.radius}km)`).join(', ');
+    const regions = (geo.regions || []).map(r => r.name).join(', ');
+    const places  = (geo.places  || []).map(p => `${p.name} (${p.radius}km!)`).join(', ');
+    const interests = (a.targeting?.flexible_spec || []).flatMap(f => [
+      ...(f.interests       || []).map(i => i.name),
+      ...(f.education_majors|| []).map(i => i.name),
+      ...(f.work_positions  || []).map(i => i.name),
+    ]).join(', ');
+    const budget = a.daily_budget ? `R$ ${(a.daily_budget/100).toFixed(2)}/dia` : '—';
+    grid.innerHTML += `
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3">${statusBadge(a.status)}<span class="text-white font-semibold">${a.name}</span><span class="text-xs text-slate-500 ml-2">${budget}</span></div>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div><p class="text-slate-500 text-xs mb-1">Otimização</p><p class="text-slate-300">${OPT_LABELS[a.optimization_goal] || a.optimization_goal}</p></div>
+          <div><p class="text-slate-500 text-xs mb-1">Faixa etária</p><p class="text-slate-300">${a.targeting?.age_min || '?'} – ${a.targeting?.age_max || '?'} anos</p></div>
+          ${cities  ? `<div class="md:col-span-2"><p class="text-slate-500 text-xs mb-1">Cidades</p><p class="text-slate-300">${cities}</p></div>` : ''}
+          ${regions ? `<div class="md:col-span-2"><p class="text-slate-500 text-xs mb-1">Estados</p><p class="text-slate-300">${regions}</p></div>` : ''}
+          ${places  ? `<div class="md:col-span-2"><p class="text-slate-500 text-xs mb-1">Locais específicos ⚠</p><p class="text-amber-400">${places}</p></div>` : ''}
+          ${interests ? `<div class="md:col-span-2"><p class="text-slate-500 text-xs mb-1">Interesses / Cargo / Formação</p><p class="text-slate-300">${interests}</p></div>` : ''}
+        </div>
+      </div>`;
+  });
+}
+
+function renderCharts(insightsDaily) {
+  const rows = (insightsDaily?.data || []).sort((a, b) => a.date_start.localeCompare(b.date_start));
+  const byDate = {};
+  rows.forEach(r => {
+    const d = r.date_start;
+    if (!byDate[d]) byDate[d] = { spend:0, impressions:0, reach:0, ctr:[], cpc:[], cpm:[] };
+    byDate[d].spend       += parseFloat(r.spend || 0);
+    byDate[d].impressions += parseInt(r.impressions || 0);
+    byDate[d].reach       += parseInt(r.reach || 0);
+    byDate[d].ctr.push(parseFloat(r.ctr || 0));
+    byDate[d].cpc.push(parseFloat(r.cpc || 0));
+    byDate[d].cpm.push(parseFloat(r.cpm || 0));
+  });
+  if (!Object.keys(byDate).length) return;
+  const dates = Object.keys(byDate).sort();
+  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const labels = dates.map(d => { const [,m,day] = d.split('-'); return `${day}/${m}`; });
+  const co = { grid: { color: '#2a2d3a' }, ticks: { color: '#64748b' } };
+  const opts = { responsive:true, plugins:{ legend:{ labels:{ color:'#94a3b8', boxWidth:12 } } }, scales:{ x:co, y:co } };
+  new Chart(document.getElementById('chartSpend'), { type:'bar', data:{ labels, datasets:[{ label:'Gasto R$', data:dates.map(d=>byDate[d].spend.toFixed(2)), backgroundColor:'#059669', borderRadius:4 }] }, options:opts });
+  new Chart(document.getElementById('chartCtr'), { type:'line', data:{ labels, datasets:[{ label:'CTR %', data:dates.map(d=>avg(byDate[d].ctr).toFixed(2)), borderColor:'#f59e0b', backgroundColor:'#f59e0b22', tension:.4, fill:true, pointRadius:5, pointBackgroundColor:'#f59e0b' }] }, options:opts });
+  new Chart(document.getElementById('chartCpcCpm'), { type:'line', data:{ labels, datasets:[
+    { label:'CPC R$', data:dates.map(d=>avg(byDate[d].cpc).toFixed(2)), borderColor:'#8b5cf6', tension:.4, pointRadius:5, pointBackgroundColor:'#8b5cf6' },
+    { label:'CPM R$', data:dates.map(d=>avg(byDate[d].cpm).toFixed(2)), borderColor:'#3b82f6', tension:.4, pointRadius:5, pointBackgroundColor:'#3b82f6' },
+  ] }, options:opts });
+  new Chart(document.getElementById('chartReach'), { type:'bar', data:{ labels, datasets:[
+    { label:'Impressões', data:dates.map(d=>byDate[d].impressions), backgroundColor:'#1e40af', borderRadius:4 },
+    { label:'Alcance',    data:dates.map(d=>byDate[d].reach),       backgroundColor:'#7c3aed', borderRadius:4 },
+  ] }, options:opts });
+}
+
+function renderRecommendations(data) {
+  const recs = [];
+  const campaigns = data.campaigns?.data || [];
+  const adsets    = data.adsets?.data    || [];
+  const ins       = data.insights_totals?.data || [];
+
+  const hasEspiritoSanto2km = adsets.some(a => (a.targeting?.geo_locations?.places || []).some(p => p.radius <= 5));
+  if (hasEspiritoSanto2km) recs.push({ type:'danger', icon:'🗺️', title:'Raio geográfico absurdo no Espírito Santo', text:'O conjunto tem Espírito Santo com raio de apenas 2km — praticamente inútil. Corrija para estado inteiro ou raio de 30–50km.' });
+
+  const leadAdset = adsets.find(a => a.optimization_goal === 'LEAD_GENERATION');
+  if (leadAdset) {
+    const b = (leadAdset.daily_budget || 0) / 100;
+    if (b > 0 && b < 30) recs.push({ type:'warning', icon:'💰', title:'Orçamento pode ser baixo para fase de aprendizado', text:`Ad set de leads com R$ ${b.toFixed(2)}/dia. Para o Meta sair da fase de aprendizado precisa de ~50 conversões em 7 dias. Considere R$ 50–100/dia nos primeiros 7 dias.` });
+  }
+
+  const leadCamp = campaigns.find(c => c.objective === 'OUTCOME_LEADS');
+  if (leadCamp && !ins.find(i => i.campaign_id === leadCamp.id)) recs.push({ type:'info', icon:'⏳', title:'Campanha de leads sem dados ainda', text:'O Meta Ads leva 24–48h para sair da fase de aprendizado. Monitore CPC e CPL nos próximos dias. Benchmark SaaS B2B no Brasil: R$15–R$50 por lead qualificado.' });
+
+  recs.push({ type:'info', icon:'🔁', title:'Nenhuma campanha de remarketing configurada', text:'Crie um público de visitantes do site (pixel) + engajamento com o Instagram nos últimos 30 dias e rode uma campanha de remarketing. CPL de remarketing tende a ser 3–5× mais barato.' });
+  recs.push({ type:'info', icon:'🧪', title:'Teste A/B com criativos diferentes', text:'Crie 2–3 variações de criativo por conjunto. O Meta vai automaticamente distribuir budget para quem performa melhor. A nova campanha "Seguidores A/B" já faz isso.' });
+
+  const hasLookalike = adsets.some(a => (a.targeting?.custom_audiences || []).some(ca => ca.name && ca.name.includes('Semelhante')));
+  if (hasLookalike) recs.push({ type:'good', icon:'👥', title:'Lookalike audience configurado', text:'Boa prática. Conforme a campanha de leads gerar conversões, crie um lookalike baseado nos leads reais — tende a ser mais qualificado que arquivo CSV.' });
+
+  const container = document.getElementById('recommendations');
+  container.innerHTML = recs.map(r => `
+    <div class="rec-${r.type} p-4 rounded-r-lg">
+      <div class="flex items-start gap-3">
+        <span class="text-xl leading-none mt-0.5">${r.icon}</span>
+        <div>
+          <p class="font-semibold text-white text-sm mb-1">${r.title}</p>
+          <p class="text-slate-300 text-sm leading-relaxed">${r.text}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function init() {
+  const data = await loadData();
+  if (data.error) { document.getElementById('campaigns-grid').innerHTML = `<div class="card p-5 text-red-400 text-sm">${data.error}</div>`; return; }
+  const acct = data.account || {};
+  document.getElementById('account-name').textContent = `${acct.name || '—'} · ${acct.currency || 'BRL'} · ${acct.timezone_name || ''}`;
+  const ins = data.insights_totals?.data || [];
+  document.getElementById('m-spend').textContent       = fmt.brl(ins.reduce((s,r)=>s+parseFloat(r.spend||0),0));
+  document.getElementById('m-impressions').textContent = fmt.int(ins.reduce((s,r)=>s+parseInt(r.impressions||0),0));
+  document.getElementById('m-clicks').textContent      = fmt.int(ins.reduce((s,r)=>s+parseInt(r.clicks||0),0));
+  document.getElementById('m-ctr').textContent         = fmt.pct(ins.length ? ins.reduce((s,r)=>s+parseFloat(r.ctr||0),0)/ins.length : 0);
+  renderCampaigns(data.campaigns, data.insights_campaigns_daily);
+  renderAdsets(data.adsets);
+  renderCharts(data.insights_campaigns_daily);
+  renderRecommendations(data);
+}
+
+init().catch(err => {
+  document.getElementById('campaigns-grid').innerHTML = `<div class="card p-5 text-red-400 text-sm">Erro: ${err.message}</div>`;
+});
+</script>
+</body>
+</html>

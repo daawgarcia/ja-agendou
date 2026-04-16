@@ -28,7 +28,8 @@ const servicoRoutes = require('./src/routes/servicoRoutes');
 const historicoRoutes = require('./src/routes/historicoRoutes');
 const reciboRoutes = require('./src/routes/reciboRoutes');
 const relatorioRoutes = require('./src/routes/relatorioRoutes');
-const usuarioRoutes = require('./src/routes/usuarioRoutes');
+const usuarioRoutes  = require('./src/routes/usuarioRoutes');
+const metaAdsRoutes  = require('./src/routes/metaAdsRoutes');
 const hotmartWebhookController = require('./src/controllers/hotmartWebhookController');
 const { attachUserToViews } = require('./src/middlewares/auth');
 const { csrfMiddleware } = require('./src/middlewares/csrf');
@@ -45,7 +46,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net'],
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https://www.facebook.com'],
@@ -102,6 +103,7 @@ app.use('/historico', historicoRoutes);
 app.use('/recibos', reciboRoutes);
 app.use('/relatorios', relatorioRoutes);
 app.use('/usuarios', usuarioRoutes);
+app.use('/meta-ads', metaAdsRoutes);
 
 app.use((req, res) => {
   res.status(404).render('partials/error', {

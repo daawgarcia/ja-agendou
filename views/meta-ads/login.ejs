@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meta Ads — Já Agendou</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0d1f3c;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:"Segoe UI",Arial,sans-serif}
+    .card{background:#1e3a5f;border-radius:16px;padding:48px 40px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .logo{color:#fff;font-size:22px;font-weight:700;margin-bottom:6px}
+    .logo span{color:#28a745}
+    .sub{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:32px}
+    .erro{color:#f87171;font-size:13px;margin-bottom:16px;background:rgba(239,68,68,.1);padding:10px 14px;border-radius:8px;border-left:3px solid #ef4444}
+    input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:13px 16px;color:#fff;font-size:15px;outline:none;margin-bottom:14px}
+    input:focus{border-color:#28a745}
+    button{width:100%;background:#28a745;border:none;border-radius:8px;padding:13px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+    button:hover{background:#22963c}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Já<span>Agendou</span></div>
+    <div class="sub">Meta Ads Dashboard — acesso restrito</div>
+    <% if (erro) { %>
+      <div class="erro">Senha incorreta. Tente novamente.</div>
+    <% } %>
+    <form method="POST" action="/meta-ads/login">
+      <input type="password" name="password" placeholder="Senha de acesso" autofocus autocomplete="current-password">
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+</body>
+</html>
