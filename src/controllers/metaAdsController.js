@@ -57,7 +57,10 @@ async function fetchMetaData() {
       updatedAt: new Date(),
       error: null,
     };
-    console.log(`[Meta Ads] OK — ${(campaignsRaw.data || []).length} campanhas`);
+    const campCount = (campaignsRaw.data || []).length;
+    if (account.error) console.warn('[Meta Ads] Aviso: erro ao buscar conta:', account.error.message);
+    if (campaignsRaw.error) console.warn('[Meta Ads] Aviso: erro ao buscar campanhas:', campaignsRaw.error.message);
+    console.log(`[Meta Ads] OK — ${campCount} campanhas, conta: ${account.name || '(erro de conta)'}`);
   } catch (err) {
     cache.error = err.message;
     console.error('[Meta Ads] Erro:', err.message);

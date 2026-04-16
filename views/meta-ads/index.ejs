@@ -137,7 +137,12 @@ function renderCampaigns(campaigns, insightsDaily) {
   });
   const grid = document.getElementById('campaigns-grid');
   grid.innerHTML = '';
-  (campaigns?.data || []).forEach(c => {
+  const campList = campaigns?.data || [];
+  if (!campList.length) {
+    grid.innerHTML = '<div class="card p-5 text-slate-400 text-sm">Nenhuma campanha encontrada na conta. Verifique se o token Meta está válido e tem permissão de leitura de anúncios.</div>';
+    return;
+  }
+  campList.forEach(c => {
     const t = totals[c.id] || {};
     const avgCtr = t.days ? (t.ctr_sum / t.days) : 0;
     const avgCpc = t.days ? (t.cpc_sum / t.days) : 0;
@@ -265,8 +270,15 @@ function renderRecommendations(data) {
 
 async function init() {
   const data = await loadData();
-  if (data.error) { document.getElementById('campaigns-grid').innerHTML = `<div class="card p-5 text-red-400 text-sm">${data.error}</div>`; return; }
+  if (data.error) { document.getElementById('campaigns-grid').innerHTML = `<div class="card p-5 text-red-400 text-sm">Erro: ${data.error}</div>`; return; }
   const acct = data.account || {};
+  if (acct.error) {
+    const el = document.getElementById('account-name');
+    el.textContent = 'Erro de autenticação: ' + (acct.error.message || 'Token inválido ou expirado');
+    el.style.color = '#f87171';
+    document.getElementById('campaigns-grid').innerHTML = `<div class="card p-5 text-amber-400 text-sm">Token Meta inválido ou expirado. Atualize META_TOKEN no servidor e reinicie a aplicação.</div>`;
+    return;
+  }
   document.getElementById('account-name').textContent = `${acct.name || '—'} · ${acct.currency || 'BRL'} · ${acct.timezone_name || ''}`;
   const ins = data.insights_totals?.data || [];
   document.getElementById('m-spend').textContent       = fmt.brl(ins.reduce((s,r)=>s+parseFloat(r.spend||0),0));
