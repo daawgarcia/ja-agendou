@@ -8,6 +8,8 @@ const helmet = require('helmet');
 
 dotenv.config();
 
+const GA4_MEASUREMENT_ID = (process.env.GA4_MEASUREMENT_ID || '').trim();
+
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   console.error('FATAL: SESSION_SECRET não definida em produção. Defina a variável de ambiente.');
   process.exit(1);
@@ -32,17 +34,19 @@ const { runMigrations } = require('./src/config/migrations');
 
 const app = express();
 
+app.locals.ga4MeasurementId = GA4_MEASUREMENT_ID;
+
 app.set('trust proxy', 1);
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'", 'https://viacep.com.br'],
+      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com'],
       frameAncestors: ["'none'"],
     },
   },
