@@ -72,6 +72,7 @@
       </div>
 
       <form method="POST" action="/venda/lead" class="sales-trial-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <input type="hidden" name="pacote" value="teste" />
         <input type="hidden" name="origem_formulario" value="popup_teste" />
         <input type="hidden" name="mensagem" value="Lead capturado pelo popup de licença teste da página de vendas." />
