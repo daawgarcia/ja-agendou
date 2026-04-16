@@ -47,7 +47,8 @@ function getTransporter() {
 function buildFromAddress(fromName) {
   const config = getEmailConfig();
   const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.MAIL_FROM || config.user || 'no-reply@jaagendou.app';
-  const safeName = String(fromName || '').trim().replace(/"/g, '');
+  // Remove CRLF (header injection) e escapa aspas
+  const safeName = String(fromName || '').trim().replace(/[\r\n]/g, '').replace(/"/g, '\\"');
   return safeName ? `"${safeName}" <${fromEmail}>` : fromEmail;
 }
 

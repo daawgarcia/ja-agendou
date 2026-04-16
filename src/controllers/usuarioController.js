@@ -1,11 +1,30 @@
 const pool = require('../config/db');
 const { comparePassword, hashPassword } = require('../utils/hash');
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 12;
 let ensureResetColumnsPromise = null;
 
 function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
+}
+
+function validatePasswordStrength(senha) {
+  if (!senha || senha.length < MIN_PASSWORD_LENGTH) {
+    return `A senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`;
+  }
+  if (!/[A-Z]/.test(senha)) {
+    return 'A senha deve conter pelo menos uma letra maiúscula.';
+  }
+  if (!/[a-z]/.test(senha)) {
+    return 'A senha deve conter pelo menos uma letra minúscula.';
+  }
+  if (!/[0-9]/.test(senha)) {
+    return 'A senha deve conter pelo menos um número.';
+  }
+  if (!/[^A-Za-z0-9]/.test(senha)) {
+    return 'A senha deve conter pelo menos um caractere especial (ex: @, #, $, !).';
+  }
+  return null;
 }
 
 async function verifyPassword(inputPassword, storedValue) {
@@ -13,11 +32,12 @@ async function verifyPassword(inputPassword, storedValue) {
     return false;
   }
 
-  if (isBcryptHash(storedValue)) {
-    return comparePassword(inputPassword, storedValue);
+  if (!isBcryptHash(storedValue)) {
+    // Senhas em texto plano não são mais aceitas. O usuário deve redefinir via "Esqueci a senha".
+    return false;
   }
 
-  return inputPassword === storedValue;
+  return comparePassword(inputPassword, storedValue);
 }
 
 async function hasColumn(tableName, columnName) {
@@ -129,9 +149,10 @@ async function changeOwnPassword(req, res) {
     });
   }
 
-  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+  const senhaError = validatePasswordStrength(newPassword);
+  if (senhaError) {
     return res.status(400).render('usuarios/change-password', {
-      error: `A nova senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+      error: senhaError,
       success: null,
     });
   }
@@ -145,7 +166,7 @@ async function changeOwnPassword(req, res) {
 
   try {
     const [rows] = await pool.execute(
-      'SELECT id, senha_hash, senha FROM usuarios WHERE id = ? LIMIT 1',
+      'SELECT id, senha_hash FROM usuarios WHERE id = ? LIMIT 1',
       [userId]
     );
 
@@ -157,8 +178,7 @@ async function changeOwnPassword(req, res) {
       });
     }
 
-    const storedPassword = user.senha_hash || user.senha || null;
-    const validCurrentPassword = await verifyPassword(currentPassword, storedPassword);
+    const validCurrentPassword = await verifyPassword(currentPassword, user.senha_hash || '');
     if (!validCurrentPassword) {
       return res.status(400).render('usuarios/change-password', {
         error: 'A senha atual informada está incorreta.',

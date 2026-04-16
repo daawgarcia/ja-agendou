@@ -8,7 +8,7 @@ const PERMANENT_SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'otavio@ja
 const PERMANENT_SUPER_ADMIN_NAME = process.env.SUPER_ADMIN_NAME || 'MESTRE';
 const PERMANENT_SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || 'Otavio2805@';
 const RESET_PASSWORD_TTL_MINUTES = Number(process.env.RESET_PASSWORD_TTL_MINUTES || 60);
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 12;
 
 let ensureResetColumnsPromise = null;
 
@@ -16,17 +16,41 @@ function isBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
 }
 
+// Retorna mensagem de erro ou null se a senha for válida
+function validatePasswordStrength(senha) {
+  if (!senha || senha.length < MIN_PASSWORD_LENGTH) {
+    return `A senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`;
+  }
+  if (!/[A-Z]/.test(senha)) {
+    return 'A senha deve conter pelo menos uma letra maiúscula.';
+  }
+  if (!/[a-z]/.test(senha)) {
+    return 'A senha deve conter pelo menos uma letra minúscula.';
+  }
+  if (!/[0-9]/.test(senha)) {
+    return 'A senha deve conter pelo menos um número.';
+  }
+  if (!/[^A-Za-z0-9]/.test(senha)) {
+    return 'A senha deve conter pelo menos um caractere especial (ex: @, #, $, !).';
+  }
+  return null;
+}
+
+function hashTokenForStorage(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 async function verifyPassword(inputPassword, storedValue) {
   if (typeof inputPassword !== 'string' || typeof storedValue !== 'string') {
     return false;
   }
 
-  if (isBcryptHash(storedValue)) {
-    return comparePassword(inputPassword, storedValue);
+  if (!isBcryptHash(storedValue)) {
+    // Senhas em texto plano não são mais aceitas. O usuário deve redefinir via "Esqueci a senha".
+    return false;
   }
 
-  // Compatibilidade com bases legadas que ainda possuem senha em texto.
-  return inputPassword === storedValue;
+  return comparePassword(inputPassword, storedValue);
 }
 
 async function loadUserByEmail(email) {
@@ -189,6 +213,8 @@ async function loadUserByResetToken(token) {
 
   await ensurePasswordResetColumns();
 
+  const tokenHash = hashTokenForStorage(token);
+
   const [rows] = await pool.execute(
     `SELECT *
      FROM usuarios
@@ -196,7 +222,7 @@ async function loadUserByResetToken(token) {
        AND reset_password_expiry IS NOT NULL
        AND reset_password_expiry > NOW()
      LIMIT 1`,
-    [token]
+    [tokenHash]
   );
 
   return rows[0] || null;
@@ -218,6 +244,7 @@ async function sendResetPasswordEmail({ req, user }) {
   await ensurePasswordResetColumns();
 
   const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashTokenForStorage(token);
   const expiry = new Date(Date.now() + RESET_PASSWORD_TTL_MINUTES * 60 * 1000);
 
   await pool.execute(
@@ -225,7 +252,7 @@ async function sendResetPasswordEmail({ req, user }) {
      SET reset_password_token = ?,
          reset_password_expiry = ?
      WHERE id = ?`,
-    [token, expiry, user.id]
+    [tokenHash, expiry, user.id]
   );
 
   const resetUrl = buildResetPasswordUrl(req, token);
@@ -440,9 +467,10 @@ async function resetPassword(req, res) {
     });
   }
 
-  if (!senha || senha.length < MIN_PASSWORD_LENGTH) {
+  const senhaError = validatePasswordStrength(senha);
+  if (senhaError) {
     return res.status(400).render('auth/reset-password', {
-      error: `A nova senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+      error: senhaError,
       info: null,
       token,
     });
