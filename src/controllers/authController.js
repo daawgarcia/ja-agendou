@@ -340,8 +340,8 @@ async function validateClinicAccess(user) {
       return {
         allowed: false,
         message: user.clinica_licenca_fim_em
-          ? 'Sua licenca expirou. Aguarde o admin renovar o periodo de uso.'
-          : 'Seu periodo gratuito terminou. Aguarde o admin definir sua licenca.',
+          ? 'Sua licenca expirou. Acesse jaagendou.app/venda para renovar seu plano.'
+          : 'Seu periodo de teste terminou. Acesse jaagendou.app/venda para assinar um plano e continuar.',
       };
     }
   }

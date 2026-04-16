@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const pool = require('../config/db');
 const { hashPassword } = require('../utils/hash');
 const { sendEmail, isEmailConfigured } = require('../services/emailService');
@@ -101,21 +103,215 @@ async function generateUniqueSlug(baseName) {
   }
 }
 
+// --- Trial auto-activation helpers ---
+
+function generateTrialPassword() {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  const special = '@#$!';
+  const all = upper + lower + digits + special;
+
+  const arr = [
+    upper[crypto.randomInt(upper.length)],
+    lower[crypto.randomInt(lower.length)],
+    digits[crypto.randomInt(digits.length)],
+    special[crypto.randomInt(special.length)],
+  ];
+
+  for (let i = arr.length; i < 16; i++) {
+    arr.push(all[crypto.randomInt(all.length)]);
+  }
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr.join('');
+}
+
+function getAppUrl(req) {
+  return (process.env.BASE_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
+}
+
+async function sendTrialWelcomeEmail({ nomeResponsavel, email, tempPassword, nomeClinica, trialFim, appUrl }) {
+  if (!isEmailConfigured()) {
+    console.warn('[Trial] SMTP não configurado — e-mail de boas-vindas não enviado para:', email);
+    return { ok: false, skipped: true, reason: 'smtp-not-configured' };
+  }
+
+  const trialFimFormatted = trialFim.toLocaleDateString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+  const loginUrl = `${appUrl}/login`;
+
+  const textBody = [
+    `Olá, ${nomeResponsavel}!`,
+    '',
+    'Seu teste gratuito de 7 dias no Já Agendou está ativo.',
+    '',
+    `Clínica: ${nomeClinica}`,
+    `Acesso válido até: ${trialFimFormatted}`,
+    '',
+    '--- Dados de acesso ---',
+    `URL: ${loginUrl}`,
+    `E-mail: ${email}`,
+    `Senha temporária: ${tempPassword}`,
+    '',
+    'Recomendamos trocar sua senha após o primeiro acesso:',
+    `${appUrl}/usuarios/minha-senha`,
+    '',
+    `Quando o teste encerrar em ${trialFimFormatted}, o acesso fica pausado.`,
+    `Para continuar, assine um plano em: ${appUrl}/venda`,
+    '',
+    'Qualquer dúvida, fale com a gente.',
+    '',
+    'Equipe Já Agendou',
+  ].join('\n');
+
+  const htmlBody = `
+    <div style="font-family:Segoe UI,Arial,sans-serif;background:#f4f7fb;padding:24px;">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dbe6f2;border-radius:14px;overflow:hidden;">
+        <div style="background:linear-gradient(140deg,#154c7d,#1e6cab);padding:22px 24px;color:#ffffff;">
+          <h2 style="margin:0 0 6px;font-size:26px;">Bem-vindo ao Já Agendou!</h2>
+          <p style="margin:0;font-size:14px;opacity:0.92;">Seu teste gratuito de 7 dias está ativo. Acesse agora.</p>
+        </div>
+        <div style="padding:24px;color:#243447;line-height:1.55;">
+          <p style="margin-top:0;">Olá, <strong>${nomeResponsavel}</strong>!</p>
+          <p>Criamos o acesso para a clínica <strong>${nomeClinica}</strong>. Veja seus dados abaixo:</p>
+
+          <div style="background:#f0f6ff;border:1px solid #c3d9f5;border-radius:8px;padding:16px;margin:20px 0;">
+            <table style="border-collapse:collapse;width:100%;">
+              <tr>
+                <td style="padding:5px 0;color:#5a6b7d;font-size:13px;width:130px;">URL de acesso</td>
+                <td style="padding:5px 0;"><a href="${loginUrl}" style="color:#1e5b92;font-weight:600;">${loginUrl}</a></td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;color:#5a6b7d;font-size:13px;">E-mail</td>
+                <td style="padding:5px 0;font-weight:600;">${email}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;color:#5a6b7d;font-size:13px;">Senha temporária</td>
+                <td style="padding:5px 0;font-family:monospace;font-size:16px;font-weight:700;letter-spacing:1px;">${tempPassword}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 0;color:#5a6b7d;font-size:13px;">Válido até</td>
+                <td style="padding:5px 0;">${trialFimFormatted}</td>
+              </tr>
+            </table>
+          </div>
+
+          <p style="margin:0 0 16px;"><strong>Recomendamos trocar sua senha</strong> após o primeiro acesso, na seção "Minha Senha".</p>
+
+          <p style="margin:20px 0 24px;">
+            <a href="${loginUrl}" style="display:inline-block;background:#1e5b92;color:#ffffff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px;">Acessar minha conta</a>
+          </p>
+
+          <p style="color:#5a6b7d;font-size:13px;margin:0;border-top:1px solid #e8edf3;padding-top:16px;">
+            Quando seu teste encerrar em <strong>${trialFimFormatted}</strong>, o acesso ficará pausado.
+            Para continuar, <a href="${appUrl}/venda" style="color:#1e5b92;">assine um plano</a> — mensal ou anual.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: 'Já Agendou — seu acesso está pronto!',
+    text: textBody,
+    html: htmlBody,
+    fromName: 'Já Agendou',
+  });
+}
+
+async function activateTrialAccount({ nomeResponsavel, nomeClinica, email, telefone, req }) {
+  const tempPassword = generateTrialPassword();
+  const senhaHash = await hashPassword(tempPassword);
+  const slug = await generateUniqueSlug(nomeClinica);
+  const trialInicio = new Date();
+  const trialFim = new Date(trialInicio.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const appUrl = getAppUrl(req);
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [clinicaResult] = await connection.execute(
+      `INSERT INTO clinicas (nome, slug, email, telefone, status, trial_inicio_em, trial_fim_em)
+       VALUES (?, ?, ?, ?, 'ativo', ?, ?)`,
+      [nomeClinica, slug, email, telefone || null, trialInicio, trialFim]
+    );
+
+    await connection.execute(
+      `INSERT INTO usuarios (clinica_id, nome, email, senha_hash, perfil, status)
+       VALUES (?, ?, ?, ?, 'admin', 'ativo')`,
+      [clinicaResult.insertId, nomeResponsavel, email, senhaHash]
+    );
+
+    await connection.commit();
+
+    const emailResult = await sendTrialWelcomeEmail({
+      nomeResponsavel,
+      email,
+      tempPassword,
+      nomeClinica,
+      trialFim,
+      appUrl,
+    });
+
+    // Notifica o admin (fire-and-forget, não bloqueia)
+    notifyTrialSignupForApproval({ nomeDentista: nomeResponsavel, nomeClinica, email, telefone })
+      .catch(err => console.error('[Trial] Falha ao notificar admin:', err));
+
+    const emailSent = Boolean(emailResult && emailResult.ok);
+    if (!emailSent && emailResult && !emailResult.skipped) {
+      console.error('[Trial] Falha ao enviar e-mail de boas-vindas:', emailResult.error || emailResult.reason);
+    }
+
+    return { ok: true, emailSent };
+  } catch (err) {
+    if (connection) await connection.rollback();
+    if (err.code === 'ER_DUP_ENTRY') {
+      return { ok: false, reason: 'email_duplicado' };
+    }
+    console.error('[Trial] Erro ao ativar conta trial:', err);
+    return { ok: false, reason: 'erro_interno' };
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+// --- Fim helpers trial ---
+
 function showSalesPage(req, res) {
-  const success = req.query.sucesso === '1';
+  const sucesso = req.query.sucesso;
+
+  const success = sucesso === 'trial'
+    ? 'Pronto! Seu acesso foi criado. Confira seu e-mail — enviamos o login e a senha temporária para você entrar agora mesmo.'
+    : sucesso === 'trial_sem_email'
+      ? 'Conta criada com sucesso! Não conseguimos enviar o e-mail agora. Entre em contato pelo WhatsApp com seu e-mail de cadastro para receber os dados de acesso.'
+      : sucesso === '1'
+        ? 'Dados recebidos! Entraremos em contato em breve.'
+        : null;
+
   const error = req.query.erro === 'campos_obrigatorios'
     ? 'Preencha nome, clínica, e-mail, pacote e, para planos pagos, a forma de pagamento.'
     : req.query.erro === 'campos_obrigatorios_teste'
-      ? 'Preencha nome, clínica, e-mail e telefone para solicitar a licença teste.'
-    : req.query.erro === 'pacote_invalido'
-      ? 'Pacote selecionado inválido. Tente novamente.'
-      : req.query.erro === 'pagamento_invalido'
-        ? 'Forma de pagamento inválida. Tente novamente.'
-        : req.query.erro === 'email_indisponivel'
-          ? 'Formulário recebido, mas o envio de e-mail ainda não está configurado no servidor.'
-          : req.query.erro === 'envio_falhou'
-            ? 'Não foi possível enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
-            : null;
+      ? 'Preencha nome, clínica, e-mail e telefone para ativar o teste gratuito.'
+      : req.query.erro === 'email_ja_cadastrado'
+        ? 'Este e-mail já tem uma conta no Já Agendou. Acesse em /login ou redefina sua senha.'
+        : req.query.erro === 'pacote_invalido'
+          ? 'Pacote selecionado inválido. Tente novamente.'
+          : req.query.erro === 'pagamento_invalido'
+            ? 'Forma de pagamento inválida. Tente novamente.'
+            : req.query.erro === 'email_indisponivel'
+              ? 'Formulário recebido, mas o envio de e-mail ainda não está configurado no servidor.'
+              : req.query.erro === 'envio_falhou'
+                ? 'Não foi possível enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
+                : null;
 
   return res.render('public/venda', {
     success,
@@ -149,7 +345,27 @@ async function submitSalesLead(req, res) {
     return res.redirect('/venda?erro=pacote_invalido#contato-comercial');
   }
 
-  const paymentLabel = isTrialPackage ? 'Não se aplica - licença teste' : PAYMENT_METHODS[formaPagamento];
+  // --- Ativação automática do trial gratuito de 7 dias ---
+  if (isTrialPackage) {
+    const result = await activateTrialAccount({ nomeResponsavel, nomeClinica, email, telefone, req });
+
+    if (result.reason === 'email_duplicado') {
+      return res.redirect('/venda?erro=email_ja_cadastrado#contato-comercial');
+    }
+    if (!result.ok) {
+      return res.status(500).render('partials/error', {
+        title: 'Erro ao criar conta',
+        message: 'Não foi possível criar seu acesso agora. Tente novamente em instantes ou entre em contato pelo WhatsApp.',
+      });
+    }
+    if (!result.emailSent) {
+      return res.redirect('/venda?sucesso=trial_sem_email#contato-comercial');
+    }
+    return res.redirect('/venda?sucesso=trial#contato-comercial');
+  }
+
+  // --- Leads comerciais (planos pagos) ---
+  const paymentLabel = PAYMENT_METHODS[formaPagamento];
   if (!paymentLabel) {
     return res.redirect('/venda?erro=pagamento_invalido#contato-comercial');
   }
@@ -186,12 +402,7 @@ async function submitSalesLead(req, res) {
 
   if (!isEmailConfigured()) {
     console.warn('SMTP não configurado. Lead comercial capturado sem envio de e-mail.', {
-      nomeResponsavel,
-      nomeClinica,
-      email,
-      pacote,
-      formaPagamento,
-      origemFormulario,
+      nomeResponsavel, nomeClinica, email, pacote, formaPagamento, origemFormulario,
     });
     return res.redirect('/venda?erro=email_indisponivel#contato-comercial');
   }
