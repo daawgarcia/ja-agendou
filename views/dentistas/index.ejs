@@ -8,6 +8,7 @@
         <div class="card">
           <h3><%= editDentista ? 'Editar dentista' : 'Novo dentista' %></h3>
           <form method="POST" action="<%= editDentista ? '/dentistas/' + editDentista.id + '?_method=PUT' : '/dentistas' %>" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="full">
               <label>Nome do dentista</label>
               <input type="text" name="nome" value="<%= editDentista?.nome||'' %>" required />
@@ -55,6 +56,7 @@
                     <div style="display:flex;gap:6px">
                       <a href="/dentistas/<%= d.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
                       <form method="POST" action="/dentistas/<%= d.id %>?_method=PUT" style="display:inline">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <input type="hidden" name="ativo" value="<%= Number(d.ativo)?'0':'1' %>" />
                         <input type="hidden" name="nome" value="<%= d.nome %>" />
                         <input type="hidden" name="email" value="<%= d.email||'' %>" />

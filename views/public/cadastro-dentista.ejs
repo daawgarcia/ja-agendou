@@ -52,6 +52,7 @@
     <% } %>
 
     <form method="POST" action="/cadastro-dentista">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <label>Nome do dentista responsavel</label>
       <input type="text" name="nome_dentista" placeholder="Dr(a). Nome Sobrenome" required />
 

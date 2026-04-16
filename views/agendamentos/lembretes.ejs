@@ -40,6 +40,7 @@
       <% } %>
     </div>
     <form method="POST" action="/agendamentos/lembretes/email-agenda" class="grid-form grid-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div>
         <label>Data base</label>
         <input type="date" name="data" value="<%= dataSelecionada %>" required />
@@ -148,6 +149,7 @@
             </td>
             <td class="actions-cell">
               <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-whatsapp">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-whatsapp btn-small" <%= !whatsappConfigured ? 'disabled' : '' %>>Enviar via API</button>
               </form>
 
@@ -159,10 +161,12 @@
 
               <% if (!item.lembrete_enviado_em) { %>
                 <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-enviado">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-small">Marcar enviado</button>
                 </form>
               <% } else { %>
                 <form method="POST" action="/agendamentos/<%= item.id %>/lembrete-limpar" onsubmit="return confirm('Reabrir este lembrete como pendente?');">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-outline btn-small">Reabrir</button>
                 </form>
               <% } %>

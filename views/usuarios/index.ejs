@@ -16,6 +16,7 @@
         <div class="card">
           <h3>Novo usuário</h3>
           <form method="POST" action="/usuarios" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="full">
               <label>Nome completo</label>
               <input type="text" name="nome" required />
@@ -26,7 +27,7 @@
             </div>
             <div>
               <label>Senha</label>
-              <input type="password" name="senha" required minlength="6" />
+              <input type="password" name="senha" required minlength="12" />
             </div>
             <div>
               <label>Perfil</label>

@@ -8,6 +8,7 @@
         <div class="card">
           <h3>Novo registro</h3>
           <form method="POST" action="/historico" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="full">
               <label>Paciente</label>
               <select name="paciente_id" required>
@@ -63,6 +64,7 @@
                   <td><%= h.status_historico||'-' %></td>
                   <td>
                     <form method="POST" action="/historico/<%= h.id %>?_method=DELETE" onsubmit="return confirm('Excluir registro?');">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <button type="submit" class="btn btn-red btn-sm">Excluir</button>
                     </form>
                   </td>

@@ -66,6 +66,7 @@
     <button onclick="fecharModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280" title="Fechar">&times;</button>
     <h3 id="modalTitulo" style="margin:0 0 20px">Novo paciente</h3>
     <form id="formPaciente" method="POST" action="/pacientes" class="form-grid">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <input type="hidden" name="_method" id="formMethod" value="">
       <div class="full">
         <label>Nome completo *</label>
@@ -143,6 +144,7 @@
     </p>
     <a href="/templates/template-pacientes.xlsx" class="btn btn-outline btn-sm" style="margin-bottom:16px;display:inline-block" download>⬇ Baixar template Excel</a>
     <form method="POST" action="/pacientes/import" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div style="margin-bottom:12px">
         <label style="font-size:13px">Arquivo (.xlsx ou .csv)</label>
         <input type="file" name="arquivo" accept=".xlsx,.xls,.csv" required style="font-size:13px;margin-top:4px" />

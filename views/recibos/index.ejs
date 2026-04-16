@@ -8,6 +8,7 @@
         <div class="card">
           <h3>Emitir recibo</h3>
           <form method="POST" action="/recibos" class="form-grid" id="recibo-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="full">
               <label>Paciente</label>
               <select name="paciente_id" id="recibo-paciente" required>

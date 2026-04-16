@@ -39,6 +39,7 @@
           <details class="renew-details">
             <summary class="license-banner-tag">Renove com o admin para evitar bloqueio</summary>
             <form method="POST" action="/dashboard/licenca/renovar" class="renew-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label for="dias-renovacao">Escolha o período</label>
               <select id="dias-renovacao" name="dias" required>
                 <option value="7">7 dias</option>
@@ -271,6 +272,7 @@
                 <div class="proximo-info"><%= a.data_fmt %>  <%= a.hora_inicio %> às <%= a.hora_fim %>  <%= a.dentista_nome %></div>
                 <div class="proximo-actions">
                   <form method="POST" action="/dashboard/agendamentos/<%= a.id %>/status" style="display:inline">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <select name="status" class="status-select" onchange="this.form.submit()">
                       <% ['agendado','confirmado','concluido','cancelado','falta'].forEach(function(st){ %>
                         <option value="<%= st %>" <%= a.status===st?'selected':'' %>><%= st.charAt(0).toUpperCase()+st.slice(1) %></option>

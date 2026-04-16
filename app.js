@@ -31,6 +31,7 @@ const relatorioRoutes = require('./src/routes/relatorioRoutes');
 const usuarioRoutes = require('./src/routes/usuarioRoutes');
 const hotmartWebhookController = require('./src/controllers/hotmartWebhookController');
 const { attachUserToViews } = require('./src/middlewares/auth');
+const { csrfMiddleware } = require('./src/middlewares/csrf');
 const { runMigrations } = require('./src/config/migrations');
 
 const app = express();
@@ -78,6 +79,7 @@ app.use(
 );
 
 app.use(attachUserToViews);
+app.use(csrfMiddleware);
 
 app.get('/', (req, res) => {
   if (req.session.user) {

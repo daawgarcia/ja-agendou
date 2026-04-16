@@ -8,6 +8,7 @@
         <div class="card">
           <h3><%= editServico ? 'Editar serviço' : 'Novo serviço' %></h3>
           <form method="POST" action="<%= editServico ? '/servicos/' + editServico.id + '?_method=PUT' : '/servicos' %>" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="full">
               <label>Nome do serviço</label>
               <input type="text" name="nome" value="<%= editServico?.nome||'' %>" required />

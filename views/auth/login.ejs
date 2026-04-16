@@ -50,6 +50,7 @@
   <% } %>
 
   <form method="POST" action="/login">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     <label>E-mail</label>
     <input type="email" name="email" placeholder="admin@clinica.com" required />
     <label>Senha</label>

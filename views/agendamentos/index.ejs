@@ -17,6 +17,7 @@
         <div class="card">
           <h3><%= editAgendamento ? 'Editar agendamento' : 'Novo agendamento' %></h3>
           <form method="POST" action="<%= editAgendamento ? '/agendamentos/' + editAgendamento.id + '?_method=PUT' : '/agendamentos' %>" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
             <div class="full">
               <label>Paciente</label>
@@ -104,6 +105,7 @@
         <div class="card">
           <h3>Fechar agenda do dentista</h3>
           <form method="POST" action="/dentistas/fechamentos" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div>
               <label>Dentista</label>
               <select name="dentista_id" required>
@@ -128,6 +130,7 @@
         <div class="card">
           <h3>Enviar agenda do dia para o dentista</h3>
           <form method="POST" action="/agendamentos/lembretes/email-agenda" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div>
               <label>Data da agenda</label>
               <input type="date" name="data" value="<%= new Date().toISOString().slice(0,10) %>" />
@@ -249,6 +252,7 @@
                     <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" class="btn btn-whatsapp btn-sm">WhatsApp</a>
                   <% } %>
                   <form method="POST" action="/agendamentos/<%= item.id %>?_method=DELETE" onsubmit="return confirm('Cancelar agendamento?');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <button type="submit" class="btn btn-red btn-sm">Cancelar</button>
                   </form>
                 </div>
