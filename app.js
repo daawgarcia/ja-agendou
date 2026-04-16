@@ -9,6 +9,7 @@ const helmet = require('helmet');
 dotenv.config();
 
 const GA4_MEASUREMENT_ID = (process.env.GA4_MEASUREMENT_ID || '').trim();
+const FACEBOOK_PIXEL_ID = (process.env.FACEBOOK_PIXEL_ID || '').trim();
 
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   console.error('FATAL: SESSION_SECRET não definida em produção. Defina a variável de ambiente.');
@@ -35,6 +36,7 @@ const { runMigrations } = require('./src/config/migrations');
 const app = express();
 
 app.locals.ga4MeasurementId = GA4_MEASUREMENT_ID;
+app.locals.facebookPixelId = FACEBOOK_PIXEL_ID;
 
 app.set('trust proxy', 1);
 
