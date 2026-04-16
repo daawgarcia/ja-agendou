@@ -42,11 +42,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net'],
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com'],
+      imgSrc: ["'self'", 'data:', 'https://www.facebook.com'],
+      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://connect.facebook.net'],
       frameAncestors: ["'none'"],
     },
   },
