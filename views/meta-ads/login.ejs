@@ -26,6 +26,7 @@
       <div class="erro">Senha incorreta. Tente novamente.</div>
     <% } %>
     <form method="POST" action="/meta-ads/login">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <input type="password" name="password" placeholder="Senha de acesso" autofocus autocomplete="current-password">
       <button type="submit">Entrar</button>
     </form>
