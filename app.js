@@ -30,6 +30,8 @@ const reciboRoutes = require('./src/routes/reciboRoutes');
 const relatorioRoutes = require('./src/routes/relatorioRoutes');
 const usuarioRoutes  = require('./src/routes/usuarioRoutes');
 const metaAdsRoutes  = require('./src/routes/metaAdsRoutes');
+const metaAdsController = require('./src/controllers/metaAdsController');
+const { iniciarScheduler } = require('./src/services/adsSchedulerService');
 const hotmartWebhookController = require('./src/controllers/hotmartWebhookController');
 const { attachUserToViews } = require('./src/middlewares/auth');
 const { csrfMiddleware } = require('./src/middlewares/csrf');
@@ -132,6 +134,8 @@ async function bootstrap() {
     }
     console.warn('Aplicação iniciada sem bloquear por falha de migração (MIGRATIONS_STRICT=false).');
   }
+
+  iniciarScheduler(metaAdsController.getCacheData);
 
   app.listen(PORT, () => {
     console.log(`Já Agendou! rodando em http://localhost:${PORT}`);
