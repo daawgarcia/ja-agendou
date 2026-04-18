@@ -288,6 +288,8 @@ async function activateTrialAccount({ nomeResponsavel, nomeClinica, email, telef
 
 function showSalesPage(req, res) {
   const sucesso = req.query.sucesso;
+  const successCode = ['trial', 'trial_sem_email', '1'].includes(sucesso) ? sucesso : null;
+  const errorCode = String(req.query.erro || '');
 
   const success = sucesso === 'trial'
     ? 'Pronto! Seu acesso foi criado. Confira seu e-mail — enviamos o login e a senha temporária para você entrar agora mesmo.'
@@ -297,25 +299,27 @@ function showSalesPage(req, res) {
         ? 'Dados recebidos! Entraremos em contato em breve.'
         : null;
 
-  const error = req.query.erro === 'campos_obrigatorios'
+  const error = errorCode === 'campos_obrigatorios'
     ? 'Preencha nome, clínica, e-mail, pacote e, para planos pagos, a forma de pagamento.'
-    : req.query.erro === 'campos_obrigatorios_teste'
+    : errorCode === 'campos_obrigatorios_teste'
       ? 'Preencha nome, clínica, e-mail e telefone para ativar o teste gratuito.'
-      : req.query.erro === 'email_ja_cadastrado'
+      : errorCode === 'email_ja_cadastrado'
         ? 'Este e-mail já tem uma conta no Já Agendou. Acesse em /login ou redefina sua senha.'
-        : req.query.erro === 'pacote_invalido'
+        : errorCode === 'pacote_invalido'
           ? 'Pacote selecionado inválido. Tente novamente.'
-          : req.query.erro === 'pagamento_invalido'
+          : errorCode === 'pagamento_invalido'
             ? 'Forma de pagamento inválida. Tente novamente.'
-            : req.query.erro === 'email_indisponivel'
+            : errorCode === 'email_indisponivel'
               ? 'Formulário recebido, mas o envio de e-mail ainda não está configurado no servidor.'
-              : req.query.erro === 'envio_falhou'
+              : errorCode === 'envio_falhou'
                 ? 'Não foi possível enviar seus dados por e-mail agora. Tente novamente em alguns minutos.'
                 : null;
 
   return res.render('public/venda', {
     success,
+    successCode,
     error,
+    errorCode,
     salesPackages: SALES_PACKAGES,
     paymentMethods: PAYMENT_METHODS,
   });
@@ -502,9 +506,14 @@ async function submitDentistSignup(req, res) {
   }
 }
 
+function showKitRecepcao(req, res) {
+  res.render('public/kit-recepcao');
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
   showDentistSignup,
   submitDentistSignup,
+  showKitRecepcao,
 };
