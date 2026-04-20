@@ -511,7 +511,10 @@ function showKitRecepcao(req, res) {
 }
 
 async function enviarEmailBonus(email) {
-  if (!isEmailConfigured()) return;
+  if (!isEmailConfigured()) {
+    console.warn('[KitLead] SMTP não configurado — e-mail bônus não enviado para:', email);
+    return;
+  }
 
   const html = `
   <div style="margin:0;padding:0;background:#f4f7fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
@@ -607,9 +610,8 @@ async function submitKitLead(req, res) {
       [email, 'exit_popup']
     );
 
-    if (result.affectedRows > 0) {
-      enviarEmailBonus(email).catch(err => console.error('[KitLead] Falha ao enviar bônus:', err));
-    }
+    // Envia bônus sempre (inclusive se e-mail já existia — pode ter sido teste anterior)
+    enviarEmailBonus(email).catch(err => console.error('[KitLead] Falha ao enviar bônus:', err));
 
     return res.json({ ok: true });
   } catch (err) {
