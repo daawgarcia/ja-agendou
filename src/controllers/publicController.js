@@ -598,8 +598,8 @@ async function submitKitLead(req, res) {
 
     return res.json({ ok: true });
   } catch (err) {
-    console.error('[KitLead] Erro ao salvar lead:', err);
-    return res.status(500).json({ ok: false, reason: 'erro_interno' });
+    console.error('[KitLead] Erro ao salvar lead:', err.message, err.code);
+    return res.status(500).json({ ok: false, reason: 'erro_interno', detail: err.code || err.message });
   }
 }
 
