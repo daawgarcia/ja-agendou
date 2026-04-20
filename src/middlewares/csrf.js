@@ -3,8 +3,8 @@ const crypto = require('crypto');
 const CSRF_BODY_FIELD = '_csrf';
 const CSRF_HEADER = 'x-csrf-token';
 
-// Prefixos de rotas externas que não enviam o token (webhooks)
-const EXEMPT_PREFIXES = ['/webhooks', '/api/webhook-hotmart'];
+// Prefixos de rotas externas que não enviam o token (webhooks e endpoints públicos)
+const EXEMPT_PREFIXES = ['/webhooks', '/api/webhook-hotmart', '/kit-recepcao/lead'];
 
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
