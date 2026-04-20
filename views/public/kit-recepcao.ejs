@@ -287,7 +287,8 @@
   footer a:hover { color: var(--green); }
 
   @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  #exit-popup.active { display: flex; }
+  #exit-popup { display: none; }
+  #exit-popup.active { display: flex !important; }
 
   @media (max-width: 640px) {
     .sticky-cta { display: flex; }
@@ -625,7 +626,6 @@
 
 <!-- EXIT-INTENT POPUP -->
 <div id="exit-popup" style="
-  display: none;
   position: fixed; inset: 0; z-index: 300;
   background: rgba(0,0,0,0.72);
   align-items: center; justify-content: center;
@@ -851,8 +851,8 @@ document.querySelectorAll('.faq-q').forEach(q => {
   }
 
   // Exit-intent: mouse sai pelo topo
-  document.addEventListener('mouseout', function(e) {
-    if (e.clientY <= 0 && !e.relatedTarget) openPopup();
+  document.addEventListener('mouseleave', function(e) {
+    if (e.clientY <= 0) openPopup();
   });
 
   // Mobile: scroll para cima rápido (comportamento de "voltar")
