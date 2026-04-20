@@ -32,6 +32,7 @@ const usuarioRoutes  = require('./src/routes/usuarioRoutes');
 const metaAdsRoutes  = require('./src/routes/metaAdsRoutes');
 const metaAdsController = require('./src/controllers/metaAdsController');
 const { iniciarScheduler } = require('./src/services/adsSchedulerService');
+const { iniciarKitLeadsDigest } = require('./src/services/kitLeadsDigestService');
 const hotmartWebhookController = require('./src/controllers/hotmartWebhookController');
 const { attachUserToViews } = require('./src/middlewares/auth');
 const { csrfMiddleware } = require('./src/middlewares/csrf');
@@ -136,6 +137,7 @@ async function bootstrap() {
   }
 
   iniciarScheduler(metaAdsController.getCacheData);
+  iniciarKitLeadsDigest();
 
   app.listen(PORT, () => {
     console.log(`Já Agendou! rodando em http://localhost:${PORT}`);

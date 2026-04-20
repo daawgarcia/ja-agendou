@@ -510,10 +510,104 @@ function showKitRecepcao(req, res) {
   res.render('public/kit-recepcao');
 }
 
+async function enviarEmailBonus(email) {
+  if (!isEmailConfigured()) return;
+
+  const html = `
+  <div style="margin:0;padding:0;background:#f4f7fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+  <div style="max-width:620px;margin:0 auto;padding:24px 16px;">
+
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,#0D1B40 0%,#162354 100%);border-radius:16px 16px 0 0;padding:32px 32px 24px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:8px;">🦷</div>
+      <h1 style="color:#2ECC71;font-size:22px;font-weight:900;margin:0 0 6px;">Seu bônus chegou!</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0;">5 erros que fazem pacientes faltarem — e como evitar</p>
+    </div>
+
+    <!-- INTRO -->
+    <div style="background:#fff;padding:28px 32px;">
+      <p style="color:#2D3E55;font-size:15px;line-height:1.7;margin:0 0 20px;">
+        Olá! Você pediu o conteúdo bônus da página do Kit Recepção. <br>Aqui estão <strong>10 dicas práticas</strong> que qualquer consultório odontológico pode aplicar ainda esta semana para reduzir faltas e melhorar o atendimento.
+      </p>
+
+      <!-- DICAS -->
+      ${[
+        ['Confirme consultas com 48h de antecedência', 'Um lembrete por WhatsApp 48 horas antes reduz drasticamente as faltas. Pacientes esquecem — sua recepção não pode esquecer de lembrar.'],
+        ['Use um script fixo para confirmação', 'Cada recepcionista que escreve de um jeito passa insegurança. Um texto padrão transmite profissionalismo e reduz erros de informação.'],
+        ['Pergunte "pode confirmar?" ao invés de "vai comparecer?"', 'A forma da pergunta influencia a resposta. "Pode confirmar sua presença?" gera mais comprometimento do paciente do que uma pergunta aberta.'],
+        ['Registre o motivo de cada falta', 'Sem dados, você não sabe se o problema é preço, distância, esquecimento ou outro fator. Com um registro simples, o padrão aparece em semanas.'],
+        ['Tenha uma lista de encaixe sempre pronta', 'Quando um paciente falta, ligue imediatamente para quem está na fila de encaixe. Horário vazio é receita perdida.'],
+        ['Padronize a abertura e o fechamento da clínica', 'Um checklist de rotina garante que nada seja esquecido — independente de qual funcionária está de plantão no dia.'],
+        ['Treine a recepção para não improvisar no telefone', 'Ligação sem script vira jogo de memória. Com um roteiro de 5 pontos, qualquer atendente passa a mesma informação com o mesmo nível de qualidade.'],
+        ['Reative pacientes inativos com uma mensagem simples', 'Pacientes que não voltam em 6 meses precisam de um convite. Um WhatsApp gentil recupera boa parte dessa receita esquecida.'],
+        ['Envie instruções pós-consulta por mensagem', 'Reduz ligações de dúvida, aumenta satisfação e mostra cuidado. Leva 10 segundos com um template pronto.'],
+        ['Celebre o aniversário do paciente', 'Uma mensagem de parabéns custa zero e cria vínculo real. Paciente que se sente lembrado volta — e indica.'],
+      ].map(([titulo, texto], i) => `
+        <div style="display:flex;gap:14px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #f0f4f8;">
+          <div style="width:36px;height:36px;background:#0D1B40;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#2ECC71;font-weight:900;font-size:15px;line-height:36px;text-align:center;">${i + 1}</div>
+          <div>
+            <strong style="color:#0D1B40;font-size:15px;display:block;margin-bottom:4px;">${titulo}</strong>
+            <span style="color:#64748b;font-size:13px;line-height:1.6;">${texto}</span>
+          </div>
+        </div>
+      `).join('')}
+
+      <!-- CTA FINAL -->
+      <div style="background:linear-gradient(135deg,#0D1B40,#162354);border-radius:14px;padding:28px;text-align:center;margin-top:8px;">
+        <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0 0 6px;">Quer scripts prontos para aplicar essas dicas hoje?</p>
+        <p style="color:#fff;font-size:18px;font-weight:900;margin:0 0 18px;">Kit Recepção Profissional — R$9,97</p>
+        <a href="https://jaagendou.app/kit-recepcao" style="display:inline-block;background:#2ECC71;color:#0D1B40;font-weight:900;font-size:15px;padding:14px 36px;border-radius:50px;text-decoration:none;">Ver o Kit →</a>
+        <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:14px 0 0;">7 dias de garantia · Acesso imediato · Pagamento único</p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background:#f0f4f8;border-radius:0 0 16px 16px;padding:16px 32px;text-align:center;">
+      <p style="color:#94a3b8;font-size:12px;margin:0;">© 2026 Já Agendou · <a href="https://jaagendou.app" style="color:#94a3b8;">jaagendou.app</a></p>
+    </div>
+
+  </div>
+  </div>
+  `;
+
+  await sendEmail({
+    to: email,
+    subject: '🦷 Suas 10 dicas para reduzir faltas na clínica (bônus prometido)',
+    html,
+    fromName: 'Já Agendou',
+  });
+}
+
+async function submitKitLead(req, res) {
+  const email = String(req.body.email || '').trim().toLowerCase();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ ok: false, reason: 'email_invalido' });
+  }
+
+  try {
+    const [result] = await pool.execute(
+      'INSERT IGNORE INTO kit_leads (email, origem) VALUES (?, ?)',
+      [email, 'exit_popup']
+    );
+
+    // Só envia o bônus se for um e-mail novo (affectedRows = 0 significa duplicata ignorada)
+    if (result.affectedRows > 0) {
+      enviarEmailBonus(email).catch(err => console.error('[KitLead] Falha ao enviar bônus:', err));
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('[KitLead] Erro ao salvar lead:', err);
+    return res.status(500).json({ ok: false, reason: 'erro_interno' });
+  }
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
   showDentistSignup,
   submitDentistSignup,
   showKitRecepcao,
+  submitKitLead,
 };

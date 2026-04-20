@@ -670,11 +670,40 @@
 
     <div style="color:var(--mgray);font-size:12px;margin-top:12px;">🔒 7 dias de garantia total · Risco zero</div>
 
+    <!-- SEPARADOR -->
+    <div style="display:flex;align-items:center;gap:10px;margin:20px 0;">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+      <span style="color:var(--mgray);font-size:12px;white-space:nowrap;">ou, se preferir sair...</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+    </div>
+
+    <!-- CAPTURA DE EMAIL -->
+    <div id="exit-lead-form">
+      <p style="color:rgba(255,255,255,0.75);font-size:13px;margin-bottom:10px;">
+        🎁 <strong style="color:#fff;">Deixa seu e-mail</strong> e te mandamos um conteúdo bônus gratuito: <em style="color:var(--green);">"5 erros que fazem pacientes faltarem — e como evitar"</em>
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input id="exit-email-input" type="email" placeholder="seu@email.com" style="
+          flex:1;min-width:0;padding:12px 14px;border-radius:8px;
+          border:1px solid rgba(255,255,255,0.15);
+          background:rgba(255,255,255,0.07);
+          color:#fff;font-size:14px;outline:none;
+        " />
+        <button id="exit-email-btn" style="
+          background:var(--green);color:var(--navy);
+          border:none;border-radius:8px;padding:12px 18px;
+          font-weight:800;font-size:13px;cursor:pointer;
+          white-space:nowrap;
+        ">Quero o bônus</button>
+      </div>
+      <div id="exit-email-msg" style="display:none;margin-top:8px;font-size:13px;color:var(--green);font-weight:700;"></div>
+    </div>
+
     <button id="exit-popup-dismiss" style="
       background:none;border:none;cursor:pointer;
-      color:var(--mgray);font-size:13px;margin-top:16px;
+      color:var(--mgray);font-size:12px;margin-top:14px;
       text-decoration:underline;display:block;width:100%;
-    ">Não, prefiro continuar sem padrão na minha recepção</button>
+    ">Não, prefiro sair sem o bônus</button>
   </div>
 </div>
 
@@ -844,6 +873,56 @@ document.querySelectorAll('.faq-q').forEach(q => {
   dismissBtn.addEventListener('click', closePopup);
   popup.addEventListener('click', function(e) { if (e.target === popup) closePopup(); });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePopup(); });
+
+  // Captura de e-mail bônus
+  const emailInput = document.getElementById('exit-email-input');
+  const emailBtn   = document.getElementById('exit-email-btn');
+  const emailMsg   = document.getElementById('exit-email-msg');
+
+  emailBtn.addEventListener('click', async function() {
+    const email = emailInput.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailMsg.textContent = 'Digite um e-mail válido.';
+      emailMsg.style.color = '#ff6b6b';
+      emailMsg.style.display = 'block';
+      return;
+    }
+    emailBtn.disabled = true;
+    emailBtn.textContent = 'Enviando...';
+    try {
+      const res = await fetch('/kit-recepcao/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById('exit-lead-form').innerHTML = '';
+        emailMsg.textContent = '✅ Pronto! Confira sua caixa de entrada em breve.';
+        emailMsg.style.color = 'var(--green)';
+        emailMsg.style.display = 'block';
+        emailMsg.style.fontSize = '14px';
+        emailMsg.style.fontWeight = '700';
+        document.getElementById('exit-lead-form').appendChild(emailMsg);
+      } else {
+        emailMsg.textContent = 'Não foi possível salvar. Tente novamente.';
+        emailMsg.style.color = '#ff6b6b';
+        emailMsg.style.display = 'block';
+        emailBtn.disabled = false;
+        emailBtn.textContent = 'Quero o bônus';
+      }
+    } catch(e) {
+      emailMsg.textContent = 'Erro de conexão. Tente novamente.';
+      emailMsg.style.color = '#ff6b6b';
+      emailMsg.style.display = 'block';
+      emailBtn.disabled = false;
+      emailBtn.textContent = 'Quero o bônus';
+    }
+  });
+
+  emailInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') emailBtn.click();
+  });
 
   ctaBtn.addEventListener('click', function() {
     closePopup();
