@@ -578,6 +578,20 @@ async function enviarEmailBonus(email) {
   });
 }
 
+async function ensureKitLeadsTable() {
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS kit_leads (
+      id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      email         VARCHAR(255) NOT NULL,
+      origem        VARCHAR(100) NOT NULL DEFAULT 'exit_popup',
+      criado_em     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      digest_enviado TINYINT(1) NOT NULL DEFAULT 0,
+      INDEX idx_criado_em (criado_em),
+      INDEX idx_digest (digest_enviado)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+}
+
 async function submitKitLead(req, res) {
   const email = String(req.body.email || '').trim().toLowerCase();
 
@@ -586,12 +600,13 @@ async function submitKitLead(req, res) {
   }
 
   try {
+    await ensureKitLeadsTable();
+
     const [result] = await pool.execute(
       'INSERT IGNORE INTO kit_leads (email, origem) VALUES (?, ?)',
       [email, 'exit_popup']
     );
 
-    // Só envia o bônus se for um e-mail novo (affectedRows = 0 significa duplicata ignorada)
     if (result.affectedRows > 0) {
       enviarEmailBonus(email).catch(err => console.error('[KitLead] Falha ao enviar bônus:', err));
     }
