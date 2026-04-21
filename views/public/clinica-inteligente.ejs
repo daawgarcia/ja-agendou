@@ -461,6 +461,129 @@ footer a:hover { color: var(--ouro); }
 #sp-toast-name { font-weight: 700; color: var(--navy); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #sp-toast-time { color: var(--ouro2); font-size: 11px; font-weight: 600; margin-top: 3px; }
 
+/* PIX ROW IN HERO */
+.hp-pix-row {
+  margin-top: 14px;
+  background: rgba(46,204,113,0.08);
+  border: 1px solid rgba(46,204,113,0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.hp-pix-badge {
+  background: #2ECC71;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.hp-pix-txt {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.hp-pix-txt strong { font-size: 22px; font-weight: 900; color: #2ECC71; }
+.hp-pix-save {
+  background: rgba(46,204,113,0.2);
+  color: #2ECC71;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+.hp-pix-or {
+  width: 100%;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+}
+
+/* PAYMENT OPTIONS IN PRICE BOX */
+.pb-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0 28px;
+}
+@media (max-width: 520px) { .pb-options { grid-template-columns: 1fr; } }
+.pb-opt {
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+  position: relative;
+}
+.pb-opt-pix {
+  background: rgba(46,204,113,0.08);
+  border: 2px solid #2ECC71;
+}
+.pb-opt-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.pb-opt-badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2ECC71;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.pb-opt-label {
+  color: #2ECC71;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.pb-opt-price {
+  color: #fff;
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.pb-opt-price strong { color: #2ECC71; }
+.pb-opt-sub { color: rgba(255,255,255,0.45); font-size: 11px; margin-bottom: 14px; }
+.btn-pix-cta {
+  display: block;
+  background: #2ECC71;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 900;
+  padding: 12px 10px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.btn-pix-cta:hover { opacity: 0.88; }
+.btn-card-cta {
+  display: block;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 10px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-card-cta:hover { background: rgba(255,255,255,0.14); }
+
 /* RESPONSIVE */
 @media (max-width: 640px) {
   .sticky-cta { display: flex; }
@@ -475,7 +598,8 @@ footer a:hover { color: var(--ouro); }
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  🔥 LANÇAMENTO — <em>Preço especial de R$197</em> por tempo limitado · Acesso imediato após o pagamento
+  🔥 LANÇAMENTO — <em>Preço especial de R$197</em> encerra em:
+  <span id="cd-timer" style="color:#fff;font-weight:900;margin-left:6px;letter-spacing:1px;font-variant-numeric:tabular-nums;">--:--:--</span>
 </div>
 
 <!-- NAV -->
@@ -516,6 +640,11 @@ footer a:hover { color: var(--ouro); }
       <div class="hp-label">De R$397 por apenas</div>
       <div class="hp-main">R$<em>197</em></div>
       <div class="hp-note">Pagamento único · Acesso vitalício · Sem mensalidade</div>
+      <div class="hp-pix-row">
+        <span class="hp-pix-badge">PIX</span>
+        <span class="hp-pix-txt">R$<strong>177</strong> <span class="hp-pix-save">Economize R$20</span></span>
+        <span class="hp-pix-or">ou 3× de R$69,90 no cartão</span>
+      </div>
     </div>
 
     <a href="https://pay.hotmart.com/M105446275H" class="btn-hero-cta" target="_blank" rel="noopener" id="hero-cta">
@@ -530,7 +659,7 @@ footer a:hover { color: var(--ouro); }
   <div class="ci-stats-grid">
     <div><div class="cs-num">10</div><div class="cs-label">Módulos de conteúdo</div></div>
     <div><div class="cs-num">90</div><div class="cs-label">Dias para dobrar o faturamento</div></div>
-    <div><div class="cs-num">+30%</div><div class="cs-label">Crescimento médio comprovado</div></div>
+    <div><div class="cs-num">+30%</div><div class="cs-label">Crescimento com o método</div></div>
     <div><div class="cs-num">0</div><div class="cs-label">Meses de espera — acesso imediato</div></div>
   </div>
 </div>
@@ -809,9 +938,28 @@ footer a:hover { color: var(--ouro); }
     <div class="price-box">
       <div class="pb-disc">50% OFF — Oferta de Lançamento</div>
       <div class="pb-original">De R$397</div>
-      <div class="pb-main">R$<em>197</em></div>
-      <div class="pb-note">Pagamento único · Acesso vitalício</div>
-      <div class="pb-install">ou 3× de R$69,90 no cartão</div>
+
+      <!-- Opções de pagamento -->
+      <div class="pb-options">
+        <div class="pb-opt pb-opt-pix">
+          <div class="pb-opt-badge">MELHOR OPÇÃO</div>
+          <div class="pb-opt-label">PIX ou Boleto</div>
+          <div class="pb-opt-price">R$<strong>177</strong></div>
+          <div class="pb-opt-sub">Aprovação imediata · Acesso na hora</div>
+          <a href="https://pay.hotmart.com/M105446275H?checkoutMode=10&offDiscount=PIX20" class="btn-pix-cta" target="_blank" rel="noopener" id="price-cta-pix">
+            Pagar R$177 no PIX →
+          </a>
+        </div>
+        <div class="pb-opt pb-opt-card">
+          <div class="pb-opt-label" style="color:var(--mgray)">Cartão de Crédito</div>
+          <div class="pb-opt-price" style="font-size:32px;">3× de<br><strong style="font-size:38px;">R$69,90</strong></div>
+          <div class="pb-opt-sub" style="color:var(--mgray)">Total R$209,70 · Sem juros</div>
+          <a href="https://pay.hotmart.com/M105446275H" class="btn-card-cta" target="_blank" rel="noopener" id="price-cta">
+            Pagar no cartão →
+          </a>
+        </div>
+      </div>
+
       <ul class="pb-includes">
         <li><span class="ci-check">◆</span> 10 Módulos completos em PDF</li>
         <li><span class="ci-check">◆</span> Templates de contratos e documentos</li>
@@ -822,9 +970,6 @@ footer a:hover { color: var(--ouro); }
         <li><span class="ci-check">◆</span> Acesso vitalício + atualizações inclusas</li>
         <li><span class="ci-check">◆</span> 7 dias de garantia total — risco zero</li>
       </ul>
-      <a href="https://pay.hotmart.com/M105446275H" class="btn-price-cta" target="_blank" rel="noopener" id="price-cta">
-        Garantir meu acesso por R$197 →
-      </a>
       <div class="pb-sec-note">🔒 Pagamento 100% seguro via Hotmart · PIX, cartão ou boleto</div>
     </div>
   </div>
@@ -862,10 +1007,15 @@ footer a:hover { color: var(--ouro); }
   <div class="ci-container">
     <h2>Sua clínica merece ser gerida<br>como um <em>negócio de verdade.</em></h2>
     <p>Você já tem a habilidade clínica. Agora é hora de construir o sistema que faz a clínica crescer.</p>
-    <div class="fct-price"><s>De R$397</s> &nbsp;→&nbsp; apenas <strong>R$197</strong> no lançamento</div>
-    <a href="https://pay.hotmart.com/M105446275H" class="btn-hero-cta" target="_blank" rel="noopener" id="final-cta">
-      Garantir meu acesso agora →
-    </a>
+    <div class="fct-price"><s>De R$397</s> &nbsp;→&nbsp; <strong>R$177 no PIX</strong> ou 3× de R$69,90</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:8px;position:relative;">
+      <a href="https://pay.hotmart.com/M105446275H?checkoutMode=10&offDiscount=PIX20" class="btn-hero-cta" target="_blank" rel="noopener" id="final-cta">
+        Pagar R$177 no PIX →
+      </a>
+      <a href="https://pay.hotmart.com/M105446275H" style="display:inline-block;color:var(--ouro);font-size:14px;font-weight:700;padding:20px 28px;border:2px solid rgba(201,168,76,0.4);border-radius:50px;text-decoration:none;" target="_blank" rel="noopener">
+        3× de R$69,90 no cartão
+      </a>
+    </div>
     <div style="margin-top: 16px; color: var(--mgray); font-size: 13px; position: relative;">
       🔒 Pagamento seguro · 7 dias de garantia · Acesso imediato
     </div>
@@ -892,13 +1042,40 @@ footer a:hover { color: var(--ouro); }
 <!-- STICKY CTA (mobile) -->
 <div class="sticky-cta">
   <div class="sc-price">
-    <span>Clínica Inteligente</span>
-    <strong>R$197</strong>
+    <span>PIX R$177 · cartão 3×R$69,90</span>
+    <strong>Clínica Inteligente</strong>
   </div>
-  <a href="https://pay.hotmart.com/M105446275H" class="btn-sticky" target="_blank" rel="noopener">Garantir →</a>
+  <a href="https://pay.hotmart.com/M105446275H?checkoutMode=10&offDiscount=PIX20" class="btn-sticky" target="_blank" rel="noopener">Garantir →</a>
 </div>
 
 <script>
+// COUNTDOWN TIMER (48h por visitante, persiste entre reloads)
+(function() {
+  const KEY = 'ci-deadline';
+  const DURATION = 48 * 60 * 60 * 1000;
+  let deadline = parseInt(localStorage.getItem(KEY) || '0', 10);
+  if (!deadline || deadline < Date.now()) {
+    deadline = Date.now() + DURATION;
+    localStorage.setItem(KEY, String(deadline));
+  }
+  const el = document.getElementById('cd-timer');
+  if (!el) return;
+  function tick() {
+    const left = deadline - Date.now();
+    if (left <= 0) {
+      // Reinicia silenciosamente
+      deadline = Date.now() + DURATION;
+      localStorage.setItem(KEY, String(deadline));
+    }
+    const h = Math.floor(left / 3600000);
+    const m = Math.floor((left % 3600000) / 60000);
+    const s = Math.floor((left % 60000) / 1000);
+    el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
 // FAQ
 document.querySelectorAll('.faq-q').forEach(q => {
   q.addEventListener('click', () => {
