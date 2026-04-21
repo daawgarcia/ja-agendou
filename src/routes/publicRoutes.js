@@ -7,6 +7,7 @@ router.get('/venda', publicController.showSalesPage);
 router.get('/kit-recepcao', publicController.showKitRecepcao);
 router.post('/kit-recepcao/lead', publicController.submitKitLead);
 router.post('/venda/lead', publicController.submitSalesLead);
+router.get('/clinica-inteligente', publicController.showClinicaInteligente);
 router.get('/cadastro-dentista', publicController.showDentistSignup);
 router.post('/cadastro-dentista', publicController.submitDentistSignup);
 

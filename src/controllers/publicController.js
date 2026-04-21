@@ -510,6 +510,10 @@ function showKitRecepcao(req, res) {
   res.render('public/kit-recepcao');
 }
 
+function showClinicaInteligente(req, res) {
+  res.render('public/clinica-inteligente');
+}
+
 async function enviarEmailBonus(email) {
   if (!isEmailConfigured()) {
     console.warn('[KitLead] SMTP não configurado — e-mail bônus não enviado para:', email);
@@ -627,4 +631,5 @@ module.exports = {
   submitDentistSignup,
   showKitRecepcao,
   submitKitLead,
+  showClinicaInteligente,
 };
