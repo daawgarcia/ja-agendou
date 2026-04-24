@@ -289,25 +289,52 @@
           </div>
         </div>
 
-        <div class="card">
-          <h3>Aniversariantes do mês</h3>
+        <div class="card" style="cursor:pointer" onclick="openBirthdayModal()">
+          <h3 style="display:flex;justify-content:space-between;align-items:center">
+            Aniversariantes do mês
+            <% if(aniversariantes.length){ %>
+              <span class="badge"><%= aniversariantes.length %></span>
+            <% } %>
+          </h3>
           <% if(!aniversariantes.length){ %>
             <div class="empty-state"><p>Nenhum aniversariante</p></div>
+          <% } else { %>
+            <p style="font-size:12px;color:#9ca3af">Clique para ver todos</p>
           <% } %>
-          <ul class="birthday-list">
-            <% aniversariantes.forEach(function(p){ %>
-              <li>
-                <span><%= p.nome %></span>
-                <span class="birthday-date"><%= p.data_nasc_fmt %></span>
-              </li>
-            <% }) %>
-          </ul>
         </div>
       </div>
 
     </div><!-- end dashboard-row -->
 
+    <!-- Modal aniversariantes -->
+    <div class="modal-overlay" id="birthdayModal" style="display:none" onclick="if(event.target===this)closeBirthdayModal()">
+      <div class="modal-box" style="max-width:460px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>🎂 Aniversariantes do mês (<%= aniversariantes.length %>)</h3>
+          <button type="button" onclick="closeBirthdayModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280">×</button>
+        </div>
+        <% if(aniversariantes.length){ %>
+        <input type="text" id="birthdaySearch" placeholder="Buscar por nome..." oninput="filterBirthdays()" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;margin-bottom:12px;font-size:14px">
+        <div id="birthdayList" style="max-height:400px;overflow-y:auto">
+          <% aniversariantes.forEach(function(p){ %>
+            <div class="birthday-item" data-name="<%= p.nome.toLowerCase() %>" style="display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid #f3f4f6">
+              <strong><%= p.nome %></strong>
+              <span style="color:#6b7280;font-size:13px"><%= p.data_nasc_fmt %></span>
+            </div>
+          <% }) %>
+        </div>
+        <% } else { %>
+        <p style="color:#9ca3af">Nenhum aniversariante neste mês.</p>
+        <% } %>
+      </div>
+    </div>
+
   </div><!-- end page-body -->
 </main>
+<script>
+function openBirthdayModal(){document.getElementById('birthdayModal').style.display='flex';var s=document.getElementById('birthdaySearch');if(s)s.focus();}
+function closeBirthdayModal(){document.getElementById('birthdayModal').style.display='none';}
+function filterBirthdays(){var q=document.getElementById('birthdaySearch').value.toLowerCase();document.querySelectorAll('.birthday-item').forEach(function(el){el.style.display=el.dataset.name.includes(q)?'':'none';});}
+</script>
 </body>
 </html>

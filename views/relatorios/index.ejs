@@ -20,6 +20,7 @@
         </select>
       </div>
       <button type="submit" class="btn btn-sm">Filtrar</button>
+      <a href="/relatorios/export/visual?mes=<%= mesAno || '' %><%= dentistaId ? '&dentista_id='+dentistaId : '' %>" class="btn btn-sm" style="background:#1e3a5f;color:#fff;text-decoration:none">📊 Relatório com gráficos</a>
     </form>
 
     <!-- KPI SUMMARY -->

@@ -20,9 +20,7 @@
       <a href="/dentistas" class="nav-link<%= p==='dentistas' ? ' active' : '' %>">Dentistas</a>
       <a href="/servicos" class="nav-link<%= p==='servicos' ? ' active' : '' %>">Serviços</a>
     <% } %>
-    <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
-      <a href="/relatorios" class="nav-link<%= p==='relatorios' ? ' active' : '' %>">Relatórios</a>
-    <% } %>
+    <a href="/relatorios" class="nav-link<%= p==='relatorios' ? ' active' : '' %>">Relatórios</a>
     <% if (user && (user.perfil === 'super_admin' || user.perfil === 'admin')) { %>
       <a href="/usuarios" class="nav-link<%= p==='usuarios' ? ' active' : '' %>">Usuários</a>
     <% } %>

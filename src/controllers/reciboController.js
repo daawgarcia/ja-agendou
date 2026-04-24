@@ -74,7 +74,13 @@ async function imprimir(req, res) {
       [id, clinicaId]
     );
     if (!rows.length) return res.redirect('/recibos');
-    return res.render('recibos/imprimir', { recibo: rows[0] });
+    const recibo = rows[0];
+    // Format date
+    if (recibo.data_recibo) {
+      const d = new Date(recibo.data_recibo);
+      recibo.data_fmt = d.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    }
+    return res.render('recibos/imprimir', { recibo, user: req.session.user });
   } catch (err) {
     console.error(err);
     return res.status(500).render('partials/error', { title: 'Erro', message: 'Não foi possível abrir o recibo.' });

@@ -5,25 +5,64 @@
   <title>Recibo #<%= recibo.id %></title>
   <style>
     body { font-family: Arial, sans-serif; margin: 30px; color: #222; }
-    .box { border: 1px solid #bbb; padding: 20px; }
-    .row { margin-bottom: 10px; }
-    h1 { margin-top: 0; }
-    .assinatura { margin-top: 40px; border-top: 1px solid #555; width: 260px; padding-top: 6px; }
+    .box { border: 1px solid #bbb; padding: 24px; border-radius: 8px; max-width: 600px; }
+    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e3a5f; padding-bottom: 12px; }
+    .header h2 { color: #1e3a5f; margin: 0 0 4px; font-size: 20px; }
+    .header p { color: #6b7280; font-size: 13px; margin: 0; }
+    h1 { text-align: center; color: #1e3a5f; font-size: 22px; margin: 16px 0; }
+    .row { margin-bottom: 8px; font-size: 14px; }
+    .row strong { display: inline-block; min-width: 160px; }
+    .assinatura { margin-top: 40px; text-align: center; }
+    .assinatura .line { border-top: 1px solid #555; width: 280px; margin: 0 auto; padding-top: 8px; }
+    .assinatura .name { font-weight: 700; font-size: 14px; }
+    .assinatura .cpf { font-size: 12px; color: #6b7280; }
+    .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #9ca3af; }
     @media print { .no-print { display: none; } }
   </style>
 </head>
 <body>
-  <button class="no-print" onclick="window.print()">Imprimir</button>
+  <button class="no-print" onclick="window.print()" style="margin-bottom:16px;padding:8px 20px;cursor:pointer">Imprimir</button>
   <div class="box">
-    <h1>Recibo</h1>
-    <div class="row"><strong>Numero:</strong> #<%= recibo.id %></div>
-    <div class="row"><strong>Data:</strong> <%= recibo.data_recibo %></div>
+    <div class="header">
+      <h2><%= recibo.clinica_nome || (user && user.clinica_nome ? user.clinica_nome : 'Clínica') %></h2>
+      <% if (user && user.clinica_cidade) { %>
+        <p><%= user.clinica_cidade %></p>
+      <% } %>
+    </div>
+
+    <h1>RECIBO</h1>
+
+    <div class="row"><strong>Nº:</strong> #<%= recibo.id %></div>
+    <div class="row"><strong>Data:</strong> <%= recibo.data_fmt || recibo.data_recibo %></div>
     <div class="row"><strong>Paciente:</strong> <%= recibo.paciente_nome %></div>
     <div class="row"><strong>Valor:</strong> R$ <%= Number(recibo.valor || 0).toFixed(2) %></div>
-    <div class="row"><strong>Descricao:</strong> <%= recibo.descricao %></div>
-    <div class="row"><strong>Documento do pagador:</strong> <%= recibo.documento_pagador || '-' %></div>
-    <div class="row"><strong>Observacoes:</strong> <%= recibo.observacoes || '-' %></div>
-    <div class="assinatura">Assinatura</div>
+    <div class="row"><strong>Referente a:</strong> <%= recibo.descricao || '-' %></div>
+    <% if (recibo.documento_pagador) { %>
+      <div class="row"><strong>CPF do pagador:</strong> <%= recibo.documento_pagador %></div>
+    <% } %>
+    <% if (recibo.observacoes) { %>
+      <div class="row"><strong>Observações:</strong> <%= recibo.observacoes %></div>
+    <% } %>
+
+    <div class="assinatura">
+      <div class="line">
+        <% if (user && user.clinica_responsavel) { %>
+          <div class="name"><%= user.clinica_responsavel %></div>
+          <% if (user.clinica_responsavel_cpf) { %>
+            <div class="cpf">CPF: <%= user.clinica_responsavel_cpf %></div>
+          <% } %>
+        <% } else { %>
+          <div class="name">Responsável</div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="footer">
+      <% if (user && user.clinica_cidade) { %>
+        <%= user.clinica_cidade %>,
+      <% } %>
+      <%= recibo.data_fmt || recibo.data_recibo %>
+    </div>
   </div>
 </body>
 </html>
