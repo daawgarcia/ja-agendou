@@ -514,6 +514,10 @@ function showClinicaInteligente(req, res) {
   res.render('public/clinica-inteligente');
 }
 
+function showEbookRoncoApneia(req, res) {
+  res.render('public/ebook-ronco-apneia');
+}
+
 async function enviarEmailBonus(email) {
   if (!isEmailConfigured()) {
     console.warn('[KitLead] SMTP não configurado — e-mail bônus não enviado para:', email);
@@ -632,4 +636,5 @@ module.exports = {
   showKitRecepcao,
   submitKitLead,
   showClinicaInteligente,
+  showEbookRoncoApneia,
 };
