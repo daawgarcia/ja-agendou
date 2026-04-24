@@ -35,6 +35,12 @@ ALTER TABLE clinicas
   ADD COLUMN IF NOT EXISTS licenca_inicio_em DATETIME NULL AFTER licenca_dias,
   ADD COLUMN IF NOT EXISTS licenca_fim_em DATETIME NULL AFTER licenca_inicio_em;
 
+-- Dados do recibo (por clínica)
+ALTER TABLE clinicas
+  ADD COLUMN IF NOT EXISTS responsavel_nome VARCHAR(150) NULL,
+  ADD COLUMN IF NOT EXISTS responsavel_cpf VARCHAR(20) NULL,
+  ADD COLUMN IF NOT EXISTS cidade VARCHAR(100) NULL;
+
 CREATE TABLE IF NOT EXISTS usuarios (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   clinica_id INT UNSIGNED NOT NULL,

@@ -16,6 +16,7 @@
     .assinatura .line { border-top: 1px solid #555; width: 280px; margin: 0 auto; padding-top: 8px; }
     .assinatura .name { font-weight: 700; font-size: 14px; }
     .assinatura .cpf { font-size: 12px; color: #6b7280; }
+    .config-aviso { color: #b45309; font-size: 13px; font-style: italic; }
     .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #9ca3af; }
     @media print { .no-print { display: none; } }
   </style>
@@ -24,9 +25,9 @@
   <button class="no-print" onclick="window.print()" style="margin-bottom:16px;padding:8px 20px;cursor:pointer">Imprimir</button>
   <div class="box">
     <div class="header">
-      <h2><%= recibo.clinica_nome || (user && user.clinica_nome ? user.clinica_nome : 'Clínica') %></h2>
-      <% if (user && user.clinica_cidade) { %>
-        <p><%= user.clinica_cidade %></p>
+      <h2><%= recibo.clinica_nome || 'Clínica' %></h2>
+      <% if (recibo.clinica_cidade) { %>
+        <p><%= recibo.clinica_cidade %></p>
       <% } %>
     </div>
 
@@ -35,7 +36,7 @@
     <div class="row"><strong>Nº:</strong> #<%= recibo.id %></div>
     <div class="row"><strong>Data:</strong> <%= recibo.data_fmt || recibo.data_recibo %></div>
     <div class="row"><strong>Paciente:</strong> <%= recibo.paciente_nome %></div>
-    <div class="row"><strong>Valor:</strong> R$ <%= Number(recibo.valor || 0).toFixed(2) %></div>
+    <div class="row"><strong>Valor:</strong> R$ <%= Number(recibo.valor || 0).toFixed(2).replace('.', ',') %></div>
     <div class="row"><strong>Referente a:</strong> <%= recibo.descricao || '-' %></div>
     <% if (recibo.documento_pagador) { %>
       <div class="row"><strong>CPF do pagador:</strong> <%= recibo.documento_pagador %></div>
@@ -46,20 +47,20 @@
 
     <div class="assinatura">
       <div class="line">
-        <% if (user && user.clinica_responsavel) { %>
-          <div class="name"><%= user.clinica_responsavel %></div>
-          <% if (user.clinica_responsavel_cpf) { %>
-            <div class="cpf">CPF: <%= user.clinica_responsavel_cpf %></div>
+        <% if (recibo.responsavel_nome) { %>
+          <div class="name"><%= recibo.responsavel_nome %></div>
+          <% if (recibo.responsavel_cpf) { %>
+            <div class="cpf">CPF: <%= recibo.responsavel_cpf %></div>
           <% } %>
         <% } else { %>
-          <div class="name">Responsável</div>
+          <div class="config-aviso">Configure o nome e CPF do responsável em <a href="/usuarios/minha-conta">Minha Conta</a></div>
         <% } %>
       </div>
     </div>
 
     <div class="footer">
-      <% if (user && user.clinica_cidade) { %>
-        <%= user.clinica_cidade %>,
+      <% if (recibo.clinica_cidade) { %>
+        <%= recibo.clinica_cidade %>,
       <% } %>
       <%= recibo.data_fmt || recibo.data_recibo %>
     </div>

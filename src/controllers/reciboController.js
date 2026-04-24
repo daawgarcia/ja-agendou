@@ -66,7 +66,8 @@ async function imprimir(req, res) {
   const { id } = req.params;
   try {
     const [rows] = await pool.execute(
-      `SELECT r.*, p.nome AS paciente_nome, p.telefone, p.email, p.endereco, p.cpf, c.nome AS clinica_nome
+      `SELECT r.*, p.nome AS paciente_nome, p.telefone, p.email, p.endereco, p.cpf,
+              c.nome AS clinica_nome, c.responsavel_nome, c.responsavel_cpf, c.cidade AS clinica_cidade
        FROM recibos r
        INNER JOIN pacientes p ON p.id = r.paciente_id
        INNER JOIN clinicas c ON c.id = r.clinica_id

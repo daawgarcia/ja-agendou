@@ -6,6 +6,8 @@ const { requireAuth, requireAdmin } = require('../middlewares/auth');
 const { ensureAuthenticated, ensureRole } = require('../middlewares/auth');
 const adminOnly = ensureRole(['admin', 'super_admin']);
 
+router.get('/minha-conta', ensureAuthenticated, usuarioController.showMinhaConta);
+router.post('/minha-conta', ensureAuthenticated, usuarioController.updateMinhaConta);
 router.get('/minha-senha', ensureAuthenticated, usuarioController.showChangePassword);
 router.post('/minha-senha', ensureAuthenticated, usuarioController.changeOwnPassword);
 router.get('/', ensureAuthenticated, adminOnly, usuarioController.index);

@@ -210,4 +210,90 @@ async function changeOwnPassword(req, res) {
   }
 }
 
-module.exports = { index, create, toggleStatus, showChangePassword, changeOwnPassword };
+async function showMinhaConta(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  try {
+    const [[clinica]] = await pool.execute(
+      'SELECT id, nome, responsavel_nome, responsavel_cpf, cidade FROM clinicas WHERE id = ? LIMIT 1',
+      [clinicaId]
+    );
+    return res.render('usuarios/minha-conta', {
+      clinica: clinica || {},
+      error: null,
+      success: null,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.render('usuarios/minha-conta', { clinica: {}, error: 'Erro ao carregar dados.', success: null });
+  }
+}
+
+async function updateMinhaConta(req, res) {
+  const clinicaId = req.session.user.clinica_id;
+  const userId = req.session.user.id;
+  const action = req.body.action;
+
+  try {
+    const [[clinica]] = await pool.execute(
+      'SELECT id, nome, responsavel_nome, responsavel_cpf, cidade FROM clinicas WHERE id = ? LIMIT 1',
+      [clinicaId]
+    );
+
+    if (action === 'update_clinic') {
+      const nome = (req.body.responsavel_nome || '').trim();
+      const cpf = (req.body.responsavel_cpf || '').trim();
+      const cidade = (req.body.cidade || '').trim();
+      await pool.execute(
+        'UPDATE clinicas SET responsavel_nome = ?, responsavel_cpf = ?, cidade = ? WHERE id = ?',
+        [nome || null, cpf || null, cidade || null, clinicaId]
+      );
+      // Update session cache
+      if (req.session.user) {
+        req.session.user.clinica_responsavel = nome;
+        req.session.user.clinica_responsavel_cpf = cpf;
+        req.session.user.clinica_cidade = cidade;
+      }
+      return res.render('usuarios/minha-conta', {
+        clinica: { ...clinica, responsavel_nome: nome, responsavel_cpf: cpf, cidade },
+        error: null,
+        success: 'Dados da clínica atualizados!',
+      });
+    }
+
+    if (action === 'change_password') {
+      const currentPassword = String(req.body.senha_atual || '');
+      const newPassword = String(req.body.nova_senha || '');
+      const confirmPassword = String(req.body.confirmar_senha || '');
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return res.render('usuarios/minha-conta', { clinica: clinica || {}, error: 'Preencha todos os campos de senha.', success: null });
+      }
+      if (newPassword !== confirmPassword) {
+        return res.render('usuarios/minha-conta', { clinica: clinica || {}, error: 'A confirmação da nova senha não confere.', success: null });
+      }
+
+      const [rows] = await pool.execute('SELECT id, senha_hash FROM usuarios WHERE id = ? LIMIT 1', [userId]);
+      const user = rows[0] || null;
+      if (!user) {
+        return res.render('usuarios/minha-conta', { clinica: clinica || {}, error: 'Usuário não encontrado.', success: null });
+      }
+
+      const validCurrentPassword = await verifyPassword(currentPassword, user.senha_hash || '');
+      if (!validCurrentPassword) {
+        return res.render('usuarios/minha-conta', { clinica: clinica || {}, error: 'Senha atual incorreta.', success: null });
+      }
+
+      const newPasswordHash = await hashPassword(newPassword);
+      await pool.execute('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [newPasswordHash, userId]);
+
+      return res.render('usuarios/minha-conta', { clinica: clinica || {}, error: null, success: 'Senha atualizada com sucesso!' });
+    }
+
+    return res.redirect('/usuarios/minha-conta');
+  } catch (err) {
+    console.error(err);
+    return res.render('usuarios/minha-conta', { clinica: {}, error: 'Erro ao salvar. Tente novamente.', success: null });
+  }
+}
+
+module.exports = { index, create, toggleStatus, showChangePassword, changeOwnPassword, showMinhaConta, updateMinhaConta };

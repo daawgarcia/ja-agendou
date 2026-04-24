@@ -25,7 +25,7 @@
       <a href="/usuarios" class="nav-link<%= p==='usuarios' ? ' active' : '' %>">Usuários</a>
     <% } %>
     <% if (user) { %>
-      <a href="/usuarios/minha-senha" class="nav-link<%= p==='minha-senha' ? ' active' : '' %>">Minha senha</a>
+      <a href="/usuarios/minha-conta" class="nav-link<%= p==='minha-conta' ? ' active' : '' %>">Minha conta</a>
     <% } %>
     <% if (user && user.perfil === 'super_admin') { %>
       <a href="/clinicas" class="nav-link<%= p==='clinicas' ? ' active' : '' %>">Clínicas</a>
