@@ -10,7 +10,6 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos e tente novamente.' },
-  keyGenerator: (req) => req.ip,
 });
 
 const forgotLimiter = rateLimit({
@@ -19,7 +18,6 @@ const forgotLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Muitas solicitações de recuperação de senha. Tente novamente em 1 hora.' },
-  keyGenerator: (req) => req.ip,
 });
 
 router.get('/login', authController.showLogin);

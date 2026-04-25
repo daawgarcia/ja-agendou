@@ -5,10 +5,96 @@
 
   <div class="page-body">
     <% var clinicaNome = String((user && user.clinica_nome) || 'sua clínica'); %>
+    <%
+      var agendaItems = agendamentos || [];
+      var hojeISO = new Date().toISOString().slice(0,10);
+      var now = new Date();
+      var nowMinutes = now.getHours() * 60 + now.getMinutes();
+      function horaToMinutes(h){
+        if (!h || h.indexOf(':') < 0) return null;
+        var parts = h.split(':');
+        return Number(parts[0]) * 60 + Number(parts[1]);
+      }
+
+      var agendaHoje = agendaItems
+        .filter(function(a){ return a.data === hojeISO; })
+        .sort(function(a,b){ return String(a.hora_inicio || '').localeCompare(String(b.hora_inicio || '')); });
+
+      var totalHoje = agendaHoje.filter(function(a){ return a.status !== 'cancelado'; }).length;
+      var confirmaveisHoje = agendaHoje.filter(function(a){ return a.status === 'agendado' || a.status === 'confirmado'; });
+      var totalConfirmaveisHoje = confirmaveisHoje.length;
+      var totalConfirmadosHoje = confirmaveisHoje.filter(function(a){ return a.status === 'confirmado'; }).length;
+      var pendentesConfirmacaoHoje = confirmaveisHoje.filter(function(a){ return a.status === 'agendado'; }).length;
+      var taxaConfirmacaoHoje = totalConfirmaveisHoje ? Math.round((totalConfirmadosHoje / totalConfirmaveisHoje) * 100) : 0;
+
+      var riscoFaltaHoje = confirmaveisHoje.filter(function(a){
+        if (a.status !== 'agendado') return false;
+        var inicioMin = horaToMinutes(a.hora_inicio);
+        if (inicioMin === null) return false;
+        var delta = inicioMin - nowMinutes;
+        return delta <= 120;
+      }).length;
+
+      var filaConfirmacaoHoje = agendaHoje
+        .filter(function(a){ return ['agendado','confirmado'].indexOf(a.status) >= 0; })
+        .map(function(a){
+          var inicioMin = horaToMinutes(a.hora_inicio);
+          var delta = inicioMin === null ? null : inicioMin - nowMinutes;
+          var nivel = 'ok';
+          if (a.status === 'agendado' && delta !== null && delta <= 120) nivel = 'risco';
+          if (a.status === 'agendado' && delta !== null && delta > 120) nivel = 'pendente';
+          if (a.status === 'confirmado') nivel = 'confirmado';
+          return {
+            id: a.id,
+            data_formatada: a.data_formatada,
+            hora_inicio: a.hora_inicio,
+            hora_fim: a.hora_fim,
+            paciente_nome: a.paciente_nome,
+            dentista_nome: a.dentista_nome,
+            telefone: a.telefone,
+            status: a.status,
+            nivel: nivel,
+          };
+        });
+    %>
 
     <% if (locals.flash) { %>
       <div class="alert alert-<%= flash.type %>"><%= flash.msg %></div>
     <% } %>
+
+    <section class="agenda-hero">
+      <div class="agenda-hero-head">
+        <div>
+          <h2>Painel da agenda</h2>
+          <p>Visão rápida do dia e da carteira ativa para tomada de decisão da recepção.</p>
+        </div>
+        <div class="agenda-status-legend" aria-label="Legenda de status">
+          <span class="badge badge-status-agendado">Agendado</span>
+          <span class="badge badge-status-confirmado">Confirmado</span>
+          <span class="badge badge-status-concluido">Concluído</span>
+          <span class="badge badge-status-falta">Falta</span>
+          <span class="badge badge-status-cancelado">Cancelado</span>
+        </div>
+      </div>
+      <div class="agenda-kpis">
+        <article class="agenda-kpi-card">
+          <span>Atendimentos de hoje</span>
+          <strong><%= Number(totalHoje || 0) %></strong>
+        </article>
+        <article class="agenda-kpi-card">
+          <span>Taxa de confirmação (hoje)</span>
+          <strong><%= Number(taxaConfirmacaoHoje || 0) %>%</strong>
+        </article>
+        <article class="agenda-kpi-card">
+          <span>Pendentes de confirmação</span>
+          <strong><%= Number(pendentesConfirmacaoHoje || 0) %></strong>
+        </article>
+        <article class="agenda-kpi-card agenda-kpi-risk">
+          <span>Risco de falta (até 2h)</span>
+          <strong><%= Number(riscoFaltaHoje || 0) %></strong>
+        </article>
+      </div>
+    </section>
 
     <div class="two-col">
 
@@ -93,7 +179,7 @@
             </div>
           </form>
 
-          <div style="margin-top:14px;padding:12px;background:#f0f4f8;border-radius:6px;font-size:12px;color:#4b5563;">
+          <div class="agenda-note">
             Ao criar um novo agendamento, o sistema enviará automaticamente a confirmação por e-mail para o paciente, quando houver e-mail cadastrado.
           </div>
         </div>
@@ -123,7 +209,7 @@
               <button class="btn btn-sm" type="submit">Fechar agenda</button>
             </div>
           </form>
-          <p style="font-size:12px;color:#6b7280;margin-top:10px">Agenda fechada bloqueia novos agendamentos e também a edição dos agendamentos existentes daquele dentista na data escolhida.</p>
+          <p class="agenda-help-text">Agenda fechada bloqueia novos agendamentos e também a edição dos agendamentos existentes daquele dentista na data escolhida.</p>
         </div>
 
         <!-- ENVIAR AGENDA POR EMAIL -->
@@ -162,63 +248,75 @@
 
     </div><!-- end two-col -->
 
+    <section class="card agenda-queue-card">
+      <div class="agenda-queue-head">
+        <div>
+          <h3>Fila de confirmação do dia</h3>
+          <p>Priorize contatos de pacientes sem confirmação próxima do horário.</p>
+        </div>
+        <a href="/agendamentos/lembretes" class="btn btn-outline btn-sm">Abrir central de lembretes</a>
+      </div>
+
+      <% if (!filaConfirmacaoHoje.length) { %>
+        <div class="agenda-empty-state">Nenhum agendamento agendado/confirmado para hoje.</div>
+      <% } else { %>
+        <div class="agenda-queue-list">
+          <% filaConfirmacaoHoje.forEach(function(item){ %>
+            <%
+              var _tel=(item.telefone||'').replace(/\D/g,'');
+              if(_tel.length===10||_tel.length===11) _tel='55'+_tel;
+              var _msg=encodeURIComponent('Olá '+item.paciente_nome+', confirmando seu agendamento hoje ('+item.data_formatada+') às '+item.hora_inicio+'. Pode nos responder com um OK? - '+clinicaNome);
+            %>
+            <article class="agenda-queue-item <%= item.nivel === 'risco' ? 'is-risk' : (item.nivel === 'confirmado' ? 'is-confirmed' : '') %>">
+              <div class="agenda-queue-main">
+                <div class="agenda-queue-time"><%= item.hora_inicio %> - <%= item.hora_fim %></div>
+                <div class="agenda-queue-patient"><%= item.paciente_nome %></div>
+                <div class="agenda-queue-meta">Dentista: <%= item.dentista_nome || 'A definir' %></div>
+              </div>
+              <div class="agenda-queue-state">
+                <% if (item.nivel === 'risco') { %>
+                  <span class="badge badge-status-falta">Risco de falta</span>
+                <% } else if (item.nivel === 'confirmado') { %>
+                  <span class="badge badge-status-confirmado">Confirmado</span>
+                <% } else { %>
+                  <span class="badge badge-status-agendado">Pendente</span>
+                <% } %>
+              </div>
+              <div class="agenda-queue-actions">
+                <% if(_tel.length>=12){ %>
+                  <a href="https://wa.me/<%= _tel %>?text=<%= _msg %>" target="_blank" class="btn btn-whatsapp btn-sm">WhatsApp</a>
+                <% } %>
+                <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
     <!-- TABS -->
-    <div style="display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)">
+    <div class="agenda-tabs-bar">
       <button class="agenda-tab active" data-tab="lista" onclick="switchTab('lista')">Lista</button>
       <button class="agenda-tab" data-tab="semana" onclick="switchTab('semana')">Semana</button>
       <button class="agenda-tab" data-tab="mes" onclick="switchTab('mes')">Mês</button>
     </div>
 
-    <style>
-      .agenda-tab{background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s}
-      .agenda-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
-      .agenda-tab:hover{color:var(--primary)}
-      .agenda-panel{display:none}.agenda-panel.active{display:block}
-      .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-      .cal-nav button{background:var(--primary);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px}
-      .cal-nav button:hover{background:var(--primary-hover)}
-      .cal-nav span{font-weight:700;font-size:15px}
-      .cal-week{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
-      .cal-week th{background:var(--primary);color:#fff;padding:8px 4px;text-align:center;font-weight:600;font-size:12px;position:sticky;top:0;z-index:2}
-      .cal-week td{border:1px solid var(--border);vertical-align:top;height:48px;padding:2px 3px;cursor:pointer;transition:background .1s}
-      .cal-week td:hover{background:#eef3fb}
-      .cal-week td.cal-hour{background:#f9fafb;font-weight:600;font-size:11px;color:var(--text-muted);cursor:default;width:54px;text-align:center}
-      .cal-week td.cal-hour:hover{background:#f9fafb}
-      .cal-week .cal-evt{font-size:11px;padding:2px 4px;border-radius:4px;margin-bottom:1px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;line-height:1.3}
-      .cal-evt-agendado{background:#cce5ff;color:#004085}.cal-evt-confirmado{background:#d4edda;color:#155724}
-      .cal-evt-concluido{background:#b8daff;color:#004085}.cal-evt-cancelado{background:#f8d7da;color:#721c24}
-      .cal-evt-falta{background:#fff3cd;color:#856404}
-      .cal-month{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
-      .cal-month th{background:var(--primary);color:#fff;padding:8px;text-align:center;font-weight:600;font-size:12px}
-      .cal-month td{border:1px solid var(--border);vertical-align:top;height:80px;padding:4px 6px;cursor:pointer;transition:background .1s}
-      .cal-month td:hover{background:#eef3fb}
-      .cal-month td.outro-mes{color:#ccc;background:#fafafa}
-      .cal-month .dia-num{font-weight:700;font-size:13px;margin-bottom:2px}
-      .cal-month .dia-hoje .dia-num{background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
-      .cal-month .cal-mini{font-size:10px;line-height:1.4;overflow:hidden;max-height:52px}
-      @media(max-width:768px){
-        .cal-week td{height:40px;font-size:11px}.cal-week .cal-evt{font-size:10px}
-        .cal-month td{height:60px;font-size:11px}
-        .agenda-tab{padding:8px 12px;font-size:13px}
-      }
-    </style>
-
     <!-- TAB: LISTA -->
     <div class="agenda-panel active" id="panel-lista">
     <!-- AGENDAMENTOS ATIVOS -->
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div>
-          <h3 style="margin-bottom:0;border-bottom:none">Agendamentos ativos</h3>
-          <p style="font-size:12px;color:#6b7280;margin-top:2px">Pesquise pelo nome do paciente, telefone ou dentista.</p>
+      <div class="agenda-list-header">
+        <div class="agenda-list-title">
+          <h3>Agendamentos ativos</h3>
+          <p>Pesquise pelo nome do paciente, telefone ou dentista.</p>
         </div>
-        <form method="GET" action="/agendamentos" style="display:flex;gap:8px;align-items:center">
-          <input type="text" name="busca" value="<%= locals.busca||'' %>" placeholder="Paciente, telefone ou dentista" style="width:240px" />
+        <form method="GET" action="/agendamentos" class="agenda-search-form">
+          <input type="text" name="busca" value="<%= locals.busca||'' %>" placeholder="Paciente, telefone ou dentista" class="agenda-search-input" />
           <button type="submit" class="btn btn-sm">Pesquisar</button>
         </form>
       </div>
 
-      <table>
+      <table class="agenda-table">
         <thead>
           <tr>
             <th>Data</th>
@@ -231,7 +329,7 @@
         </thead>
         <tbody>
           <% if(!agendamentos.length){ %>
-            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px">Nenhum agendamento encontrado.</td></tr>
+            <tr><td colspan="6" class="agenda-empty-cell">Nenhum agendamento encontrado.</td></tr>
           <% } %>
           <% agendamentos.forEach(function(item){ %>
             <tr class="row-<%= item.status %>">
@@ -239,9 +337,17 @@
               <td><%= item.hora_inicio %>h às <%= item.hora_fim %>h</td>
               <td><%= item.paciente_nome %></td>
               <td><%= item.dentista_nome||'-' %></td>
-              <td><%= item.status.charAt(0).toUpperCase()+item.status.slice(1) %></td>
               <td>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                <% var statusLabel = item.status.charAt(0).toUpperCase()+item.status.slice(1); %>
+                <% var statusClass = 'badge-status-cancelado'; %>
+                <% if (item.status === 'agendado') statusClass = 'badge-status-agendado'; %>
+                <% if (item.status === 'confirmado') statusClass = 'badge-status-confirmado'; %>
+                <% if (item.status === 'concluido' || item.status === 'atendido') statusClass = 'badge-status-concluido'; %>
+                <% if (item.status === 'falta') statusClass = 'badge-status-falta'; %>
+                <span class="badge <%= statusClass %>"><%= statusLabel %></span>
+              </td>
+              <td>
+                <div class="agenda-row-actions">
                   <a href="/agendamentos/<%= item.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
                   <%
                     var _tel=(item.telefone||'').replace(/\D/g,'');
@@ -268,11 +374,16 @@
     <div class="agenda-panel" id="panel-semana">
       <div class="card">
         <div class="cal-nav">
-          <button onclick="navWeek(-1)">&larr; Anterior</button>
+          <div class="cal-nav-group">
+            <button onclick="navWeek(-1)">&larr; Anterior</button>
+            <button type="button" class="cal-btn-light" onclick="goCurrentWeek()">Hoje</button>
+          </div>
           <span id="weekLabel"></span>
-          <button onclick="navWeek(1)">Próxima &rarr;</button>
+          <div class="cal-nav-group">
+            <button onclick="navWeek(1)">Próxima &rarr;</button>
+          </div>
         </div>
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <div class="agenda-calendar-scroll">
           <table class="cal-week" id="weekGrid"></table>
         </div>
       </div>
@@ -282,9 +393,14 @@
     <div class="agenda-panel" id="panel-mes">
       <div class="card">
         <div class="cal-nav">
-          <button onclick="navMonth(-1)">&larr; Anterior</button>
+          <div class="cal-nav-group">
+            <button onclick="navMonth(-1)">&larr; Anterior</button>
+            <button type="button" class="cal-btn-light" onclick="goCurrentMonth()">Hoje</button>
+          </div>
           <span id="monthLabel"></span>
-          <button onclick="navMonth(1)">Próximo &rarr;</button>
+          <div class="cal-nav-group">
+            <button onclick="navMonth(1)">Próximo &rarr;</button>
+          </div>
         </div>
         <table class="cal-month" id="monthGrid"></table>
       </div>
@@ -414,6 +530,11 @@
     renderWeek();
   };
 
+  window.goCurrentWeek=function(){
+    curWeekStart=mondayOf(new Date());
+    renderWeek();
+  };
+
   // ========== MONTHLY VIEW ==========
   function renderMonth(){
     var grid=document.getElementById('monthGrid');
@@ -448,9 +569,9 @@
         html+='<div class="cal-mini">';
         html+='<strong>'+evts.length+' agend.</strong><br>';
         evts.slice(0,3).forEach(function(e){
-          html+='<span class="cal-evt cal-evt-'+e.st+'" style="display:block;margin:1px 0">'+e.hi+' '+e.pac.split(' ')[0]+'</span>';
+          html+='<span class="cal-evt cal-evt-'+e.st+' cal-mini-item">'+e.hi+' '+e.pac.split(' ')[0]+'</span>';
         });
-        if(evts.length>3) html+='<span style="color:#6b7280">+'+String(evts.length-3)+' mais</span>';
+        if(evts.length>3) html+='<span class="cal-more">+'+String(evts.length-3)+' mais</span>';
         html+='</div>';
       }
       html+='</td>';
@@ -470,6 +591,12 @@
     curMonth+=dir;
     if(curMonth>11){curMonth=0;curYear++;}
     if(curMonth<0){curMonth=11;curYear--;}
+    renderMonth();
+  };
+
+  window.goCurrentMonth=function(){
+    curMonth=new Date().getMonth();
+    curYear=new Date().getFullYear();
     renderMonth();
   };
 
