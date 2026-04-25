@@ -1146,6 +1146,22 @@ textarea { resize: vertical; }
   color: var(--white);
 }
 
+.sales-nav .nav-cta {
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(14, 43, 79, 0.25);
+  background: linear-gradient(140deg, #0f4c81 0%, #1f6fb0 100%);
+  border-color: #145da0;
+}
+
+.sales-nav .nav-cta:hover {
+  background: linear-gradient(140deg, #0d416d 0%, #195d92 100%);
+  border-color: #0d416d;
+  transform: translateY(-1px);
+}
+
 .sales-nav .btn-outline {
   color: var(--primary);
 }
@@ -1195,6 +1211,24 @@ textarea { resize: vertical; }
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #145da0 0%, #1f6fb0 100%);
+  border-color: #145da0;
+}
+
+.btn-hero-primary:hover {
+  background: linear-gradient(140deg, #104d85 0%, #1a5f96 100%);
+  border-color: #104d85;
+}
+
+.sales-mobile-cta {
+  display: none;
 }
 
 .sales-proof-inline {
@@ -2035,6 +2069,47 @@ textarea { resize: vertical; }
 
   .sales-nav {
     gap: 8px;
+  }
+
+  .sales-nav .nav-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sales-body {
+    padding-bottom: 86px;
+  }
+
+  .sales-mobile-cta {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid #d7e5f4;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    backdrop-filter: blur(8px);
+  }
+
+  .sales-mobile-cta .btn {
+    width: 100%;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #145da0 0%, #1f6fb0 100%);
+    border-color: #145da0;
+  }
+
+  .sales-mobile-cta .btn:hover {
+    background: linear-gradient(140deg, #104d85 0%, #1a5f96 100%);
+    border-color: #104d85;
+  }
+
+  .whatsapp-float {
+    bottom: 82px;
   }
 
   .agenda-kpis {
