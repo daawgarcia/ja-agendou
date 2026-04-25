@@ -15,6 +15,9 @@ async function list(req, res) {
        ORDER BY r.id DESC LIMIT 30`,
       [clinicaId]
     );
+    recibos.forEach(r => {
+      if (r.data_recibo) r.data_fmt = new Date(r.data_recibo).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    });
     return res.render('recibos/index', { pacientes, recibos, previewRecibo: null, prefill: {} });
   } catch (err) {
     console.error(err);
@@ -45,6 +48,9 @@ async function create(req, res) {
       `SELECT r.*, p.nome AS paciente_nome FROM recibos r INNER JOIN pacientes p ON p.id = r.paciente_id WHERE r.clinica_id = ? ORDER BY r.id DESC LIMIT 30`,
       [clinicaId]
     );
+    recibos.forEach(r => {
+      if (r.data_recibo) r.data_fmt = new Date(r.data_recibo).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    });
     const previewRecibo = {
       id: reciboId,
       paciente,
