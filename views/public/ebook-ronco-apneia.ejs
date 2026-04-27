@@ -252,7 +252,7 @@ footer a:hover { color: var(--accent); }
 <nav>
   <div class="nav-inner">
     <a href="https://jaagendou.app" class="nav-logo">🦷 jaagendou<span>.app</span></a>
-    <a href="https://pay.hotmart.com/D105529266E" class="nav-cta" target="_blank" rel="noopener" onclick="if(typeof fbq!=='undefined')fbq('track','InitiateCheckout');">Garantir acesso →</a>
+    <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=nav_cta" class="nav-cta" target="_blank" rel="noopener" data-checkout-source="nav_cta">Garantir acesso →</a>
   </div>
 </nav>
 
@@ -268,7 +268,7 @@ footer a:hover { color: var(--accent); }
         <li><span class="bullet-icon">✓</span> Casos clínicos reais com polissonografia</li>
         <li><span class="bullet-icon">✓</span> Acesso imediato e vitalício</li>
       </ul>
-      <a href="https://pay.hotmart.com/D105529266E" class="btn-primary" target="_blank" rel="noopener" onclick="if(typeof fbq!=='undefined')fbq('track','InitiateCheckout');">Quero acessar agora →</a>
+      <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=hero_cta" class="btn-primary" target="_blank" rel="noopener" data-checkout-source="hero_cta">Quero acessar agora →</a>
       <div class="hero-micro">🔒 <strong>Compra segura via Hotmart</strong> &nbsp;·&nbsp; 7 dias de garantia &nbsp;·&nbsp; PIX, cartão ou boleto</div>
     </div>
     <div class="hero-img-wrap">
@@ -515,7 +515,7 @@ footer a:hover { color: var(--accent); }
           <li><span class="oi-check">◆</span> Liberação imediata após pagamento</li>
           <li><span class="oi-check">◆</span> 7 dias de garantia total — risco zero</li>
         </ul>
-        <a href="https://pay.hotmart.com/D105529266E" class="btn-primary btn-full" target="_blank" rel="noopener" onclick="if(typeof fbq!=='undefined')fbq('track','InitiateCheckout');">Garantir meu acesso agora →</a>
+        <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=offer_cta" class="btn-primary btn-full" target="_blank" rel="noopener" data-checkout-source="offer_cta">Garantir meu acesso agora →</a>
         <div class="oferta-sec-note">🔒 Pagamento 100% seguro via Hotmart · PIX, cartão ou boleto</div>
       </div>
     </div>
@@ -586,7 +586,7 @@ footer a:hover { color: var(--accent); }
       <span class="cta-pill">✓ 7 dias de garantia</span>
       <span class="cta-pill">✓ Acesso vitalício</span>
     </div>
-    <a href="https://pay.hotmart.com/D105529266E" class="btn-primary" target="_blank" rel="noopener" onclick="if(typeof fbq!=='undefined')fbq('track','InitiateCheckout');">Quero acessar o e-book →</a>
+    <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=final_cta" class="btn-primary" target="_blank" rel="noopener" data-checkout-source="final_cta">Quero acessar o e-book →</a>
     <div style="margin-top: 14px; color: var(--gray); font-size: 13px;">
       🔒 Compra segura via Hotmart &nbsp;·&nbsp; R$97 ou 2× R$48,50
     </div>
@@ -605,6 +605,41 @@ document.querySelectorAll('.faq-q').forEach(q => {
     const wasOpen = item.classList.contains('open');
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
     if (!wasOpen) item.classList.add('open');
+  });
+});
+
+document.querySelectorAll('a[data-checkout-source]').forEach(link => {
+  link.addEventListener('click', () => {
+    const source = link.getAttribute('data-checkout-source') || 'checkout_unknown';
+    const payload = {
+      content_name: 'Ebook Ronco e Apneia do Sono',
+      value: 97,
+      currency: 'BRL',
+      source,
+    };
+
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'InitiateCheckout', payload);
+    }
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'begin_checkout', {
+        currency: 'BRL',
+        value: 97,
+        items: [{ item_name: 'Ebook Ronco e Apneia do Sono', price: 97, quantity: 1 }],
+        source,
+      });
+    }
+
+    if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({
+        event: 'checkout_click',
+        source,
+        value: 97,
+        currency: 'BRL',
+        product: 'ebook_ronco_apneia',
+      });
+    }
   });
 });
 </script>

@@ -10,6 +10,130 @@ const BASE    = 'https://graph.facebook.com/v21.0';
 // Cache em memória — atualiza a cada hora
 let cache = { data: null, updatedAt: null, error: null };
 
+const CHECKOUT_ACTION_KEYS = new Set([
+  'initiate_checkout',
+  'omni_initiated_checkout',
+  'offsite_conversion.fb_pixel_initiate_checkout',
+]);
+
+const PURCHASE_ACTION_KEYS = new Set([
+  'purchase',
+  'omni_purchase',
+  'offsite_conversion.fb_pixel_purchase',
+  'onsite_web_purchase',
+]);
+
+function toNumber(value) {
+  const parsed = parseFloat(value || 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function actionCount(actions, validKeys) {
+  if (!Array.isArray(actions)) return 0;
+  return actions.reduce((sum, action) => {
+    if (!action || !validKeys.has(String(action.action_type || ''))) return sum;
+    return sum + toNumber(action.value);
+  }, 0);
+}
+
+function actionValue(actionValues, validKeys) {
+  if (!Array.isArray(actionValues)) return 0;
+  return actionValues.reduce((sum, action) => {
+    if (!action || !validKeys.has(String(action.action_type || ''))) return sum;
+    return sum + toNumber(action.value);
+  }, 0);
+}
+
+function buildDailyCampaignReport(data) {
+  const rows = data?.insights_campaigns_daily?.data || [];
+  const latestDate = rows.reduce((latest, row) => {
+    const current = String(row?.date_start || '');
+    return current > latest ? current : latest;
+  }, '');
+
+  if (!latestDate) {
+    return {
+      referenceDate: null,
+      campaigns: [],
+      totals: {
+        spend: 0,
+        checkouts: 0,
+        purchases: 0,
+        revenue: 0,
+        cac: null,
+        roas: null,
+      },
+    };
+  }
+
+  const campaignMap = new Map();
+
+  rows
+    .filter((row) => String(row?.date_start || '') === latestDate)
+    .forEach((row) => {
+      const campaignId = String(row?.campaign_id || 'unknown');
+      const current = campaignMap.get(campaignId) || {
+        campaignId,
+        campaignName: row?.campaign_name || 'Campanha sem nome',
+        spend: 0,
+        checkouts: 0,
+        purchases: 0,
+        revenue: 0,
+      };
+
+      current.spend += toNumber(row?.spend);
+      current.checkouts += actionCount(row?.actions, CHECKOUT_ACTION_KEYS);
+      current.purchases += actionCount(row?.actions, PURCHASE_ACTION_KEYS);
+      current.revenue += actionValue(row?.action_values, PURCHASE_ACTION_KEYS);
+
+      campaignMap.set(campaignId, current);
+    });
+
+  const campaigns = Array.from(campaignMap.values())
+    .map((campaign) => {
+      const cac = campaign.purchases > 0 ? campaign.spend / campaign.purchases : null;
+      const roas = campaign.spend > 0 ? campaign.revenue / campaign.spend : null;
+      const checkoutToPurchaseRate = campaign.checkouts > 0
+        ? (campaign.purchases / campaign.checkouts) * 100
+        : null;
+
+      return {
+        ...campaign,
+        cac,
+        roas,
+        checkoutToPurchaseRate,
+      };
+    })
+    .sort((a, b) => b.spend - a.spend);
+
+  const totals = campaigns.reduce(
+    (acc, campaign) => {
+      acc.spend += campaign.spend;
+      acc.checkouts += campaign.checkouts;
+      acc.purchases += campaign.purchases;
+      acc.revenue += campaign.revenue;
+      return acc;
+    },
+    {
+      spend: 0,
+      checkouts: 0,
+      purchases: 0,
+      revenue: 0,
+      cac: null,
+      roas: null,
+    }
+  );
+
+  totals.cac = totals.purchases > 0 ? totals.spend / totals.purchases : null;
+  totals.roas = totals.spend > 0 ? totals.revenue / totals.spend : null;
+
+  return {
+    referenceDate: latestDate,
+    campaigns,
+    totals,
+  };
+}
+
 function apiGet(endpoint, params = {}) {
   return new Promise((resolve, reject) => {
     const q = new URLSearchParams({ ...params, access_token: TOKEN }).toString();
@@ -35,14 +159,14 @@ async function fetchMetaData() {
     const [insightsCampaignsDaily, insightsTotal] = await Promise.all([
       Promise.all(campaignIds.map(id =>
         apiGet(`/${id}/insights`, {
-          fields: 'campaign_id,campaign_name,impressions,reach,clicks,ctr,cpc,cpm,spend,frequency,actions',
+          fields: 'campaign_id,campaign_name,impressions,reach,clicks,ctr,cpc,cpm,spend,frequency,actions,action_values',
           date_preset: 'last_30d',
           time_increment: 1,
           limit: 50,
         }).then(r => r.data || []).catch(() => [])
       )).then(arr => arr.flat()),
       apiGet(`/${ACCT}/insights`, {
-        fields: 'campaign_id,campaign_name,impressions,reach,clicks,ctr,cpc,cpm,spend,frequency,actions',
+        fields: 'campaign_id,campaign_name,impressions,reach,clicks,ctr,cpc,cpm,spend,frequency,actions,action_values',
         date_preset: 'last_30d',
         limit: 50,
       }).catch(() => ({ data: [] })),
@@ -100,6 +224,21 @@ exports.showDashboard = (req, res) => {
     ? Math.max(0, 60 - Math.round((Date.now() - cache.updatedAt) / 60000))
     : 0;
   res.render('meta-ads/index', { updatedAt, nextUpdateMin, error: cache.error });
+};
+
+exports.showDailyReport = (req, res) => {
+  const updatedAt = cache.updatedAt
+    ? cache.updatedAt.toLocaleString('pt-BR')
+    : 'Nunca';
+
+  const report = cache.data ? buildDailyCampaignReport(cache.data) : null;
+
+  res.render('meta-ads/relatorio-diario', {
+    updatedAt,
+    generatedAt: new Date().toLocaleString('pt-BR'),
+    error: cache.error,
+    report,
+  });
 };
 
 exports.apiData = (req, res) => {

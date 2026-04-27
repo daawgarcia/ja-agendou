@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório Diário — Meta Ads</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f1117; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; }
+    .muted { color: #94a3b8; }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Relatório Diário por Campanha</h1>
+        <p class="muted text-sm mt-1">Gerado em <%= generatedAt %> · Base atualizada em <%= updatedAt %></p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/meta-ads" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-lg font-semibold">Voltar ao dashboard</a>
+        <a href="/meta-ads/api/refresh" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg font-semibold">Atualizar dados</a>
+      </div>
+    </div>
+
+    <% if (error) { %>
+      <div class="bg-red-900/30 border border-red-800 text-red-300 rounded-lg p-4 mb-4 text-sm">
+        Erro ao buscar dados do Meta: <%= error %>
+      </div>
+    <% } %>
+
+    <% if (!report || !report.referenceDate) { %>
+      <div class="card p-6 text-slate-300 text-sm">Sem dados diários suficientes para montar o relatório agora.</div>
+    <% } else { %>
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">Data de referência</p>
+          <p class="text-white font-semibold"><%= report.referenceDate %></p>
+        </div>
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">Gasto</p>
+          <p class="text-emerald-400 font-semibold">R$ <%= report.totals.spend.toFixed(2).replace('.', ',') %></p>
+        </div>
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">Checkouts iniciados</p>
+          <p class="text-sky-400 font-semibold"><%= Math.round(report.totals.checkouts) %></p>
+        </div>
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">Compras (Meta)</p>
+          <p class="text-violet-400 font-semibold"><%= Math.round(report.totals.purchases) %></p>
+        </div>
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">CAC</p>
+          <p class="text-amber-400 font-semibold"><%= report.totals.cac !== null ? ('R$ ' + report.totals.cac.toFixed(2).replace('.', ',')) : '—' %></p>
+        </div>
+        <div class="card p-4">
+          <p class="muted text-xs mb-1">ROAS</p>
+          <p class="text-emerald-400 font-semibold"><%= report.totals.roas !== null ? report.totals.roas.toFixed(2) + 'x' : '—' %></p>
+        </div>
+      </div>
+
+      <div class="card overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400 text-xs">
+              <th class="text-left p-3">Campanha</th>
+              <th class="text-right p-3">Gasto</th>
+              <th class="text-right p-3">Checkouts</th>
+              <th class="text-right p-3">Compras</th>
+              <th class="text-right p-3">Conv. checkout</th>
+              <th class="text-right p-3">Receita</th>
+              <th class="text-right p-3">CAC</th>
+              <th class="text-right p-3">ROAS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% report.campaigns.forEach((c) => { %>
+              <tr class="border-b border-slate-800/80 hover:bg-slate-800/30">
+                <td class="p-3 text-slate-200"><%= c.campaignName %></td>
+                <td class="p-3 text-right text-emerald-400">R$ <%= c.spend.toFixed(2).replace('.', ',') %></td>
+                <td class="p-3 text-right text-sky-400"><%= Math.round(c.checkouts) %></td>
+                <td class="p-3 text-right text-violet-400"><%= Math.round(c.purchases) %></td>
+                <td class="p-3 text-right text-slate-300"><%= c.checkoutToPurchaseRate !== null ? c.checkoutToPurchaseRate.toFixed(1).replace('.', ',') + '%' : '—' %></td>
+                <td class="p-3 text-right text-emerald-400">R$ <%= c.revenue.toFixed(2).replace('.', ',') %></td>
+                <td class="p-3 text-right text-amber-300"><%= c.cac !== null ? ('R$ ' + c.cac.toFixed(2).replace('.', ',')) : '—' %></td>
+                <td class="p-3 text-right text-emerald-300"><%= c.roas !== null ? c.roas.toFixed(2) + 'x' : '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted text-xs mt-3">Observação: compras e receita seguem os eventos reportados pelo Meta Ads para a data de referência.</p>
+    <% } %>
+  </div>
+</body>
+</html>

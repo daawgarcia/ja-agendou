@@ -8,6 +8,7 @@ router.get( '/logout',  ctrl.handleLogout);
 
 // Rotas protegidas por senha própria
 router.get( '/',               ctrl.requireAuth, ctrl.showDashboard);
+router.get( '/relatorio-diario', ctrl.requireAuth, ctrl.showDailyReport);
 router.get( '/api/data',       ctrl.requireAuth, ctrl.apiData);
 router.get( '/api/refresh',    ctrl.requireAuth, ctrl.apiRefresh);
 
