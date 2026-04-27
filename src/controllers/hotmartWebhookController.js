@@ -632,6 +632,77 @@ async function saveEvent(payload) {
   };
 }
 
+async function fireMetaPurchaseEvent(payload, buyerEmail) {
+  const pixelId = process.env.FACEBOOK_PIXEL_ID;
+  const accessToken = process.env.META_TOKEN;
+
+  if (!pixelId || !accessToken || !buyerEmail) return;
+
+  try {
+    const https = require('https');
+
+    const emailHash = crypto.createHash('sha256').update(buyerEmail.toLowerCase().trim()).digest('hex');
+
+    const buyerNameRaw = readNested(payload, [
+      'buyer.name', 'purchase.buyer.name', 'data.buyer.name', 'data.purchase.buyer.name', 'name',
+    ]) || '';
+    const firstName = buyerNameRaw.split(' ')[0].toLowerCase().trim();
+    const fnHash = firstName ? crypto.createHash('sha256').update(firstName).digest('hex') : null;
+
+    const amountsCents = extractAmountsInCents(payload);
+    const valueBRL = amountsCents.length > 0 ? amountsCents[0] / 100 : 97;
+
+    const productId = readNested(payload, [
+      'product.ucode', 'data.product.ucode', 'purchase.product.ucode', 'data.purchase.product.ucode',
+    ]) || 'D105529266E';
+
+    const userData = { em: [emailHash] };
+    if (fnHash) userData.fn = [fnHash];
+
+    const eventBody = JSON.stringify({
+      data: [{
+        event_name: 'Purchase',
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'website',
+        event_source_url: (process.env.BASE_URL || 'https://jaagendou.app').replace(/\/$/, '') + '/ebook-ronco-apneia',
+        user_data: userData,
+        custom_data: {
+          value: valueBRL,
+          currency: 'BRL',
+          content_ids: [productId],
+          content_type: 'product',
+        },
+      }],
+    });
+
+    const apiUrl = new URL(`https://graph.facebook.com/v21.0/${pixelId}/events`);
+    apiUrl.searchParams.set('access_token', accessToken);
+
+    await new Promise((resolve) => {
+      const req = https.request(apiUrl.toString(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(eventBody) },
+      }, (res) => {
+        let raw = '';
+        res.on('data', (c) => { raw += c; });
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log('[META CAPI] Purchase enviado. Pixel:', pixelId, '| Status:', res.statusCode);
+          } else {
+            console.error('[META CAPI] Erro ao enviar Purchase:', res.statusCode, raw);
+          }
+          resolve();
+        });
+      });
+      req.on('error', (e) => { console.error('[META CAPI] Erro de rede:', e.message); resolve(); });
+      req.write(eventBody);
+      req.end();
+    });
+  } catch (err) {
+    console.error('[META CAPI] Exceção:', err.message);
+  }
+}
+
 async function receive(req, res) {
   if (!isTokenValid(req)) {
     return res.status(401).json({
@@ -706,6 +777,12 @@ async function receive(req, res) {
     }
 
     await activateLicenseForClinic(clinicId, licenseDays);
+
+    const buyerEmailForCapi = readNested(payload, [
+      'buyer.email', 'purchase.buyer.email', 'data.buyer.email', 'data.purchase.buyer.email', 'email',
+    ]);
+    fireMetaPurchaseEvent(payload, buyerEmailForCapi).catch(() => {});
+
     if (createdAccount) {
       await sendWelcomeAccessEmail({
         req,
