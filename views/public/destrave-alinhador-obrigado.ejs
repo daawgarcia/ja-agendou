@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compra Confirmada — Destrave o Alinhador</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <% if (ga4MeasurementId) { %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= ga4MeasurementId %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '<%= ga4MeasurementId %>');
+      gtag('event', 'purchase', {
+        transaction_id: '<%= transactionCode %>',
+        value: 147.00,
+        currency: 'BRL',
+        items: [{ item_id: 'ebook-destrave-alinhador', item_name: 'Alinhadores: Da Insegurança ao Consultório Lucrativo', price: 147.00, quantity: 1 }]
+      });
+    </script>
+  <% } %>
+  <% if (facebookPixelId) { %>
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<%= facebookPixelId %>');
+    fbq('track', 'PageView');
+    fbq('track', 'Purchase', {
+      value: 147.00,
+      currency: 'BRL',
+      content_ids: ['ebook-destrave-alinhador'],
+      content_type: 'product',
+      content_name: 'Alinhadores: Da Insegurança ao Consultório Lucrativo'
+    });
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<%= facebookPixelId %>&ev=Purchase&noscript=1"
+    /></noscript>
+  <% } %>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.3);
+    }
+    .check-icon {
+      width: 72px; height: 72px;
+      background: #f0fdf4;
+      border: 3px solid #86efac;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 24px;
+    }
+    h1 { font-size: 1.9rem; font-weight: 900; color: #0f1f3d; margin-bottom: 12px; }
+    .subtitle { font-size: 1.05rem; color: #64748b; margin-bottom: 32px; line-height: 1.6; }
+    .download-box {
+      background: linear-gradient(135deg, #0f1f3d, #1a3a6b);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 28px;
+    }
+    .download-box h2 { color: #f5c842; font-size: 1.1rem; margin-bottom: 8px; }
+    .download-box p { color: rgba(255,255,255,.75); font-size: 14px; margin-bottom: 20px; }
+    .btn-download {
+      display: inline-block;
+      background: linear-gradient(135deg, #e85d04, #ff8c00);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 6px 24px rgba(232,93,4,.4);
+      transition: transform .15s;
+    }
+    .btn-download:hover { transform: translateY(-2px); }
+    .steps { text-align: left; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+    .steps h3 { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .step-item { display: flex; gap: 12px; margin-bottom: 12px; font-size: 14px; color: #334155; }
+    .step-num {
+      background: #0f1f3d; color: #fff; font-size: 11px; font-weight: 800;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .wa-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #25d366;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .wa-link:hover { background: #1ebe5d; }
+    .footer-note { margin-top: 20px; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="check-icon">✅</div>
+    <h1>Compra confirmada!</h1>
+    <p class="subtitle">
+      Bem-vindo ao <strong>Alinhadores: Da Insegurança ao Consultório Lucrativo</strong>.<br/>
+      Você também receberá o acesso no e-mail cadastrado na Hotmart.
+    </p>
+
+    <div class="download-box">
+      <h2>Acesse seu ebook agora</h2>
+      <p>Clique abaixo para baixar o PDF ou acessar o conteúdo online.</p>
+      <a href="<%= ebookDownloadUrl %>" class="btn-download" target="_blank" rel="noopener">
+        Acessar meu ebook
+      </a>
+    </div>
+
+    <div class="steps">
+      <h3>Próximos passos</h3>
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div>Baixe e salve o PDF no seu celular ou computador</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div>Comece pelos módulos de Complexidade de Caso e Precificação</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div>Aplique a planilha de fluxo de caixa no próximo caso de alinhador</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div>Nos conte seu resultado — estamos no WhatsApp</div>
+      </div>
+    </div>
+
+    <a href="https://wa.me/5511925366081?text=Ol%C3%A1%2C%20acabei%20de%20comprar%20o%20ebook%20Destrave%20o%20Alinhador%20e%20quero%20tirar%20d%C3%BAvidas!" class="wa-link" target="_blank" rel="noopener">
+      <svg viewBox="0 0 32 32" width="18" height="18" fill="#fff"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16.004c0 3.5 1.128 6.744 3.046 9.378L1.054 31.29l6.118-1.958A15.9 15.9 0 0016.004 32C24.826 32 32 24.826 32 16.004S24.826 0 16.004 0zm9.338 22.594c-.39 1.1-2.286 2.1-3.15 2.166-.796.06-1.78.086-2.872-.18a26.207 26.207 0 01-2.6-.962c-4.574-1.978-7.56-6.618-7.79-6.926-.228-.308-1.868-2.486-1.868-4.742s1.182-3.366 1.602-3.826c.42-.46.916-.576 1.222-.576.304 0 .61.002.876.016.282.014.66-.108.032 1.496-.116.296-.702 1.716-.764 1.84-.062.124-.104.27-.02.432.082.162.124.264.248.408.124.144.26.322.372.432.248.248.506.518.688.698.248.248.506.534.69.716.372.372.38.692.124 1.076-.256.382-1.072 1.396-1.154 1.5-.082.106-.166.15-.03.302.136.15.608.704 1.304 1.142.894.564 1.648.74 1.884.824.236.082.374.07.512-.042s.594-.694.752-.932c.158-.238.316-.198.532-.118.218.08 1.378.65 1.614.768.236.118.394.178.452.274.058.096.058.556-.332 1.656z"/></svg>
+      Falar no WhatsApp
+    </a>
+
+    <p class="footer-note">
+      Dúvidas sobre a compra? Acesse a <a href="https://hotmart.com/pt-br/club" style="color:#1e5b92;">plataforma da Hotmart</a>.<br/>
+      Garantia incondicional de 7 dias — basta solicitar via Hotmart ou WhatsApp.
+    </p>
+  </div>
+</body>
+</html>

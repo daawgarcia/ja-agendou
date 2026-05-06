@@ -632,6 +632,17 @@ async function submitKitLead(req, res) {
   }
 }
 
+function showDestraveAlinhador(req, res) {
+  const hotmartLink = process.env.HOTMART_EBOOK_CHECKOUT_URL || '#comprar';
+  return res.render('public/destrave-alinhador', { hotmartLink });
+}
+
+function showDestraveAlinhadorObrigado(req, res) {
+  const transactionCode = String(req.query.transaction || req.query.codigo || '').trim();
+  const ebookDownloadUrl = process.env.EBOOK_DOWNLOAD_URL || 'https://hotmart.com/pt-br/club';
+  return res.render('public/destrave-alinhador-obrigado', { transactionCode, ebookDownloadUrl });
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
@@ -642,4 +653,6 @@ module.exports = {
   showClinicaInteligente,
   showEbookRoncoApneia,
   showSecretariaElite,
+  showDestraveAlinhador,
+  showDestraveAlinhadorObrigado,
 };
