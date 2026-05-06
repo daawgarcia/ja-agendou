@@ -633,7 +633,7 @@ async function submitKitLead(req, res) {
 }
 
 function showDestraveAlinhador(req, res) {
-  const hotmartLink = process.env.HOTMART_EBOOK_CHECKOUT_URL || '#comprar';
+  const hotmartLink = process.env.HOTMART_EBOOK_CHECKOUT_URL || 'https://pay.hotmart.com/O105720624Y';
   return res.render('public/destrave-alinhador', { hotmartLink });
 }
 
