@@ -14,6 +14,9 @@ router.get('/secretaria-elite', publicController.showSecretariaElite);
 router.get('/cadastro-dentista', publicController.showDentistSignup);
 router.post('/cadastro-dentista', publicController.submitDentistSignup);
 
+// Guia: Ansiedade e Sono (público final)
+router.get('/ansiedade-sono', publicController.showAnsiedadeSono);
+
 // Ebook: Destrave o Alinhador
 router.get('/destrave-alinhador', publicController.showDestraveAlinhador);
 router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhadorObrigado);

@@ -632,6 +632,10 @@ async function submitKitLead(req, res) {
   }
 }
 
+function showAnsiedadeSono(req, res) {
+  res.render('public/ansiedade-sono');
+}
+
 function showDestraveAlinhador(req, res) {
   const hotmartLink = process.env.HOTMART_EBOOK_CHECKOUT_URL || 'https://pay.hotmart.com/O105720624Y';
   return res.render('public/destrave-alinhador', { hotmartLink });
@@ -653,6 +657,7 @@ module.exports = {
   showClinicaInteligente,
   showEbookRoncoApneia,
   showSecretariaElite,
+  showAnsiedadeSono,
   showDestraveAlinhador,
   showDestraveAlinhadorObrigado,
 };
