@@ -88,6 +88,56 @@ nav { background: rgba(7,16,30,0.95); backdrop-filter: blur(12px); border-bottom
 .hero-img-wrap { display: flex; justify-content: center; align-items: center; }
 .hero-img-wrap img { width: 100%; max-width: 460px; border-radius: 16px; filter: drop-shadow(0 20px 60px rgba(0,0,0,0.6)); }
 
+/* ── EBOOK MOCKUP CSS ── */
+.ebook-mockup { position: relative; width: 280px; flex-shrink: 0; }
+.ebook-cover {
+  background: linear-gradient(145deg, #1a0f2e 0%, #2d1b5e 50%, #1a0f2e 100%);
+  border-radius: 4px 16px 16px 4px;
+  padding: 36px 28px 32px;
+  box-shadow:
+    -8px 0 0 #0d0820,
+    -16px 4px 0 rgba(0,0,0,0.4),
+    0 30px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.ebook-cover::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(139,92,246,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ebook-cover::after {
+  content: '';
+  position: absolute; top: 0; left: 0; width: 8px; height: 100%;
+  background: linear-gradient(180deg, #2d1b5e 0%, #1a0f2e 50%, #2d1b5e 100%);
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -2px 0 4px rgba(0,0,0,0.4);
+}
+.ebook-moon { font-size: 36px; display: block; margin-bottom: 16px; text-align: center; }
+.ebook-tag-cover {
+  display: inline-block; background: rgba(139,92,246,0.25); border: 1px solid rgba(139,92,246,0.4);
+  color: var(--accent2); font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+}
+.ebook-title-cover { color: #fff; font-size: 20px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+.ebook-title-cover em { color: var(--accent2); font-style: normal; }
+.ebook-sub-cover { color: rgba(255,255,255,0.5); font-size: 11px; margin-bottom: 20px; line-height: 1.5; }
+.ebook-features {
+  display: flex; flex-direction: column; gap: 8px;
+  border-top: 1px solid rgba(139,92,246,0.2); padding-top: 18px;
+}
+.ebook-feat { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); font-size: 11px; font-weight: 600; }
+.ebook-feat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+.ebook-badge {
+  position: absolute; bottom: 18px; right: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: 10px; font-weight: 900; padding: 6px 12px; border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(139,92,246,0.4);
+}
+.ebook-spine { position: absolute; left: -14px; top: 10px; bottom: 10px; width: 6px; background: linear-gradient(180deg, #3d2070, #1a0f2e, #3d2070); border-radius: 2px; }
+
 /* ── URGÊNCIA ── */
 .urgencia { background: linear-gradient(135deg, #0d0a1a 0%, #130d2a 100%); padding: 72px 24px; text-align: center; border-top: 1px solid rgba(139,92,246,0.12); border-bottom: 1px solid rgba(139,92,246,0.12); }
 .urgencia-inner { max-width: 860px; margin: 0 auto; }
@@ -208,6 +258,8 @@ footer a:hover { color: var(--accent2); }
   .hero-inner { grid-template-columns: 1fr; gap: 40px; }
   .hero-img-wrap { order: -1; }
   .hero-img-wrap img { max-width: 300px; }
+  .ebook-mockup { width: 220px; }
+  .ebook-title-cover { font-size: 17px; }
   .plano-inner { grid-template-columns: 1fr; gap: 40px; }
   .plano-visual { order: -1; }
   .oferta-inner { grid-template-columns: 1fr; gap: 40px; }
@@ -249,7 +301,21 @@ footer a:hover { color: var(--accent2); }
       <div class="hero-micro">🔒 <strong>Compra segura via Hotmart</strong> &nbsp;·&nbsp; 7 dias de garantia &nbsp;·&nbsp; PIX, cartão ou boleto</div>
     </div>
     <div class="hero-img-wrap">
-      <img src="/images/ansiedade-sono/mockup-hero.png" alt="Guia Premium de Ansiedade e Sono" loading="eager" onerror="this.style.display='none'">
+      <div class="ebook-mockup">
+        <div class="ebook-cover">
+          <span class="ebook-moon">🌙</span>
+          <div class="ebook-tag-cover">Guia Premium · 2026</div>
+          <div class="ebook-title-cover">Ansiedade<br>e <em>Sono</em></div>
+          <div class="ebook-sub-cover">Plano prático de 14 dias + checklists + atividades guiadas</div>
+          <div class="ebook-features">
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>Plano de 14 dias</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>Checklists práticos</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>Atividades guiadas</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>Infográficos visuais</div>
+          </div>
+          <div class="ebook-badge">R$47</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -479,7 +545,21 @@ footer a:hover { color: var(--accent2); }
 <section class="oferta" id="comprar">
   <div class="oferta-inner">
     <div class="oferta-img">
-      <img src="/images/ansiedade-sono/capa-3d.png" alt="Guia Premium de Ansiedade e Sono" onerror="this.style.display='none'">
+      <div class="ebook-mockup">
+        <div class="ebook-cover">
+          <span class="ebook-moon">🌙</span>
+          <div class="ebook-tag-cover">Acesso imediato</div>
+          <div class="ebook-title-cover">Ansiedade<br>e <em>Sono</em></div>
+          <div class="ebook-sub-cover">Material digital completo com acesso vitalício</div>
+          <div class="ebook-features">
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>8 módulos completos</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>Plano de 14 dias</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>4 bônus exclusivos</div>
+            <div class="ebook-feat"><span class="ebook-feat-dot"></span>7 dias de garantia</div>
+          </div>
+          <div class="ebook-badge">R$47</div>
+        </div>
+      </div>
     </div>
     <div>
       <div class="sec-tag">Garanta seu acesso</div>
