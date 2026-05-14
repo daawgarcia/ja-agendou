@@ -19,6 +19,9 @@ router.get('/ansiedade-sono', publicController.showAnsiedadeSono);
 
 // Ebook: Destrave o Alinhador
 router.get('/destrave-alinhador', publicController.showDestraveAlinhador);
+
+// Ebook: Protocolo Premium Implantes
+router.get('/protocolo-implantes', publicController.showProtocoloImplantes);
 router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhadorObrigado);
 router.post('/api/webhook-hotmart-ebook', ebookWebhookController.receive);
 

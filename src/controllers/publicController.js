@@ -647,6 +647,11 @@ function showDestraveAlinhadorObrigado(req, res) {
   return res.render('public/destrave-alinhador-obrigado', { transactionCode, ebookDownloadUrl });
 }
 
+function showProtocoloImplantes(req, res) {
+  const hotmartLink = process.env.HOTMART_PROTOCOLO_IMPLANTES_URL || 'https://pay.hotmart.com/C105823684Q';
+  return res.render('public/protocolo-implantes', { hotmartLink });
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
@@ -660,4 +665,5 @@ module.exports = {
   showAnsiedadeSono,
   showDestraveAlinhador,
   showDestraveAlinhadorObrigado,
+  showProtocoloImplantes,
 };

@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protocolo Premium — Atendimento e Venda em Implantes Dentários</title>
+  <meta name="description" content="Do primeiro contato ao pós-operatório: diagnóstico, planejamento, conversão e manutenção com previsibilidade clínica e comercial. Guia prático para dentistas e clínicas." />
+  <meta property="og:title" content="Protocolo Premium — Atendimento e Venda em Implantes Dentários" />
+  <meta property="og:description" content="O sistema completo para transformar consultas em implantes confirmados — com scripts, checklists e protocolos prontos para usar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
+
+  <% if (ga4MeasurementId) { %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= ga4MeasurementId %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '<%= ga4MeasurementId %>');
+    </script>
+  <% } %>
+  <% if (facebookPixelId) { %>
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<%= facebookPixelId %>');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<%= facebookPixelId %>&ev=PageView&noscript=1"
+    /></noscript>
+  <% } %>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-deep:   #060c18;
+      --navy:        #09142a;
+      --navy-mid:    #0d1f3c;
+      --navy-light:  #122448;
+      --teal:        #00c6d8;
+      --teal-bright: #00e5fa;
+      --teal-dim:    #007a8a;
+      --gold:        #e8a020;
+      --gold-light:  #f5c842;
+      --white:       #ffffff;
+      --silver:      #a8bfd6;
+      --silver-dim:  #5c7a99;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy-deep);
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; }
+
+    /* ─── PARTICLES ─── */
+    #particles {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--teal);
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.35; }
+      90%  { opacity: 0.12; }
+      100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+    }
+
+    /* ─── TOP BAR ─── */
+    .top-bar {
+      position: relative; z-index: 10;
+      background: linear-gradient(90deg, var(--teal-dim), #005f6b, var(--teal-dim));
+      color: #fff;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      letter-spacing: .4px;
+    }
+    .top-bar span { color: var(--gold-light); }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 50%, rgba(0,198,216,0.08) 0%, transparent 70%),
+        linear-gradient(160deg, #060c18 0%, #0a1830 50%, #060c18 100%);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%2300c6d8' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 1200px; margin: 0 auto;
+      padding: 100px 40px 80px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .badge-premium {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #8b6800, var(--gold), #c88000);
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(232,160,32,0.4);
+    }
+    .badge-premium::before { content: '★'; font-size: 14px; }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 6vw, 84px);
+      line-height: 1;
+      letter-spacing: 1px;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .hero-title span {
+      display: block;
+      color: var(--teal-bright);
+      text-shadow: 0 0 40px rgba(0,229,250,0.5);
+    }
+    .hero-title em { font-style: normal; color: var(--gold-light); }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-style: italic;
+      color: var(--silver);
+      margin: 20px 0 32px;
+      line-height: 1.5;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--silver);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 520px;
+    }
+    .hero-desc strong { color: var(--white); }
+
+    .hero-cta-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--teal), #006f7c);
+      color: white;
+      padding: 18px 40px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      box-shadow: 0 8px 32px rgba(0,198,216,0.4), 0 2px 8px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      border: none; cursor: pointer;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,198,216,0.55); }
+    .btn-primary:hover::after { opacity: 1; }
+
+    .hero-trust {
+      font-size: 13px;
+      color: var(--silver-dim);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hero-trust::before { content: '🔒'; font-size: 14px; }
+
+    /* HERO BOOK */
+    .hero-book {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-book::before {
+      content: '';
+      position: absolute;
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(0,198,216,0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+    .book-cover {
+      position: relative; z-index: 2;
+      width: 300px;
+      border-radius: 8px;
+      box-shadow: -8px 0 0 rgba(0,0,0,0.4), 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(0,198,216,0.2);
+      transform: perspective(800px) rotateY(-8deg) rotateX(2deg);
+      animation: bookFloat 6s ease-in-out infinite;
+    }
+    @keyframes bookFloat {
+      0%, 100% { transform: perspective(800px) rotateY(-8deg) rotateX(2deg) translateY(0); }
+      50% { transform: perspective(800px) rotateY(-8deg) rotateX(2deg) translateY(-12px); }
+    }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+      position: relative; z-index: 2;
+      background: linear-gradient(135deg, var(--teal-dim), #004e5a, var(--teal-dim));
+      padding: 40px;
+      overflow: hidden;
+    }
+    .stats-strip::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(0,229,250,0.08), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .stats-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; justify-content: space-around;
+      align-items: center; flex-wrap: wrap; gap: 24px;
+      position: relative; z-index: 1;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px; line-height: 1;
+      color: white;
+      text-shadow: 0 0 20px rgba(255,255,255,0.4);
+    }
+    .stat-num small { font-size: 28px; vertical-align: middle; }
+    .stat-label {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.75); margin-top: 4px;
+    }
+    .stat-sep { width: 1px; height: 50px; background: rgba(255,255,255,0.2); }
+
+    /* ─── SECTIONS ─── */
+    section { position: relative; z-index: 2; }
+
+    .section-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 100px 40px;
+    }
+
+    .section-tag {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(38px, 5vw, 62px);
+      line-height: 1; margin-bottom: 16px;
+    }
+    .section-title span { color: var(--teal); }
+    .section-title em { font-style: normal; color: var(--gold-light); }
+
+    .section-sub {
+      font-size: 17px; color: var(--silver);
+      line-height: 1.7; max-width: 640px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,198,216,0.2), transparent);
+    }
+
+    /* ─── SPREAD ─── */
+    .spread-section { background: var(--navy); }
+
+    .spread-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+      margin-top: 60px;
+    }
+    .spread-layout.reverse { direction: rtl; }
+    .spread-layout.reverse > * { direction: ltr; }
+
+    .check-list {
+      list-style: none; margin-top: 24px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .check-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px; color: var(--silver); line-height: 1.5;
+    }
+    .check-list li::before {
+      content: '';
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+      border-radius: 50%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 12px;
+      margin-top: 2px;
+    }
+
+    .spread-mockup {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mockup-glow {
+      position: absolute;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,198,216,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .mockup-img {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 380px;
+      border-radius: 12px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,198,216,0.15);
+      transition: transform 0.5s ease;
+    }
+    .mockup-img:hover { transform: scale(1.02) rotateZ(0.5deg); }
+    .mockup-img.tilt-left  { transform: perspective(800px) rotateY(6deg) rotateX(-2deg); }
+    .mockup-img.tilt-right { transform: perspective(800px) rotateY(-6deg) rotateX(-2deg); }
+
+    /* ─── CARDS GRID ─── */
+    .contents-section { background: var(--navy); }
+
+    .contents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px; margin-top: 60px;
+    }
+    .content-card {
+      background: var(--navy-mid);
+      border: 1px solid rgba(0,198,216,0.15);
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer;
+      transition: all 0.35s ease;
+    }
+    .content-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(0,198,216,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0,198,216,0.1);
+    }
+    .card-img-wrap {
+      position: relative; overflow: hidden; height: 200px;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top;
+      transition: transform 0.5s ease;
+      filter: brightness(0.9);
+    }
+    .content-card:hover .card-img-wrap img { transform: scale(1.05); filter: brightness(1); }
+    .card-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(9,20,42,0.95) 100%);
+    }
+    .card-num {
+      position: absolute; top: 12px; left: 12px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; color: var(--teal);
+      opacity: 0.4; line-height: 1;
+    }
+    .card-body { padding: 16px 20px 20px; }
+    .card-title {
+      font-size: 15px; font-weight: 700;
+      color: var(--white); margin-bottom: 6px; line-height: 1.3;
+    }
+    .card-desc { font-size: 13px; color: var(--silver-dim); line-height: 1.5; }
+
+    /* ─── PILLARS ─── */
+    .pillars-section {
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,198,216,0.04) 0%, transparent 70%),
+        var(--navy-deep);
+    }
+    .pillars-header { text-align: center; margin-bottom: 70px; }
+    .pillars-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .pillar-card {
+      background: var(--navy-mid);
+      border: 1px solid rgba(0,198,216,0.12);
+      border-radius: 20px; padding: 32px 28px;
+      position: relative; overflow: hidden;
+      transition: all 0.35s ease;
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-bright));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .pillar-card:hover { transform: translateY(-6px); border-color: rgba(0,198,216,0.4); }
+    .pillar-card:hover::before { transform: scaleX(1); }
+    .pillar-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px; color: var(--teal); opacity: 0.15;
+      line-height: 1; position: absolute; top: 12px; right: 20px;
+    }
+    .pillar-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, rgba(0,198,216,0.2), rgba(0,198,216,0.05));
+      border: 1px solid rgba(0,198,216,0.3);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 20px;
+    }
+    .pillar-title { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.3; }
+    .pillar-desc { font-size: 14px; color: var(--silver-dim); line-height: 1.6; }
+
+    /* ─── GALLERY ─── */
+    .gallery-section { background: var(--navy-deep); overflow: hidden; }
+    .gallery-track {
+      display: flex; gap: 20px; margin-top: 60px;
+      overflow-x: auto; padding-bottom: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--teal-dim) transparent;
+    }
+    .gallery-track::-webkit-scrollbar { height: 4px; }
+    .gallery-track::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 4px; }
+    .gallery-page {
+      flex-shrink: 0; width: 220px;
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(0,198,216,0.2);
+      transition: all 0.3s ease; cursor: pointer;
+    }
+    .gallery-page:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: var(--teal);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(0,198,216,0.2);
+    }
+    .gallery-page img { width: 100%; display: block; }
+
+    /* ─── FOR WHOM ─── */
+    .forwhom-section { background: var(--navy); }
+    .forwhom-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; margin-top: 60px;
+    }
+    .forwhom-card {
+      background: var(--navy-mid); border-radius: 20px;
+      padding: 36px 32px; border: 1px solid rgba(0,198,216,0.1);
+    }
+    .forwhom-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 20px; color: var(--teal); }
+    .forwhom-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .forwhom-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 15px; color: var(--silver); line-height: 1.5;
+    }
+    .forwhom-list li span { flex-shrink: 0; font-size: 18px; }
+
+    /* ─── GUARANTEE ─── */
+    .guarantee-section {
+      background:
+        radial-gradient(ellipse 60% 70% at 50% 100%, rgba(0,198,216,0.05) 0%, transparent 70%),
+        var(--navy-deep);
+    }
+    .guarantee-box {
+      max-width: 720px; margin: 0 auto; text-align: center;
+      background: var(--navy-mid);
+      border: 1px solid rgba(0,198,216,0.2);
+      border-radius: 24px; padding: 60px 50px;
+      position: relative; overflow: hidden;
+    }
+    .guarantee-box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+    .guarantee-icon { font-size: 64px; margin-bottom: 20px; }
+    .guarantee-box h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 44px; margin-bottom: 16px; color: var(--gold-light);
+    }
+    .guarantee-box p { font-size: 17px; color: var(--silver); line-height: 1.7; }
+
+    /* ─── FINAL CTA ─── */
+    .cta-section {
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0,198,216,0.12) 0%, transparent 70%),
+        linear-gradient(180deg, var(--navy-deep) 0%, #04080f 100%);
+    }
+    .cta-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 120px 40px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 80px; align-items: center;
+    }
+    .cta-price-box {
+      background: var(--navy-mid);
+      border: 1px solid rgba(0,198,216,0.2);
+      border-radius: 24px; padding: 40px 36px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-price-box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-bright));
+    }
+    .price-tag {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px; color: var(--white); line-height: 1;
+    }
+    .price-tag small { font-size: 32px; vertical-align: super; color: var(--teal); }
+    .price-from { font-size: 14px; color: var(--silver-dim); text-decoration: line-through; margin-bottom: 4px; }
+    .price-label { font-size: 13px; color: var(--teal); font-weight: 600; letter-spacing: 1px; margin-top: 4px; margin-bottom: 28px; }
+    .cta-benefits {
+      list-style: none; text-align: left;
+      margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .cta-benefits li { font-size: 14px; color: var(--silver); display: flex; align-items: center; gap: 10px; }
+    .cta-benefits li::before { content: '✓'; color: var(--teal); font-weight: 800; font-size: 16px; }
+    .cta-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 5vw, 64px); line-height: 1; margin-bottom: 20px;
+    }
+    .cta-text h2 span { color: var(--teal); }
+    .cta-text p { font-size: 17px; color: var(--silver); line-height: 1.7; margin-bottom: 14px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #03060e; padding: 30px 40px;
+      text-align: center; font-size: 13px; color: var(--silver-dim);
+      border-top: 1px solid rgba(0,198,216,0.08);
+    }
+    footer a { color: var(--teal); }
+
+    /* ─── SCROLL ANIMATION ─── */
+    .fade-up {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up:nth-child(2) { transition-delay: 0.1s; }
+    .fade-up:nth-child(3) { transition-delay: 0.2s; }
+    .fade-up:nth-child(4) { transition-delay: 0.3s; }
+    .fade-up:nth-child(5) { transition-delay: 0.4s; }
+    .fade-up:nth-child(6) { transition-delay: 0.5s; }
+
+    /* ─── LIGHTBOX ─── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.92);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 0 80px rgba(0,198,216,0.3); }
+    .lightbox-close {
+      position: absolute; top: 24px; right: 32px;
+      font-size: 36px; color: white; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;
+    }
+    .lightbox-close:hover { opacity: 1; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-book { order: -1; }
+      .book-cover { width: 220px; }
+      .cta-inner { grid-template-columns: 1fr; }
+      .spread-layout { grid-template-columns: 1fr; }
+      .spread-layout.reverse { direction: ltr; }
+      .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .section-inner { padding: 70px 24px; }
+      .stats-inner { gap: 16px; }
+      .stat-sep { display: none; }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .forwhom-grid { grid-template-columns: 1fr; }
+      .cta-inner { padding: 70px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  🦷 <span>Edição Premium</span> — Guia Prático para Dentistas e Clínicas &nbsp;·&nbsp; Acesso imediato após a compra
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="badge-premium">Edição Premium &nbsp;·&nbsp; Guia Prático</div>
+      <p class="hero-eyebrow">Para Dentistas e Clínicas Odontológicas</p>
+      <h1 class="hero-title">
+        PROTOCOLO
+        <span>PREMIUM</span>
+        <em>DE ATENDIMENTO</em>
+        E VENDA
+      </h1>
+      <p class="hero-subtitle">Em Implantes Dentários</p>
+      <p class="hero-desc">
+        Do <strong>primeiro contato ao pós-operatório</strong> — diagnóstico, planejamento, conversão e manutenção com <strong>previsibilidade clínica e comercial</strong>.<br><br>
+        O sistema completo para transformar consultas em tratamentos confirmados, pacientes satisfeitos e uma clínica de referência.
+      </p>
+      <div class="hero-cta-wrap">
+        <a href="<%= hotmartLink %>" class="btn-primary" target="_blank" rel="noopener">
+          Quero o Protocolo Completo &nbsp;→
+        </a>
+        <span class="hero-trust">Acesso imediato após pagamento</span>
+      </div>
+    </div>
+
+    <div class="hero-book">
+      <img class="book-cover" src="/images/protocolo-implantes/page_01.png" alt="Protocolo Premium – Implantes Dentários" />
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ STATS ══════════ -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num" data-target="50">50</div>
+      <div class="stat-label">Páginas de Conteúdo</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-num" data-target="8">8</div>
+      <div class="stat-label">Módulos Completos</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-num" data-target="6">6</div>
+      <div class="stat-label">Pilares do Protocolo</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-num">100<small>+</small></div>
+      <div class="stat-label">Técnicas e Estratégias</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ O QUE É ══════════ -->
+<section class="spread-section">
+  <div class="section-inner">
+    <div style="text-align:center;">
+      <p class="section-tag">O que é este material</p>
+      <h2 class="section-title">Não é um livro. <em>É um sistema.</em></h2>
+      <p class="section-sub" style="margin: 0 auto; text-align: center;">
+        Cada página foi projetada para ser aplicada diretamente na sua clínica — do roteiro de captação ao protocolo pós-operatório, com ferramentas, checklists e scripts prontos para usar.
+      </p>
+    </div>
+
+    <div class="spread-layout">
+      <div class="spread-text">
+        <p class="section-tag">Os 6 Pilares</p>
+        <h3 class="section-title" style="font-size: 42px;">O que sustenta o <span>Protocolo</span></h3>
+        <ul class="check-list">
+          <li><strong>Experiência do Paciente</strong> — acolhimento humanizado em cada etapa da jornada</li>
+          <li><strong>Diagnóstico Preciso</strong> — anamnese criteriosa e integração de exames 3D</li>
+          <li><strong>Planejamento Previsível</strong> — digital, virtual e com alinhamento de expectativas</li>
+          <li><strong>Conversão Ética</strong> — apresentação de valor sem pressão, com transparência</li>
+          <li><strong>Excelência Cirúrgica</strong> — técnica baseada em evidências e protocolos rigorosos</li>
+          <li><strong>Manutenção Contínua</strong> — acompanhamento que gera longevidade e indicações</li>
+        </ul>
+      </div>
+      <div class="spread-mockup">
+        <div class="mockup-glow"></div>
+        <img class="mockup-img tilt-right" src="/images/protocolo-implantes/page_02.png" alt="Pilares do Protocolo Premium" />
+      </div>
+    </div>
+
+    <div class="divider" style="margin: 80px 0;"></div>
+
+    <div class="spread-layout reverse">
+      <div class="spread-text">
+        <p class="section-tag">Módulo 3</p>
+        <h3 class="section-title" style="font-size: 42px;">Jornada <span>Completa</span> do Implante</h3>
+        <p style="color: var(--silver); font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
+          8 etapas detalhadas: da captação ao recall — com fluxo de atendimento, pontos críticos de sucesso e como documentar cada momento para garantir resultados sustentáveis.
+        </p>
+        <ul class="check-list">
+          <li>Captação e primeiro contato online e offline</li>
+          <li>Triagem, pré-qualificação e definição de prioridades</li>
+          <li>Consulta diagnóstica com anamnese avançada</li>
+          <li>Planejamento com exames e simulação digital</li>
+          <li>Apresentação do plano e fechamento consultivo</li>
+          <li>Pré-operatório, cirurgia e pós-operatório detalhados</li>
+        </ul>
+      </div>
+      <div class="spread-mockup">
+        <div class="mockup-glow"></div>
+        <img class="mockup-img tilt-left" src="/images/protocolo-implantes/page_03.png" alt="Jornada Completa do Paciente" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ MODULES CARDS ══════════ -->
+<section class="contents-section" style="background: var(--navy-deep);">
+  <div class="section-inner">
+    <p class="section-tag">Conteúdo completo</p>
+    <h2 class="section-title">O que você <span>encontra</span> dentro</h2>
+    <p class="section-sub">50 páginas divididas em módulos práticos — cada um resolve um problema real da sua clínica.</p>
+
+    <div class="contents-grid">
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_01.png" alt="Módulo 1" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">01</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Introdução ao Protocolo Premium</div>
+          <div class="card-desc">Fundamentos, mentalidade e visão sistêmica do atendimento em implantodontia.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_02.png" alt="Módulo 2" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">02</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Os 6 Pilares do Protocolo</div>
+          <div class="card-desc">Sistema que conecta experiência, ciência, tecnologia e ética para resultados consistentes.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_03.png" alt="Módulo 3" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">03</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Jornada Completa do Paciente</div>
+          <div class="card-desc">8 etapas do primeiro contato ao recall com fluxos, checklists e scripts para cada momento.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_04.png" alt="Módulo 4" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">04</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Triagem, Anamnese e Elegibilidade</div>
+          <div class="card-desc">Como identificar o caso ideal, mapear fatores de risco e classificar para um planejamento seguro.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_05.png" alt="Módulo 5" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">05</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Diagnóstico e Planejamento Digital</div>
+          <div class="card-desc">Exames por imagem, TC/CBCT, fluxo diagnóstico integrado e opções de timing do implante.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_06.png" alt="Módulo 6" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">06</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Apresentação do Plano e Fechamento</div>
+          <div class="card-desc">Roteiro de consulta, como apresentar valor sem pressionar e lidar com objeções com ética.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_07.png" alt="Módulo 7" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">07</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Protocolo Pré-Operatório e Cirúrgico</div>
+          <div class="card-desc">Checklist cirúrgico completo: antes da cirurgia, no dia e durante o ato. Registro e documentação.</div>
+        </div>
+      </div>
+      <div class="content-card fade-up">
+        <div class="card-img-wrap">
+          <img src="/images/protocolo-implantes/page_08.png" alt="Módulo 8" />
+          <div class="card-img-overlay"></div>
+          <span class="card-num">08</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Pós-Operatório, Osseointegração e Recall</div>
+          <div class="card-desc">Orientações por fase, sinais de alerta, educação do paciente e manutenção periódica.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PILLARS ══════════ -->
+<section class="pillars-section">
+  <div class="section-inner">
+    <div class="pillars-header">
+      <p class="section-tag">Os 6 pilares</p>
+      <h2 class="section-title">O sistema que <span>transforma</span> a sua clínica</h2>
+      <p class="section-sub" style="margin: 0 auto; text-align: center;">
+        Quando os 6 pilares trabalham juntos, o resultado é natural: pacientes confiantes, tratamentos planejados e uma clínica de referência.
+      </p>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">01</span>
+        <div class="pillar-icon">🤝</div>
+        <div class="pillar-title">Experiência do Paciente</div>
+        <div class="pillar-desc">Acolhimento que ativa confiança e comunicação clara em todas as etapas — da recepção ao pós-operatório.</div>
+      </div>
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">02</span>
+        <div class="pillar-icon">🔬</div>
+        <div class="pillar-title">Diagnóstico Preciso</div>
+        <div class="pillar-desc">Anamnese completa com integração de imagens 3D. Definição de viabilidade e próximos passos com clareza.</div>
+      </div>
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">03</span>
+        <div class="pillar-icon">🖥️</div>
+        <div class="pillar-title">Planejamento Previsível</div>
+        <div class="pillar-desc">Planejamento digital integrado com simulação prostética e alinhamento de expectativas. Zero surpresas.</div>
+      </div>
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">04</span>
+        <div class="pillar-icon">💎</div>
+        <div class="pillar-title">Conversão Ética</div>
+        <div class="pillar-desc">Proposta de valor que gera decisão. Alternativas apresentadas com transparência e sem pressão.</div>
+      </div>
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">05</span>
+        <div class="pillar-icon">🏆</div>
+        <div class="pillar-title">Excelência Cirúrgica</div>
+        <div class="pillar-desc">Técnica refinada com bioengenharia e protocolos rigorosos. Biossegurança máxima em cada caso.</div>
+      </div>
+      <div class="pillar-card fade-up">
+        <span class="pillar-num">06</span>
+        <div class="pillar-icon">🔄</div>
+        <div class="pillar-title">Manutenção Contínua</div>
+        <div class="pillar-desc">Acompanhamento periódico que previne complicações e gera longevidade — e indicações constantes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SPREAD 2 ══════════ -->
+<section class="spread-section">
+  <div class="section-inner">
+    <div class="spread-layout">
+      <div class="spread-text">
+        <p class="section-tag">Módulos 5 e 6</p>
+        <h3 class="section-title" style="font-size: 42px;">Do diagnóstico ao <span>plano fechado</span></h3>
+        <p style="color: var(--silver); font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
+          Aprenda a transformar dados clínicos em uma proposta visual, clara e irrecusável — com roteiro de consulta, argumentação de valor e resposta a objeções passo a passo.
+        </p>
+        <ul class="check-list">
+          <li>Fluxo diagnóstico integrado com 7 etapas</li>
+          <li>Opções de timing: imediato, precoce e tardio</li>
+          <li>Roteiro de fechamento com 9 passos</li>
+          <li>5 princípios da venda consultiva em implantodontia</li>
+          <li>Como lidar com objeções de forma ética e persuasiva</li>
+        </ul>
+      </div>
+      <div class="spread-mockup">
+        <div class="mockup-glow"></div>
+        <img class="mockup-img tilt-right" src="/images/protocolo-implantes/page_06.png" alt="Apresentação do Plano" />
+      </div>
+    </div>
+
+    <div class="divider" style="margin: 80px 0;"></div>
+
+    <div class="spread-layout reverse">
+      <div class="spread-text">
+        <p class="section-tag">Módulos 7 e 8</p>
+        <h3 class="section-title" style="font-size: 42px;">Do <span>bisturi</span> ao recall</h3>
+        <p style="color: var(--silver); font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
+          Protocolos detalhados para cada fase cirúrgica e pós-operatória — com sinais de alerta, orientações por período e checklist de manutenção periódica.
+        </p>
+        <ul class="check-list">
+          <li>Checklist cirúrgico: antes, durante e após</li>
+          <li>5 não-negociáveis de segurança e biossegurança</li>
+          <li>Orientações 24h, 48-72h, 1-3 meses e 3-6 meses</li>
+          <li>Sinais de alerta e condutas sugeridas</li>
+          <li>Programa de recall e manutenção preventiva</li>
+        </ul>
+      </div>
+      <div class="spread-mockup">
+        <div class="mockup-glow"></div>
+        <img class="mockup-img tilt-left" src="/images/protocolo-implantes/page_08.png" alt="Pós-Operatório e Recall" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ GALLERY ══════════ -->
+<section class="gallery-section">
+  <div class="section-inner" style="padding-bottom: 0;">
+    <p class="section-tag">Páginas do ebook</p>
+    <h2 class="section-title">Veja o que <span>está dentro</span></h2>
+    <p class="section-sub">Cada página é um infográfico profissional — denso, visual e prático.</p>
+  </div>
+  <div style="max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px;">
+    <div class="gallery-track">
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_01.png')"><img src="/images/protocolo-implantes/page_01.png" alt="Página 1" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_02.png')"><img src="/images/protocolo-implantes/page_02.png" alt="Página 2" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_03.png')"><img src="/images/protocolo-implantes/page_03.png" alt="Página 3" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_04.png')"><img src="/images/protocolo-implantes/page_04.png" alt="Página 4" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_05.png')"><img src="/images/protocolo-implantes/page_05.png" alt="Página 5" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_06.png')"><img src="/images/protocolo-implantes/page_06.png" alt="Página 6" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_07.png')"><img src="/images/protocolo-implantes/page_07.png" alt="Página 7" /></div>
+      <div class="gallery-page" onclick="openLightbox('/images/protocolo-implantes/page_08.png')"><img src="/images/protocolo-implantes/page_08.png" alt="Página 8" /></div>
+    </div>
+    <p style="text-align:center; color: var(--silver-dim); font-size: 13px; margin-top: 8px;">← arraste para ver mais · clique para ampliar →</p>
+  </div>
+</section>
+
+<!-- ══════════ FOR WHOM ══════════ -->
+<section class="forwhom-section">
+  <div class="section-inner">
+    <p class="section-tag" style="text-align:center;">Para quem é</p>
+    <h2 class="section-title" style="text-align:center;">Este protocolo é <span>para você</span> se…</h2>
+    <div class="forwhom-grid">
+      <div class="forwhom-card">
+        <h3>✅ Você se identifica com</h3>
+        <ul class="forwhom-list">
+          <li><span>🦷</span> É dentista com foco em implantodontia ou quer se especializar</li>
+          <li><span>🏥</span> Gerencia uma clínica e quer padronizar o atendimento de implantes</li>
+          <li><span>📉</span> Perde pacientes na etapa de apresentação do plano</li>
+          <li><span>🔁</span> Quer aumentar o índice de indicações e fidelização</li>
+          <li><span>💰</span> Quer cobrar o valor real do seu trabalho com confiança</li>
+          <li><span>📊</span> Busca previsibilidade clínica e comercial na sua clínica</li>
+        </ul>
+      </div>
+      <div class="forwhom-card" style="border-color: rgba(232,160,32,0.2);">
+        <h3 style="color: var(--gold-light);">🚀 O que você vai conquistar</h3>
+        <ul class="forwhom-list">
+          <li><span>📋</span> Protocolos documentados prontos para aplicar amanhã</li>
+          <li><span>🎯</span> Scripts de conversão que funcionam sem pressionar o paciente</li>
+          <li><span>🔬</span> Fluxo diagnóstico com checklist para não deixar nada passar</li>
+          <li><span>⚙️</span> Sistema de recall que gera manutenção e novas indicações</li>
+          <li><span>📱</span> Como usar tecnologia digital para elevar o padrão da clínica</li>
+          <li><span>🏆</span> Posicionamento como clínica premium na sua região</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ GUARANTEE ══════════ -->
+<section class="guarantee-section">
+  <div class="section-inner">
+    <div class="guarantee-box">
+      <div class="guarantee-icon">🛡️</div>
+      <h2>GARANTIA DE 7 DIAS</h2>
+      <p>
+        Acesse o material completo. Se por qualquer motivo não atender às suas expectativas nos primeiros <strong>7 dias</strong>, devolvemos 100% do seu investimento — sem burocracia, sem questionamentos.
+      </p>
+      <p style="margin-top: 16px; color: var(--teal); font-size: 15px; font-weight: 600;">
+        Risco zero. Resultado garantido ou seu dinheiro de volta.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FINAL CTA ══════════ -->
+<section class="cta-section" id="cta">
+  <div class="cta-inner">
+    <div class="cta-text">
+      <p class="section-tag">Pronto para transformar sua clínica?</p>
+      <h2 class="section-title">Comece hoje a <span>atender e vender</span> em outro nível</h2>
+      <p>
+        Cada dia sem um protocolo sólido é uma consulta que poderia ter fechado, um paciente que poderia ter ficado — e uma indicação que nunca vai chegar.
+      </p>
+      <p>
+        O <strong>Protocolo Premium</strong> foi criado para quem está na prática clínica diariamente — com as ferramentas, os roteiros e o sistema que você precisa para ter previsibilidade real.
+      </p>
+    </div>
+
+    <div>
+      <div class="cta-price-box">
+        <p class="price-from">De R$ 197,00</p>
+        <div class="price-tag"><small>R$</small> 97</div>
+        <p class="price-label">ou 6x de R$ 16,16 no cartão</p>
+
+        <ul class="cta-benefits">
+          <li>50 páginas de conteúdo prático</li>
+          <li>8 módulos completos + checklists</li>
+          <li>Scripts de atendimento e fechamento</li>
+          <li>Fluxos clínicos prontos para usar</li>
+          <li>Acesso imediato em PDF</li>
+          <li>Garantia de 7 dias</li>
+        </ul>
+
+        <a href="<%= hotmartLink %>" class="btn-primary" target="_blank" rel="noopener" style="width: 100%; justify-content: center; font-size: 17px; padding: 20px 32px;">
+          Quero o Protocolo Agora →
+        </a>
+        <p style="margin-top: 14px; font-size: 12px; color: var(--silver-dim); text-align: center;">
+          🔒 Compra 100% segura via Hotmart · Acesso imediato
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <p>© 2026 Já Agendou — Protocolo Premium de Atendimento e Venda em Implantes Dentários</p>
+  <p style="margin-top: 8px;">
+    <a href="/politica-privacidade">Política de Privacidade</a> · <a href="/termos-de-uso">Termos de Uso</a>
+  </p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">×</span>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+  // Particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    const size = Math.random() * 4 + 1;
+    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s;`;
+    if (Math.random() > 0.72) p.style.background = '#e8a020';
+    container.appendChild(p);
+  }
+
+  // Scroll fade-up
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up, .pillar-card, .forwhom-card, .content-card').forEach(el => {
+    el.classList.add('fade-up');
+    observer.observe(el);
+  });
+
+  // Counter animation
+  function animateCounters() {
+    document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      let current = 0;
+      const step = target / 40;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(timer); }
+        el.textContent = Math.floor(current);
+      }, 35);
+    });
+  }
+  const statsObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { animateCounters(); statsObs.disconnect(); }
+  }, { threshold: 0.5 });
+  const strip = document.querySelector('.stats-strip');
+  if (strip) statsObs.observe(strip);
+
+  // Lightbox
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
