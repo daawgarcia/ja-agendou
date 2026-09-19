@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const pool = require('../config/db');
 const { hashPassword } = require('../utils/hash');
 const { sendEmail, isEmailConfigured } = require('../services/emailService');
+const metaCapiService = require('../services/metaCapiService');
 
 const SALES_PACKAGES = {
   teste: { label: 'Teste', price: 'Gratuito' },
@@ -518,6 +519,41 @@ function showEbookRoncoApneia(req, res) {
   res.render('public/ebook-ronco-apneia');
 }
 
+function trackCheckoutClick(req, res) {
+  res.status(204).end();
+
+  try {
+    const { fbp, fbc, source, value, eventSourceUrl } = req.body || {};
+    const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '')
+      .split(',')[0]
+      .trim();
+    const userAgent = req.headers['user-agent'] || '';
+
+    const userData = {};
+    if (fbp) userData.fbp = fbp;
+    if (fbc) userData.fbc = fbc;
+    if (clientIp) userData.client_ip_address = clientIp;
+    if (userAgent) userData.client_user_agent = userAgent;
+
+    metaCapiService.sendEvent({
+      event_name: 'InitiateCheckout',
+      event_time: Math.floor(Date.now() / 1000),
+      action_source: 'website',
+      event_source_url: eventSourceUrl
+        || `${(process.env.BASE_URL || 'https://jaagendou.app').replace(/\/$/, '')}/ebook-ronco-apneia`,
+      user_data: userData,
+      custom_data: {
+        value: Number(value) || 97,
+        currency: 'BRL',
+        content_name: 'Ebook Ronco e Apneia do Sono',
+        source: source || 'checkout_unknown',
+      },
+    }).catch(() => {});
+  } catch (err) {
+    console.error('[trackCheckoutClick] erro:', err.message);
+  }
+}
+
 function showSecretariaElite(req, res) {
   res.render('public/secretaria-elite');
 }
@@ -661,6 +697,7 @@ module.exports = {
   submitKitLead,
   showClinicaInteligente,
   showEbookRoncoApneia,
+  trackCheckoutClick,
   showSecretariaElite,
   showAnsiedadeSono,
   showDestraveAlinhador,

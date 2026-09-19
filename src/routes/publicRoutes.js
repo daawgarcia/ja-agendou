@@ -24,5 +24,6 @@ router.get('/destrave-alinhador', publicController.showDestraveAlinhador);
 router.get('/protocolo-implantes', publicController.showProtocoloImplantes);
 router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhadorObrigado);
 router.post('/api/webhook-hotmart-ebook', ebookWebhookController.receive);
+router.post('/api/track/checkout-click', publicController.trackCheckoutClick);
 
 module.exports = router;
