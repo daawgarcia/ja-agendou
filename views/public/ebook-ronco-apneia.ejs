@@ -239,6 +239,30 @@ footer a:hover { color: var(--accent); }
   .nav-cta { display: none; }
   .oferta-box { padding: 32px 22px; }
 }
+
+/* ── POP-UP DE SAÍDA (cupom 20OFF) ── */
+.exit-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3,8,16,0.82); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.25s; }
+.exit-overlay.open { display: flex; }
+.exit-overlay.visible { opacity: 1; }
+.exit-card { position: relative; width: 100%; max-width: 420px; background: linear-gradient(160deg, var(--navy2) 0%, var(--navy3) 100%); border: 1px solid rgba(201,168,76,0.45); border-radius: 22px; padding: 34px 26px 26px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: translateY(24px) scale(0.96); transition: transform 0.3s cubic-bezier(.2,1.3,.4,1); }
+.exit-overlay.visible .exit-card { transform: none; }
+.exit-close { position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: none; background: transparent; color: var(--gray); font-size: 26px; line-height: 1; cursor: pointer; border-radius: 50%; }
+.exit-close:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.exit-tag { display: inline-block; background: rgba(201,168,76,0.14); border: 1px solid rgba(201,168,76,0.4); color: var(--ouro2); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 14px; border-radius: 30px; margin-bottom: 14px; }
+.exit-title { color: #fff; font-size: 26px; font-weight: 900; line-height: 1.2; margin-bottom: 8px; }
+.exit-sub { color: var(--text); font-size: 15px; line-height: 1.5; margin-bottom: 18px; }
+.exit-price { display: flex; align-items: baseline; justify-content: center; gap: 12px; margin-bottom: 4px; }
+.exit-price s { color: var(--gray); font-size: 20px; font-weight: 700; }
+.exit-price strong { color: var(--ouro2); font-size: 46px; font-weight: 900; line-height: 1; }
+.exit-installments { color: var(--gray); font-size: 13px; margin-bottom: 16px; }
+.exit-coupon { display: inline-block; border: 2px dashed rgba(201,168,76,0.6); color: var(--ouro2); font-weight: 900; letter-spacing: 2px; padding: 8px 18px; border-radius: 10px; font-size: 16px; margin-bottom: 18px; }
+.exit-cta { display: block; background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); color: var(--navy); font-size: 18px; font-weight: 900; padding: 17px 20px; border-radius: 50px; text-decoration: none; box-shadow: 0 8px 30px rgba(74,158,255,0.4); }
+.exit-timer { color: var(--text); font-size: 13px; margin-top: 14px; }
+.exit-timer b { color: #fff; font-variant-numeric: tabular-nums; }
+.exit-expired { display: none; color: var(--gray); font-size: 15px; padding: 10px 0; }
+.exit-card.expired .exit-cta, .exit-card.expired .exit-timer, .exit-card.expired .exit-coupon { display: none; }
+.exit-card.expired .exit-expired { display: block; }
+.exit-dismiss { display: block; margin: 12px auto 0; background: none; border: none; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -598,6 +622,23 @@ footer a:hover { color: var(--accent); }
   <p style="margin-top: 6px;">Produto digital · Acesso imediato após pagamento · Processado pela Hotmart</p>
 </footer>
 
+<!-- POP-UP DE SAÍDA -->
+<div class="exit-overlay" id="exitPopup" role="dialog" aria-modal="true" aria-labelledby="exitTitle" aria-hidden="true">
+  <div class="exit-card" id="exitCard">
+    <button type="button" class="exit-close" id="exitClose" aria-label="Fechar">×</button>
+    <div class="exit-tag">🦷 Antes de você sair</div>
+    <div class="exit-title" id="exitTitle">Espera! Liberamos 20% de desconto pra você</div>
+    <div class="exit-sub">Guia Clínico de Ronco e Apneia do Sono — 13 capítulos, casos reais e checklist clínico.</div>
+    <div class="exit-price"><s>R$97</s><strong>R$77,60</strong></div>
+    <div class="exit-installments">ou 5× de R$15,52 · 7 dias de garantia</div>
+    <div class="exit-coupon">CUPOM 20OFF</div>
+    <a href="https://pay.hotmart.com/D105529266E?offDiscount=20OFF&utm_source=landing&utm_medium=popup&utm_campaign=ebook_ronco_apneia&utm_content=exit_popup" class="exit-cta" target="_blank" rel="noopener" data-checkout-source="exit_popup" data-checkout-value="77.60">Quero meu desconto →</a>
+    <div class="exit-timer">Cupom já aplicado no checkout · expira em <b id="exitCountdown">15:00</b></div>
+    <div class="exit-expired">Esse desconto expirou.</div>
+    <button type="button" class="exit-dismiss" id="exitDismiss">Agora não</button>
+  </div>
+</div>
+
 <script>
 document.querySelectorAll('.faq-q').forEach(q => {
   q.addEventListener('click', () => {
@@ -608,6 +649,8 @@ document.querySelectorAll('.faq-q').forEach(q => {
   });
 });
 
+let checkoutClicked = false;
+
 function readCookie(name) {
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
   return match ? decodeURIComponent(match[1]) : null;
@@ -616,9 +659,11 @@ function readCookie(name) {
 document.querySelectorAll('a[data-checkout-source]').forEach(link => {
   link.addEventListener('click', () => {
     const source = link.getAttribute('data-checkout-source') || 'checkout_unknown';
+    const value = Number(link.getAttribute('data-checkout-value')) || 97;
+    checkoutClicked = true;
     const payload = {
       content_name: 'Ebook Ronco e Apneia do Sono',
-      value: 97,
+      value,
       currency: 'BRL',
       source,
     };
@@ -632,7 +677,7 @@ document.querySelectorAll('a[data-checkout-source]').forEach(link => {
         fbp: readCookie('_fbp'),
         fbc: readCookie('_fbc'),
         source,
-        value: 97,
+        value,
         eventSourceUrl: window.location.href,
       });
       const blob = new Blob([beaconPayload], { type: 'application/json' });
@@ -648,8 +693,8 @@ document.querySelectorAll('a[data-checkout-source]').forEach(link => {
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'begin_checkout', {
         currency: 'BRL',
-        value: 97,
-        items: [{ item_name: 'Ebook Ronco e Apneia do Sono', price: 97, quantity: 1 }],
+        value,
+        items: [{ item_name: 'Ebook Ronco e Apneia do Sono', price: value, quantity: 1 }],
         source,
       });
     }
@@ -658,13 +703,130 @@ document.querySelectorAll('a[data-checkout-source]').forEach(link => {
       window.dataLayer.push({
         event: 'checkout_click',
         source,
-        value: 97,
+        value,
         currency: 'BRL',
         product: 'ebook_ronco_apneia',
       });
     }
   });
 });
+
+// ── Pop-up de saída: cupom 20OFF, uma vez por visitante, nunca para quem já clicou em comprar ──
+(function () {
+  const STORAGE_KEY = 'ronco_exit_popup_shown';
+  const ELIGIBLE_AFTER_MS = 8000;
+  const IDLE_TRIGGER_MS = 60000;
+  const COUPON_DURATION_S = 15 * 60;
+
+  const overlay = document.getElementById('exitPopup');
+  const card = document.getElementById('exitCard');
+  const countdownEl = document.getElementById('exitCountdown');
+  if (!overlay) return;
+
+  const loadedAt = Date.now();
+  let shown = false;
+  let backTrapArmed = false;
+  let countdownTimer = null;
+
+  function alreadyShown() {
+    try { return !!localStorage.getItem(STORAGE_KEY); } catch (e) { return false; }
+  }
+
+  function canShow() {
+    return !shown && !checkoutClicked && !alreadyShown() && Date.now() - loadedAt >= ELIGIBLE_AFTER_MS;
+  }
+
+  function startCountdown() {
+    let remaining = COUPON_DURATION_S;
+    const render = () => {
+      const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const s = String(remaining % 60).padStart(2, '0');
+      countdownEl.textContent = m + ':' + s;
+    };
+    render();
+    countdownTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(countdownTimer);
+        card.classList.add('expired');
+        return;
+      }
+      render();
+    }, 1000);
+  }
+
+  function show(trigger) {
+    if (!canShow()) return false;
+    shown = true;
+    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch (e) { /* modo privado */ }
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+    startCountdown();
+    const cta = overlay.querySelector('.exit-cta');
+    if (cta) cta.focus({ preventScroll: true });
+
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'ExitPopupShown', { trigger });
+    if (typeof window.gtag === 'function') window.gtag('event', 'exit_popup_shown', { trigger });
+    return true;
+  }
+
+  function hide() {
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    setTimeout(() => overlay.classList.remove('open'), 250);
+  }
+
+  document.getElementById('exitClose').addEventListener('click', hide);
+  document.getElementById('exitDismiss').addEventListener('click', hide);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) hide(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) hide(); });
+  overlay.querySelector('.exit-cta').addEventListener('click', () => setTimeout(hide, 300));
+
+  // Desktop: mouse saindo pelo topo da janela
+  document.addEventListener('mouseout', (e) => {
+    if (!e.relatedTarget && e.clientY <= 0) show('mouse_exit');
+  });
+
+  // Celular: botão voltar (do aparelho ou do navegador do Instagram).
+  // O navegador ignora entradas de histórico criadas sem interação, por isso só arma após o primeiro toque/rolagem.
+  function armBackTrap() {
+    if (backTrapArmed || alreadyShown()) return;
+    backTrapArmed = true;
+    history.pushState({ exitTrap: true }, '', location.href);
+  }
+  ['touchstart', 'scroll', 'click'].forEach((evt) =>
+    window.addEventListener(evt, armBackTrap, { once: true, passive: true })
+  );
+  window.addEventListener('popstate', () => {
+    if (!backTrapArmed) return;
+    backTrapArmed = false;
+    if (!show('back_button')) history.back();
+  });
+
+  // Celular: rolagem rápida para cima (gesto de quem desistiu)
+  let lastY = window.scrollY;
+  let lastT = Date.now();
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    const t = Date.now();
+    const dt = t - lastT;
+    if (dt > 0 && dt < 300 && lastY - y > 450 && y > 200) show('fast_scroll_up');
+    if (dt >= 120) { lastY = y; lastT = t; }
+  }, { passive: true });
+
+  // Saiu para outro app/aba e voltou
+  let hiddenAt = null;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt >= 4000) show('returned_to_tab');
+    hiddenAt = null;
+  });
+
+  // Tempo na página sem clicar em comprar
+  setTimeout(() => show('idle_60s'), IDLE_TRIGGER_MS);
+})();
 </script>
 
 </body>
