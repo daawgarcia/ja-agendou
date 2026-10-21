@@ -23,6 +23,9 @@ router.get('/destrave-alinhador', publicController.showDestraveAlinhador);
 // Ebook: Protocolo Premium Implantes
 router.get('/protocolo-implantes', publicController.showProtocoloImplantes);
 router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhadorObrigado);
+// Páginas legais
+router.get('/politica-privacidade', publicController.showPoliticaPrivacidade);
+router.get('/termos-de-uso', publicController.showTermosUso);
 router.post('/api/webhook-hotmart-ebook', ebookWebhookController.receive);
 router.post('/api/track/checkout-click', publicController.trackCheckoutClick);
 

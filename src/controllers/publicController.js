@@ -688,6 +688,18 @@ function showProtocoloImplantes(req, res) {
   return res.render('public/protocolo-implantes', { hotmartLink });
 }
 
+function legalPageLocals() {
+  return { contactEmail: process.env.CONTACT_EMAIL || 'contato@jaagendou.app' };
+}
+
+function showPoliticaPrivacidade(req, res) {
+  res.render('public/politica-privacidade', legalPageLocals());
+}
+
+function showTermosUso(req, res) {
+  res.render('public/termos-de-uso', legalPageLocals());
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
@@ -703,4 +715,6 @@ module.exports = {
   showDestraveAlinhador,
   showDestraveAlinhadorObrigado,
   showProtocoloImplantes,
+  showPoliticaPrivacidade,
+  showTermosUso,
 };
