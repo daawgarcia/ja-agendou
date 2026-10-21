@@ -26,6 +26,7 @@ router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhado
 // Páginas legais
 router.get('/politica-privacidade', publicController.showPoliticaPrivacidade);
 router.get('/termos-de-uso', publicController.showTermosUso);
+router.get(['/privacidade', '/politica-de-privacidade', '/privacy'], (req, res) => res.redirect(301, '/politica-privacidade'));
 router.post('/api/webhook-hotmart-ebook', ebookWebhookController.receive);
 router.post('/api/track/checkout-click', publicController.trackCheckoutClick);
 
