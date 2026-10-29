@@ -11,6 +11,8 @@ dotenv.config();
 
 const GA4_MEASUREMENT_ID = (process.env.GA4_MEASUREMENT_ID || '').trim();
 const FACEBOOK_PIXEL_ID = (process.env.FACEBOOK_PIXEL_ID || '').trim();
+const POSTHOG_KEY = (process.env.POSTHOG_KEY || '').trim();
+const POSTHOG_HOST = (process.env.POSTHOG_HOST || 'https://us.i.posthog.com').trim();
 
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   console.error('FATAL: SESSION_SECRET não definida em produção. Defina a variável de ambiente.');
@@ -43,6 +45,8 @@ const app = express();
 
 app.locals.ga4MeasurementId = GA4_MEASUREMENT_ID;
 app.locals.facebookPixelId = FACEBOOK_PIXEL_ID;
+app.locals.posthogKey = POSTHOG_KEY;
+app.locals.posthogHost = POSTHOG_HOST;
 
 app.set('trust proxy', 1);
 
@@ -50,11 +54,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net', 'https://*.posthog.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https://www.facebook.com'],
-      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://connect.facebook.net'],
+      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://connect.facebook.net', 'https://*.posthog.com'],
+      workerSrc: ["'self'", 'blob:'],
       frameAncestors: ["'none'"],
     },
   },

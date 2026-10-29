@@ -708,8 +708,30 @@ document.querySelectorAll('a[data-checkout-source]').forEach(link => {
         product: 'ebook_ronco_apneia',
       });
     }
+
+    if (window.posthog) {
+      window.posthog.capture('checkout_click', { source, value, currency: 'BRL', product: 'ebook_ronco_apneia' });
+    }
   });
 });
+
+// Seções vistas (PostHog): mostra até onde o visitante chega antes de sair
+if (window.posthog && 'IntersectionObserver' in window) {
+  const sections = Array.from(document.querySelectorAll('body > section, body > footer'));
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      sectionObserver.unobserve(entry.target);
+      window.posthog.capture('section_viewed', {
+        section: entry.target.classList[0] || entry.target.tagName.toLowerCase(),
+        position: sections.indexOf(entry.target) + 1,
+        total_sections: sections.length,
+        product: 'ebook_ronco_apneia',
+      });
+    });
+  }, { rootMargin: '0px 0px -50% 0px' });
+  sections.forEach((s) => sectionObserver.observe(s));
+}
 
 // ── Pop-up de saída: cupom 20OFF, uma vez por visitante, nunca para quem já clicou em comprar ──
 (function () {
@@ -769,6 +791,7 @@ document.querySelectorAll('a[data-checkout-source]').forEach(link => {
 
     if (typeof window.fbq === 'function') window.fbq('trackCustom', 'ExitPopupShown', { trigger });
     if (typeof window.gtag === 'function') window.gtag('event', 'exit_popup_shown', { trigger });
+    if (window.posthog) window.posthog.capture('exit_popup_shown', { trigger, product: 'ebook_ronco_apneia' });
     return true;
   }
 
