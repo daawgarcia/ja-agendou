@@ -11,7 +11,8 @@ dotenv.config();
 
 const GA4_MEASUREMENT_ID = (process.env.GA4_MEASUREMENT_ID || '').trim();
 const FACEBOOK_PIXEL_ID = (process.env.FACEBOOK_PIXEL_ID || '').trim();
-const POSTHOG_KEY = (process.env.POSTHOG_KEY || '').trim();
+// Chave pública do projeto (vai para o navegador); POSTHOG_KEY no .env sobrescreve
+const POSTHOG_KEY = (process.env.POSTHOG_KEY || 'phc_pG7AM8LWEQqpX6VtxYdUnn9RTk62LyPmHNajyvY8yoCt').trim();
 const POSTHOG_HOST = (process.env.POSTHOG_HOST || 'https://us.i.posthog.com').trim();
 
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
