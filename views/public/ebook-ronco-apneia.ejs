@@ -97,6 +97,13 @@ nav { background: rgba(7,16,30,0.95); backdrop-filter: blur(12px); border-bottom
   transition: background 0.2s, color 0.2s;
 }
 .btn-secondary:hover { background: var(--accent); color: var(--navy); }
+.hero-proof { display: none; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 700; margin-bottom: 18px; }
+.hero-price { margin-top: 14px; color: #fff; font-size: 15px; font-weight: 700; }
+.hero-price s { color: var(--gray); font-weight: 400; }
+.hero-price strong { color: var(--ouro2); font-size: 18px; }
+.sticky-cta { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,16,30,0.96); border-top: 1px solid rgba(74,158,255,0.25); transform: translateY(110%); transition: transform .25s; }
+.sticky-cta.show { transform: translateY(0); }
+.sticky-cta a { display: block; text-align: center; background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); color: var(--navy); font-weight: 900; font-size: 16px; padding: 14px; border-radius: 50px; text-decoration: none; }
 .hero-micro { color: var(--gray); font-size: 12px; margin-top: 14px; display: flex; align-items: center; gap: 6px; }
 .hero-micro strong { color: rgba(255,255,255,0.7); }
 .hero-img-wrap { display: flex; justify-content: center; align-items: center; }
@@ -225,9 +232,18 @@ footer a:hover { color: var(--accent); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
-  .hero-img-wrap { order: -1; }
-  .hero-img-wrap img { max-width: 320px; }
+  .hero { padding: 28px 20px 40px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 28px; }
+  .hero-tag { margin-bottom: 14px; font-size: 10px; padding: 5px 12px; }
+  .hero h1 { margin-bottom: 12px; }
+  .hero-sub { margin-bottom: 16px; font-size: 15px; line-height: 1.55; }
+  .hero-bullets { display: none; }
+  .hero-proof { display: block; }
+  .hero-micro { display: block; line-height: 1.6; }
+  .hero-content .btn-primary { display: block; text-align: center; padding: 17px 20px; }
+  .hero-img-wrap img { max-width: 240px; }
+  body { padding-bottom: 76px; }
+  .sticky-cta { display: block; }
   .problema-inner { grid-template-columns: 1fr; gap: 40px; }
   .oferta-inner { grid-template-columns: 1fr; gap: 40px; text-align: center; }
   .oferta-img { display: flex; justify-content: center; }
@@ -287,19 +303,38 @@ footer a:hover { color: var(--accent); }
       <div class="hero-tag">◆ Guia Clínico · Odontologia do Sono 2026</div>
       <h1>Domine Ronco e <em>Apneia do Sono</em> na prática clínica</h1>
       <p class="hero-sub">Aprenda a identificar sinais, interpretar exames, conduzir casos e ampliar sua atuação clínica com mais segurança e resultado.</p>
+      <p class="hero-proof">✓ 13 capítulos · casos reais com polissonografia · acesso vitalício</p>
       <ul class="hero-bullets">
         <li><span class="bullet-icon">✓</span> 13 capítulos completos com protocolo clínico</li>
         <li><span class="bullet-icon">✓</span> Casos clínicos reais com polissonografia</li>
         <li><span class="bullet-icon">✓</span> Acesso imediato e vitalício</li>
       </ul>
       <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=hero_cta" class="btn-primary" target="_blank" rel="noopener" data-checkout-source="hero_cta">Quero acessar agora →</a>
-      <div class="hero-micro">🔒 <strong>Compra segura via Hotmart</strong> &nbsp;·&nbsp; 7 dias de garantia &nbsp;·&nbsp; PIX, cartão ou boleto</div>
+      <div class="hero-price"><s>De R$197</s> por <strong>R$97</strong> · 7 dias de garantia</div>
+      <div class="hero-micro">🔒 <strong>Compra segura via Hotmart</strong> &nbsp;·&nbsp; PIX, cartão ou boleto</div>
     </div>
     <div class="hero-img-wrap">
       <img src="/images/ebook-ronco/mockup-hero.png" alt="Mockup Ebook Ronco e Apneia do Sono" loading="eager">
     </div>
   </div>
 </section>
+
+<!-- CTA FIXO (celular) -->
+<div class="sticky-cta" id="stickyCta">
+  <a href="https://pay.hotmart.com/D105529266E?utm_source=landing&utm_medium=cta&utm_campaign=ebook_ronco_apneia&utm_content=sticky_cta" target="_blank" rel="noopener" data-checkout-source="sticky_cta">Quero acessar agora · R$97 →</a>
+</div>
+<script>
+(function () {
+  var bar = document.getElementById('stickyCta');
+  var heroBtn = document.querySelector('.hero-content .btn-primary');
+  var oferta = document.getElementById('comprar');
+  if (!bar || !heroBtn || !('IntersectionObserver' in window)) return;
+  var heroVisible = true, ofertaVisible = false;
+  function update() { bar.classList.toggle('show', !heroVisible && !ofertaVisible); }
+  new IntersectionObserver(function (e) { heroVisible = e[0].isIntersecting; update(); }).observe(heroBtn);
+  if (oferta) new IntersectionObserver(function (e) { ofertaVisible = e[0].isIntersecting; update(); }).observe(oferta);
+})();
+</script>
 
 <!-- SEÇÃO 2: O PROBLEMA -->
 <section class="problema">
