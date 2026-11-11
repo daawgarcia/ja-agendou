@@ -55,11 +55,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net', 'https://*.posthog.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://cdn.tailwindcss.com',       'https://cdn.jsdelivr.net', 'https://*.posthog.com', 'https://cta-widget-user-form.hp.hotmart.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
       fontSrc: ["'self'", 'fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https://www.facebook.com'],
-      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://connect.facebook.net', 'https://*.posthog.com'],
+      connectSrc: ["'self'", 'https://viacep.com.br', 'https://www.google-analytics.com', 'https://region1.google-analytics.com',       'https://connect.facebook.net', 'https://*.posthog.com', 'https://tracking-api.hotmart.com'],
       workerSrc: ["'self'", 'blob:'],
       frameAncestors: ["'none'"],
     },
