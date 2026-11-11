@@ -523,7 +523,7 @@ function trackCheckoutClick(req, res) {
   res.status(204).end();
 
   try {
-    const { fbp, fbc, source, value, eventSourceUrl } = req.body || {};
+    const { fbp, fbc, source, value, eventSourceUrl, contentName } = req.body || {};
     const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '')
       .split(',')[0]
       .trim();
@@ -545,7 +545,7 @@ function trackCheckoutClick(req, res) {
       custom_data: {
         value: Number(value) || 97,
         currency: 'BRL',
-        content_name: 'Ebook Ronco e Apneia do Sono',
+        content_name: (typeof contentName === 'string' && contentName.slice(0, 100)) || 'Ebook Ronco e Apneia do Sono',
         source: source || 'checkout_unknown',
       },
     }).catch(() => {});
