@@ -700,6 +700,12 @@ function showTermosUso(req, res) {
   res.render('public/termos-de-uso', legalPageLocals());
 }
 
+function showHalitoLimpo(req, res) {
+  // Link do checkout Hotmart (a view acrescenta checkoutMode e UTMs). Pode ser trocado pela env HALITO_CHECKOUT_URL.
+  const checkoutUrl = process.env.HALITO_CHECKOUT_URL || 'https://pay.hotmart.com/Y108455196X';
+  res.render('public/halito-limpo', { checkoutUrl });
+}
+
 module.exports = {
   showSalesPage,
   submitSalesLead,
@@ -717,4 +723,5 @@ module.exports = {
   showProtocoloImplantes,
   showPoliticaPrivacidade,
   showTermosUso,
+  showHalitoLimpo,
 };

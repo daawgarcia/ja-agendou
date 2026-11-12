@@ -23,6 +23,9 @@ router.get('/destrave-alinhador', publicController.showDestraveAlinhador);
 // Ebook: Protocolo Premium Implantes
 router.get('/protocolo-implantes', publicController.showProtocoloImplantes);
 router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhadorObrigado);
+// Ebook público final: Hálito Limpo em 7 Dias
+router.get('/halito-limpo', publicController.showHalitoLimpo);
+
 // Páginas legais
 router.get('/politica-privacidade', publicController.showPoliticaPrivacidade);
 router.get('/termos-de-uso', publicController.showTermosUso);

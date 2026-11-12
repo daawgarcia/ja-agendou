@@ -142,6 +142,13 @@ async function receive(req, res) {
       return res.status(200).json({ ok: true, message: 'Dados insuficientes no payload.' });
     }
 
+    // Este webhook entrega o ebook Destrave o Alinhador (público dentista). Produtos do público
+    // final, como o Hálito Limpo, têm entrega pela própria Hotmart e não podem receber este e-mail.
+    const productKey = String(productName || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    if (productKey.includes('halito')) {
+      return res.status(200).json({ ok: true, message: 'Produto do público final: entrega pela Hotmart.' });
+    }
+
     const [rows] = await pool.execute(
       'SELECT id, email_sent FROM ebook_purchases WHERE transaction_code = ? LIMIT 1',
       [transaction]

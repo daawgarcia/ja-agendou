@@ -187,6 +187,21 @@ function extractIdentifiers(payload) {
   ].filter(Boolean);
 }
 
+// Produtos vendidos na mesma conta Hotmart que NÃO são licença do sistema (ex.: ebooks para o
+// público final). Sem isso, nomes como "Hálito Limpo em 7 Dias" casam com a regra "7dias" de
+// getDefaultPlanDaysByName e o comprador ganharia uma conta de clínica.
+const DEFAULT_NON_LICENSE_KEYWORDS = ['halito'];
+
+function isNonLicenseProduct(payload) {
+  const raw = process.env.HOTMART_NON_LICENSE_KEYWORDS;
+  const keywords = raw
+    ? raw.split(',').map(normalizeKey).filter(Boolean)
+    : DEFAULT_NON_LICENSE_KEYWORDS;
+  return extractIdentifiers(payload)
+    .map(normalizeKey)
+    .some((id) => keywords.some((k) => id.includes(k)));
+}
+
 function extractAmountsInCents(payload) {
   const values = [
     readNested(payload, ['purchase.price.value', 'data.purchase.price.value']),
@@ -732,6 +747,15 @@ async function receive(req, res) {
       return res.status(200).json({
         ok: true,
         message: 'Evento registrado sem ação de licença.',
+        event: result.eventName,
+        eventKey: result.eventKey,
+      });
+    }
+
+    if (isNonLicenseProduct(payload)) {
+      return res.status(200).json({
+        ok: true,
+        message: 'Produto sem licença do sistema (ebook público final). Evento registrado.',
         event: result.eventName,
         eventKey: result.eventKey,
       });

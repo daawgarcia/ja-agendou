@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Hálito Limpo em 7 Dias</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .cover { background: var(--navy); color: #fff; padding: 0 !important; display: flex; flex-direction: column; }
+  .cover .top { padding: 14mm 14mm 0; display: flex; justify-content: space-between; align-items: center; }
+  .brand { font-family: 'Fraunces', serif; font-weight: 800; font-size: 11pt; letter-spacing: .02em; color: #fff; display: flex; align-items: center; gap: 2mm; }
+  .brand i { width: 4mm; height: 4mm; border-radius: 50%; background: var(--mint); display: inline-block; }
+  .cover .art { flex: 1; position: relative; margin: 6mm 0; }
+  .cover .art .ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(43,179,154,.35); }
+  .cover .art .disc { position: absolute; left: 50%; top: 50%; width: 62mm; height: 62mm; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5FD6C0, #2BB39A 55%, #1C8C78); box-shadow: 0 0 0 10mm rgba(43,179,154,.12), 0 0 0 22mm rgba(43,179,154,.06); }
+  .cover .art .disc img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .cover .bottom { padding: 0 14mm 16mm; }
+  .cover h1 { color: #fff; font-size: 34pt; line-height: 1.02; margin-bottom: 4mm; }
+  .cover h1 em { font-style: normal; color: var(--mint); }
+  .cover .sub { font-size: 11pt; color: #BFD3D9; max-width: 110mm; margin-bottom: 7mm; }
+  .cover .meta { display: flex; gap: 2mm; flex-wrap: wrap; }
+  .cover .meta span { font-size: 7.5pt; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.25); border-radius: 10mm; padding: 1.2mm 3mm; color: #DCE8EB; }
+  .summary-card { border: 2px solid var(--navy); border-radius: 4mm; padding: 5mm; }
+  .summary-card h3 { margin-top: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .scale { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .scale div { border-radius: 2mm; padding: 2.5mm; font-size: 8pt; line-height: 1.35; }
+  .scale b { display: block; font-size: 9pt; margin-bottom: .8mm; }
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<section class="page full cover">
+  <div class="top">
+    <div class="brand"><i></i>Hálito Limpo</div>
+    <div class="small" style="color:#8FB0B8">Guia prático · Edição 2026</div>
+  </div>
+  <div class="art">
+    <div class="disc" id="cover-photo"></div>
+  </div>
+  <div class="bottom">
+    <div class="kicker" style="color:var(--sun)">O método de 7 dias</div>
+    <h1>Hálito<br><em>Limpo</em><br>em 7 Dias</h1>
+    <p class="sub">O passo a passo simples para acabar com o mau hálito que a escova de dentes sozinha não resolve.</p>
+    <div class="meta"><span>Rotina de 5 min/dia</span><span>Sem produtos caros</span><span>Revisado por cirurgião-dentista</span></div>
+  </div>
+</section>
+
+<!-- COMO USAR -->
+<section class="page fixed">
+  <div class="kicker">Antes de começar</div>
+  <h2>Como usar este guia</h2>
+  <p class="lead">Você não precisa ler tudo de uma vez. Este guia foi feito para ser <strong>usado</strong>, não só lido.</p>
+  <ol class="steps">
+    <li><strong>Leia os capítulos 1 a 3 hoje</strong> (uns 20 minutos). Você vai entender de onde vem o cheiro e fazer o teste que mostra se o problema é real.</li>
+    <li><strong>Comece o Método 7 Dias amanhã</strong> (capítulo 4). Cada dia tem uma tarefa só, que leva de 5 a 10 minutos.</li>
+    <li><strong>Consulte o resto quando precisar:</strong> enxaguantes, situações específicas (aparelho, prótese, cigarro, dieta), mitos e sinais de alerta.</li>
+    <li><strong>No dia 8, imprima a Rotina de 1 Página</strong> e cole no espelho do banheiro. É ela que mantém o resultado.</li>
+  </ol>
+  <div class="box tip"><div class="t">Bônus incluso</div><p>No fim do guia está o <strong>Hálito de Emergência</strong>: 12 truques para os próximos 10 minutos, para quando você tem uma reunião, um encontro ou uma entrevista e não dá tempo de nada.</p></div>
+  <div class="box warn">
+    <div class="t">Aviso importante</div>
+    <p>Este material é educativo e não substitui consulta com cirurgião-dentista ou médico. Mau hálito que não melhora em 2 semanas de rotina correta, ou que vem com sangramento, dor, febre ou outros sintomas, precisa de avaliação profissional. O capítulo 8 explica quando procurar ajuda.</p>
+  </div>
+  <div class="folio"><span>Hálito Limpo em 7 Dias</span><span>2</span></div>
+</section>
+
+<!-- SUMÁRIO -->
+<section class="page fixed">
+  <div class="kicker">Sumário</div>
+  <h2>O que tem aqui dentro</h2>
+  <ul class="toc">
+    <li><span class="n">1</span><span class="x">Por que a escova não resolve</span><span class="pg">4</span></li>
+    <li><span class="n">2</span><span class="x">O teste de 2 minutos: você tem mesmo?</span><span class="pg">8</span></li>
+    <li><span class="n">3</span><span class="x">As 7 causas mais comuns (e as raras)</span><span class="pg">12</span></li>
+    <li><span class="n">4</span><span class="x">O Método 7 Dias, passo a passo</span><span class="pg">17</span></li>
+    <li><span class="n">5</span><span class="x">Enxaguantes, sprays e balas: o que funciona</span><span class="pg">34</span></li>
+    <li><span class="n">6</span><span class="x">Casos especiais: aparelho, prótese, cigarro, dieta</span><span class="pg">38</span></li>
+    <li><span class="n">7</span><span class="x">12 mitos e verdades</span><span class="pg">41</span></li>
+    <li><span class="n">8</span><span class="x">Quando procurar o dentista ou o médico</span><span class="pg">44</span></li>
+    <li><span class="n">✓</span><span class="x">A Rotina de 1 Página (para imprimir)</span><span class="pg">47</span></li>
+    <li><span class="n">★</span><span class="x">Bônus: Hálito de Emergência</span><span class="pg">48</span></li>
+  </ul>
+  <div class="quote" style="margin-top:8mm">A maioria das pessoas com mau hálito escova os dentes direitinho. O problema é que estão limpando o lugar errado.</div>
+  <div class="folio"><span>Hálito Limpo em 7 Dias</span><span>3</span></div>
+</section>
+
+<!-- CAP 1 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">1</div>
+  <div class="kicker">Capítulo 1</div>
+  <h1>Por que a escova não resolve</h1>
+  <p>Você escova, passa enxaguante, masca chiclete, e o cheiro volta em poucas horas. Não é falta de higiene. É falta de saber onde o cheiro nasce.</p>
+</section>
+
+<section class="page flow">
+  <h2>O cheiro vem de bactérias, não da comida</h2>
+  <p>Na boca vivem centenas de tipos de bactérias. A maioria é inofensiva. Algumas delas, principalmente as que vivem em lugares <strong>sem oxigênio</strong>, se alimentam de restos de proteína (células da boca que descamam, restos de comida, muco que desce do nariz) e liberam gases que contêm <strong>enxofre</strong>.</p>
+  <p>São os chamados <strong>compostos sulfurados voláteis</strong>. O nome é complicado, mas o cheiro você conhece: lembra ovo podre, repolho cozido ou ralo entupido. É isso que as pessoas sentem quando você fala perto delas.</p>
+  <div class="box note"><div class="t">O ponto principal</div><p>Mau hálito é, quase sempre, um problema de <strong>esconderijos de bactérias</strong>. Enquanto o esconderijo existir, nenhum enxaguante ou bala resolve. Eles só disfarçam por 20 a 60 minutos.</p></div>
+
+  <h3>Onde ficam esses esconderijos</h3>
+  <p>Os estudos sobre o tema são bem consistentes: <strong>a grande maioria dos casos (algo entre 8 e 9 em cada 10) começa dentro da própria boca</strong>. E dentro da boca, o campeão disparado é um lugar que quase ninguém limpa:</p>
+  <div class="grid2">
+    <div class="card"><div class="ic">👅</div><b>1º A língua</b><span>Principalmente o terço de trás. A superfície é cheia de “dobrinhas” onde se forma uma camada esbranquiçada: a saburra. É a principal fonte do cheiro.</span></div>
+    <div class="card"><div class="ic">🦷</div><b>2º Entre os dentes</b><span>A escova não alcança. Restos de comida apodrecem ali em poucas horas. O fio dental que sai com cheiro é a prova.</span></div>
+    <div class="card"><div class="ic">🩸</div><b>3º A gengiva</b><span>Gengiva inflamada (que sangra ao escovar) forma bolsinhas onde as bactérias do cheiro adoram viver.</span></div>
+    <div class="card"><div class="ic">💧</div><b>4º Boca seca</b><span>A saliva lava a boca o dia todo. Quando ela diminui (sono, remédios, pouca água, respirar pela boca), o cheiro dispara.</span></div>
+  </div>
+  <p>O que sobra fora da boca (amígdalas, nariz e sinusite, e raramente estômago ou doenças do corpo) você vai ver no capítulo 3.</p>
+
+  <h3>Por que a escova sozinha não dá conta</h3>
+  <p>A escova limpa bem a frente e as laterais dos dentes, mais ou menos <strong>um terço das superfícies</strong> onde a placa se acumula. Língua, espaço entre os dentes e linha da gengiva ficam de fora, e são justamente os três lugares que mais produzem cheiro.</p>
+  <p>Por isso tanta gente diz “eu escovo três vezes por dia e continua”. A pessoa está fazendo muito bem uma tarefa que resolve pouco do problema.</p>
+
+  <h3>Por que o enxaguante “funciona” e depois para</h3>
+  <p>A maioria dos enxaguantes comuns tem sabor forte de menta e, às vezes, álcool. Eles cobrem o cheiro e matam parte das bactérias da superfície. Mas a saburra da língua funciona como uma esponja: as bactérias de dentro da camada ficam protegidas e, em uma hora, o cheiro volta. No capítulo 5 você vai ver quais ingredientes realmente ajudam e quais só perfumam.</p>
+
+  <h3>O hálito da manhã é normal</h3>
+  <p>Durante o sono a boca produz bem menos saliva. Sem a “lavagem”, as bactérias trabalham a noite inteira. Por isso <strong>quase todo mundo acorda com hálito ruim</strong>, e isso não é doença. O que importa é: depois do café e da higiene da manhã, o cheiro some? Se some, isso é fisiológico. Se continua ao longo do dia, aí vale seguir o método.</p>
+
+  <div class="box tip"><div class="t">Resumo do capítulo</div>
+    <ul>
+      <li>O cheiro vem de gases com enxofre que algumas bactérias produzem.</li>
+      <li>Quase sempre a origem é a boca, e o lugar nº 1 é a língua.</li>
+      <li>Escova sozinha limpa uma parte pequena das superfícies.</li>
+      <li>Enxaguante e bala disfarçam por pouco tempo, mas não resolvem.</li>
+      <li>Hálito ruim ao acordar é normal; o que preocupa é o cheiro que dura o dia todo.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- CAP 2 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">2</div>
+  <div class="kicker">Capítulo 2</div>
+  <h1>O teste de 2 minutos: você tem mesmo?</h1>
+  <p>Sentir o próprio hálito é difícil: o nariz se acostuma ao cheiro do próprio corpo. Por isso o teste da mão em concha não funciona. Aqui estão os que funcionam.</p>
+</section>
+
+<section class="page flow">
+  <h2>Três testes caseiros (faça os três)</h2>
+  <p>Faça os testes <strong>no meio da tarde</strong>, umas 2 horas depois de comer e sem ter acabado de escovar. De manhã cedo o resultado sempre dá ruim (é o hálito da manhã) e logo depois da escovação sempre dá bom.</p>
+
+  <h3>Teste 1: a colher (mostra a língua)</h3>
+  <ol class="steps">
+    <li>Pegue uma colher de chá limpa e seca.</li>
+    <li>Ponha a língua para fora e raspe de leve o fundo dela, de trás para a frente, uma vez só.</li>
+    <li>Olhe: saiu uma camada branca ou amarelada? Espere 10 segundos e cheire a colher.</li>
+  </ol>
+  <p><strong>Como interpretar:</strong> se a colher cheira mal, a língua é uma fonte importante. É o resultado mais comum, e a boa notícia é que é o mais fácil de resolver.</p>
+
+  <h3>Teste 2: o fio dental (mostra entre os dentes)</h3>
+  <ol class="steps">
+    <li>Passe fio dental entre os dentes de trás, os molares, que é onde mais acumula.</li>
+    <li>Cheire o fio logo depois.</li>
+  </ol>
+  <p><strong>Como interpretar:</strong> cheiro forte num ponto específico pode ser restos de comida presos, cárie ou gengiva inflamada naquele lugar. Se sangrar com facilidade, anote: é sinal de gengiva inflamada.</p>
+
+  <h3>Teste 3: o pulso (dá uma ideia geral)</h3>
+  <ol class="steps">
+    <li>Lamba a parte de dentro do pulso.</li>
+    <li>Espere 10 segundos, até secar, e cheire.</li>
+  </ol>
+  <p><strong>Como interpretar:</strong> esse teste mostra principalmente a ponta da língua e a saliva. É menos sensível que a colher, mas ajuda a comparar o antes e o depois do método.</p>
+
+  <div class="box note"><div class="t">O teste mais confiável de todos</div><p>Pergunte a <strong>uma pessoa de confiança</strong> (parceiro, mãe, irmão, amigo próximo). Combine um código simples, por exemplo “nota de 0 a 3”, para ela poder ser sincera sem constrangimento. Repita a pergunta no dia 7 do método.</p></div>
+
+  <h3>Dê uma nota para começar</h3>
+  <p>Use esta escala no dia 1 e de novo no dia 7. Anote no espaço abaixo.</p>
+  <div class="scale">
+    <div style="background:var(--mint-2)"><b>0</b>Sem cheiro perceptível</div>
+    <div style="background:var(--mint-3)"><b>1</b>Leve, só bem de perto</div>
+    <div style="background:var(--sun-2)"><b>2</b>Moderado, numa conversa normal</div>
+    <div style="background:var(--coral-2)"><b>3</b>Forte, percebido de longe</div>
+  </div>
+  <table>
+    <tr><th>Teste</th><th>Nota no dia 1</th><th>Nota no dia 7</th></tr>
+    <tr><td>Colher (língua)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Fio dental</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Pulso</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Pessoa de confiança</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+  </table>
+
+  <h3>E se todos os testes derem zero?</h3>
+  <p>Existe uma situação que os dentistas conhecem bem: a pessoa tem <strong>certeza</strong> de que tem mau hálito, evita falar perto dos outros e cobre a boca, mas ninguém sente cheiro nenhum. Às vezes isso começa com um comentário antigo, de anos atrás, que ficou marcado.</p>
+  <p>Se todos os testes e a pessoa de confiança dizem que está tudo bem, faça o método mesmo assim (ele é bom para a saúde da boca). Mas, se a preocupação continuar tomando conta do seu dia, <strong>converse com um dentista</strong>: ele pode medir o hálito com aparelho, e um resultado objetivo costuma trazer muito alívio.</p>
+</section>
+
+<!-- CAP 3 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">3</div>
+  <div class="kicker">Capítulo 3</div>
+  <h1>As 7 causas mais comuns (e as raras)</h1>
+  <p>Saber a causa é o que separa quem resolve de quem passa a vida comprando bala de menta. Veja em qual (ou quais) você se encaixa.</p>
+</section>
+
+<section class="page flow">
+  <h3>1. Saburra na língua: a campeã</h3>
+  <p>A camada branca, amarelada ou acinzentada no fundo da língua é feita de células mortas, restos de comida, muco e bactérias. Ela aumenta com boca seca, cigarro, pouca mastigação, gotejamento do nariz para a garganta e com o hábito de nunca limpar a língua.</p>
+  <p><strong>Sinal:</strong> língua esbranquiçada no fundo, colher com cheiro forte. <strong>Solução:</strong> limpar a língua todos os dias (dia 2 do método).</p>
+
+  <h3>2. Restos entre os dentes</h3>
+  <p>Fibras de carne, pele de feijão, restos de pão. Presos entre os dentes, apodrecem em poucas horas. Dentes encavalados, restaurações com degrau e espaços onde a comida “entra” pioram o problema.</p>
+  <p><strong>Sinal:</strong> fio dental com cheiro. <strong>Solução:</strong> limpeza entre os dentes todo dia (dia 3).</p>
+
+  <h3>3. Gengiva inflamada</h3>
+  <p>Gengiva vermelha, inchada, que sangra na escovação ou no fio. Quando a inflamação avança, se formam bolsas entre a gengiva e o dente, um lugar perfeito para as bactérias do cheiro.</p>
+  <p><strong>Sinal:</strong> sangramento, gengiva “mole” ou retraída, dentes que parecem mais longos. <strong>Solução:</strong> higiene correta ajuda muito, mas <strong>sangramento que não para em 2 semanas exige dentista</strong>. Limpeza profissional resolve o que a escova não alcança.</p>
+
+  <h3>4. Boca seca</h3>
+  <p>A saliva é o sistema de limpeza natural da boca. Ela diminui com:</p>
+  <ul>
+    <li>pouca água ao longo do dia;</li>
+    <li>remédios: antidepressivos, ansiolíticos, antialérgicos, diuréticos, remédios de pressão e muitos outros;</li>
+    <li>respirar pela boca (nariz entupido, rinite, ronco);</li>
+    <li>álcool, cigarro e excesso de café;</li>
+    <li>longos períodos falando (professores, vendedores, atendentes) ou sem comer.</li>
+  </ul>
+  <p><strong>Sinal:</strong> boca pegajosa, lábios secos, sede, piora no fim da tarde. <strong>Solução:</strong> dia 4 do método. Nunca pare um remédio por conta própria; converse com o médico se suspeitar que ele causa boca seca.</p>
+
+  <h3>5. Alimentação, jejum e dietas</h3>
+  <p><strong>Alho e cebola</strong> são um caso à parte: os compostos deles caem no sangue e saem pelo pulmão, na respiração. Por isso escovar não resolve o cheiro de alho, que pode durar até um dia inteiro.</p>
+  <p><strong>Jejum prolongado e dietas muito pobres em carboidrato</strong> (low carb radical, cetogênica) fazem o corpo queimar gordura e liberar substâncias de cheiro adocicado, meio “de fruta passada” ou de acetona. É esperado nessas dietas e melhora com água, mas não some com escovação.</p>
+  <p><strong>Pular refeições</strong> reduz a mastigação e a saliva, o que também piora.</p>
+
+  <h3>6. Amígdalas: as “bolinhas brancas” (cáseos)</h3>
+  <p>Algumas pessoas têm amígdalas com mais “buraquinhos” (as criptas), onde se juntam restos que endurecem e formam bolinhas brancas ou amareladas, de cheiro muito forte. Às vezes saem sozinhas ao tossir.</p>
+  <p><strong>Sinal:</strong> bolinhas na garganta, sensação de algo preso, gosto ruim. <strong>Solução:</strong> gargarejo com água morna e sal ajuda. <strong>Nunca</strong> tente tirar com objeto pontudo, grampo ou cotonete forçado: pode machucar e sangrar. Se for frequente, procure um otorrinolaringologista.</p>
+
+  <h3>7. Próteses, aparelhos e cáries abertas</h3>
+  <p>Dentadura e prótese parcial acumulam uma película que cheira mal se não forem limpas todos os dias <strong>e</strong> retiradas para dormir. Aparelho fixo retém comida. Cáries grandes, restaurações quebradas e dentes do siso parcialmente nascidos também guardam restos. Veja o capítulo 6.</p>
+
+  <div class="box note">
+    <div class="t">Causas fora da boca (menos comuns)</div>
+    <ul>
+      <li><strong>Nariz e seios da face:</strong> sinusite e secreção que desce para a garganta. O cheiro sai também pelo nariz.</li>
+      <li><strong>Estômago:</strong> refluxo pode contribuir, mas é causa menos frequente do que se imagina. “Mau hálito vem do estômago” é, na maioria das vezes, um mito (capítulo 7).</li>
+      <li><strong>Doenças do corpo (raras):</strong> diabetes descompensado (cheiro adocicado, de fruta), problemas nos rins (cheiro de amônia, “xixi”), problemas no fígado (cheiro adocicado e mofado). Elas vêm com outros sintomas e precisam de médico.</li>
+    </ul>
+  </div>
+
+  <div class="summary-card">
+    <h3>Seu diagnóstico rápido</h3>
+    <p class="small">Marque o que se aplica a você. Os itens marcados mostram em quais dias do método prestar mais atenção.</p>
+    <ul class="check">
+      <li>Língua branca ou amarelada no fundo → <strong>dia 2</strong></li>
+      <li>Fio dental sai com cheiro ou não uso fio → <strong>dia 3</strong></li>
+      <li>Gengiva sangra → <strong>dia 3 + dentista</strong></li>
+      <li>Boca seca, tomo remédio contínuo, respiro pela boca → <strong>dia 4</strong></li>
+      <li>Pulo refeições, faço jejum ou low carb → <strong>dia 5</strong></li>
+      <li>Hálito muito ruim ao acordar → <strong>dia 6</strong></li>
+      <li>Bolinhas brancas na garganta → <strong>capítulo 3, item 6</strong></li>
+      <li>Uso prótese ou aparelho → <strong>capítulo 6</strong></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CAP 4 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">4</div>
+  <div class="kicker">Capítulo 4</div>
+  <h1>O Método 7 Dias</h1>
+  <p>Uma tarefa por dia. Cada dia acrescenta um hábito ao anterior. No dia 7 você tem uma rotina completa que leva menos de 5 minutos de manhã e 5 à noite.</p>
+</section>
+
+<section class="page flow">
+  <h2>Como o método funciona</h2>
+  <p>A ideia não é fazer tudo de uma vez, porque é isso que faz as pessoas desistirem no terceiro dia. Cada dia ataca <strong>um esconderijo</strong> de bactérias e cria <strong>um hábito</strong>. Os hábitos se somam.</p>
+  <table>
+    <tr><th>Dia</th><th>Foco</th><th>Tempo</th></tr>
+    <tr><td><strong>1</strong></td><td>Diagnóstico e kit básico</td><td>15 min (uma vez)</td></tr>
+    <tr><td><strong>2</strong></td><td>Língua</td><td>+1 min/dia</td></tr>
+    <tr><td><strong>3</strong></td><td>Entre os dentes e gengiva</td><td>+2 min/dia</td></tr>
+    <tr><td><strong>4</strong></td><td>Saliva e hidratação</td><td>ao longo do dia</td></tr>
+    <tr><td><strong>5</strong></td><td>Alimentação a seu favor</td><td>ao longo do dia</td></tr>
+    <tr><td><strong>6</strong></td><td>A rotina da noite (adeus, hálito da manhã)</td><td>+2 min</td></tr>
+    <tr><td><strong>7</strong></td><td>Reteste e rotina definitiva</td><td>10 min</td></tr>
+  </table>
+  <div class="box tip"><div class="t">Regra de ouro</div><p>Se você falhar um dia, não recomece do zero. Só continue de onde parou. O que conta é a soma dos hábitos.</p></div>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>1</b></div><div><h2>Diagnóstico e kit básico</h2><div class="sub">Tarefa única de hoje: saber de onde vem o cheiro e ter as ferramentas certas.</div></div></div>
+  <ol class="steps">
+    <li><strong>Faça os 3 testes do capítulo 2</strong> e anote as notas. Faça também o diagnóstico rápido do capítulo 3.</li>
+    <li><strong>Olhe a língua no espelho com boa luz.</strong> Ponha bem para fora e veja o terço de trás. Se puder, tire uma foto: você vai comparar no dia 7.</li>
+    <li><strong>Monte o kit básico.</strong> Tudo se acha em farmácia e custa pouco:</li>
+  </ol>
+  <table>
+    <tr><th>Item</th><th>Por quê</th><th>Faixa de preço*</th></tr>
+    <tr><td><strong>Limpador de língua</strong> (raspador de plástico ou metal)</td><td>Remove a saburra melhor que a escova</td><td>R$ 8 a 25</td></tr>
+    <tr><td><strong>Fio dental</strong> ou <strong>escova interdental</strong></td><td>Limpa onde a escova não chega</td><td>R$ 5 a 25</td></tr>
+    <tr><td><strong>Escova macia</strong> nova</td><td>Escova velha (mais de 3 meses) limpa mal e guarda bactérias</td><td>R$ 6 a 20</td></tr>
+    <tr><td><strong>Creme dental com flúor</strong></td><td>Protege contra cárie; o que você já usa provavelmente serve</td><td>—</td></tr>
+    <tr><td><strong>Garrafinha de água</strong></td><td>Lembrete visual para beber água (dia 4)</td><td>—</td></tr>
+    <tr><td>Opcional: <strong>enxaguante sem álcool</strong> com cloreto de cetilpiridínio ou zinco</td><td>Ajuda, mas é complemento (capítulo 5)</td><td>R$ 15 a 40</td></tr>
+  </table>
+  <p class="small">*Preços de referência em farmácias no Brasil; variam por região e marca.</p>
+  <div class="box note"><div class="t">Por que o raspador e não só a escova na língua?</div><p>A escova ajuda, mas as cerdas tendem a “pentear” a saburra em vez de removê-la, e no fundo da língua dão mais ânsia. O raspador é largo e fino: puxa a camada inteira numa passada. Se não tiver um hoje, use uma colher de chá até comprar.</p></div>
+  <h3>Checklist do dia 1</h3>
+  <ul class="check">
+    <li>Fiz os 3 testes e anotei as notas</li>
+    <li>Tirei foto da língua</li>
+    <li>Comprei (ou separei) raspador, fio dental e escova nova</li>
+  </ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>2</b></div><div><h2>A língua</h2><div class="sub">O hábito que resolve sozinho a maior parte dos casos.</div></div></div>
+  <p>Se você só fizer uma coisa deste guia inteiro, faça esta. Limpar a língua todo dia é, de longe, a medida que mais reduz o mau hálito para a maioria das pessoas.</p>
+  <h3>Como limpar a língua do jeito certo</h3>
+  <ol class="steps">
+    <li><strong>Depois de escovar os dentes</strong>, ponha a língua bem para fora. Respire pelo nariz: isso reduz a ânsia.</li>
+    <li>Apoie o raspador <strong>o mais atrás que conseguir sem dar ânsia</strong>. Não precisa ir até a garganta.</li>
+    <li><strong>Puxe para a frente</strong> com pressão leve a moderada, sem machucar. Uma passada só, de trás para a frente.</li>
+    <li>Enxágue o raspador na água corrente.</li>
+    <li>Repita de <strong>4 a 6 vezes</strong>, cobrindo o meio e as laterais, até sair pouco ou nada.</li>
+    <li>Lave o raspador com água e sabão e deixe secar ao ar.</li>
+  </ol>
+  <div class="box warn"><div class="t">Não exagere</div><p>A língua não precisa ficar “rosa de tanto esfregar”. Força demais machuca as papilas e pode deixar a língua sensível. Pressão leve, todos os dias, funciona melhor que pressão forte de vez em quando.</p></div>
+  <h3>Dicas para quem tem muita ânsia</h3>
+  <ul>
+    <li>Comece pela parte do meio e vá um pouco mais para trás a cada dia.</li>
+    <li>Expire devagar pela boca enquanto puxa, ou faça um som “ahhh” baixinho.</li>
+    <li>Faça antes do café da manhã, e não logo depois.</li>
+    <li>Experimente raspadores de modelos diferentes: os mais finos costumam dar menos ânsia.</li>
+  </ul>
+  <h3>Quando fazer</h3>
+  <p><strong>Ao acordar e antes de dormir</strong>, sempre depois da escovação. Se você só conseguir uma vez por dia, faça à noite.</p>
+  <div class="box tip"><div class="t">O que esperar</div><p>Nos primeiros 2 ou 3 dias sai bastante material. Isso é bom sinal. Em uma semana, a camada fica bem mais fina e a língua fica mais rosada. Muita gente nota diferença no hálito já no segundo dia.</p></div>
+  <h3>Checklist do dia 2</h3>
+  <ul class="check"><li>Limpei a língua de manhã</li><li>Limpei a língua à noite</li><li>Lavei e guardei o raspador seco</li></ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>3</b></div><div><h2>Entre os dentes e gengiva</h2><div class="sub">O segundo maior esconderijo, e o que a maioria pula.</div></div></div>
+  <p>Hoje você soma à língua a limpeza entre os dentes, <strong>uma vez por dia, à noite</strong>, antes de escovar. Assim o flúor do creme dental alcança também os espaços que acabaram de ser limpos.</p>
+  <h3>Fio dental: a técnica que funciona</h3>
+  <ol class="steps">
+    <li>Corte uns 40 cm de fio e enrole a maior parte num dedo médio, e um pouco no outro.</li>
+    <li>Segure firme com polegares e indicadores, deixando uns 2 a 3 cm esticados.</li>
+    <li>Passe o fio entre dois dentes com movimento de “serrote” suave, <strong>sem estalar na gengiva</strong>.</li>
+    <li>Abrace o dente em forma de “C” e deslize para cima e para baixo, indo um pouquinho por baixo da gengiva.</li>
+    <li>Faça dos dois lados de cada espaço. Use um trecho limpo do fio para cada dente.</li>
+    <li><strong>Não esqueça a parte de trás do último dente</strong> de cada lado.</li>
+  </ol>
+  <h3>Fio, escova interdental ou irrigador?</h3>
+  <table>
+    <tr><th>Opção</th><th>Melhor para</th></tr>
+    <tr><td><strong>Fio dental</strong></td><td>Dentes bem juntinhos; é a opção mais barata</td></tr>
+    <tr><td><strong>Escova interdental</strong> (“escovinha de garrafa”)</td><td>Espaços maiores, gengiva retraída, pontes e aparelho. É muito eficiente e mais fácil para quem tem dificuldade com fio</td></tr>
+    <tr><td><strong>Irrigador oral</strong> (jato de água)</td><td>Aparelho fixo, implantes, quem não se adapta ao fio. Complementa, mas não substitui totalmente</td></tr>
+    <tr><td><strong>Passa-fio / fio com haste</strong></td><td>Quem tem pouca coordenação, idosos, crianças</td></tr>
+  </table>
+  <div class="box note"><div class="t">“Minha gengiva sangra quando passo fio”</div><p>Isso é comum nos primeiros dias e costuma ser <strong>sinal de inflamação</strong>, não de que o fio está machucando. Continue com delicadeza: na maioria dos casos o sangramento diminui em 7 a 14 dias. Se continuar depois de 2 semanas, marque um dentista (capítulo 8).</p></div>
+  <h3>Bônus do dia: escove a linha da gengiva</h3>
+  <p>Na escovação, incline a escova uns 45° em direção à gengiva e faça movimentos curtinhos, vibrando, de dente em dente. É ali, na “emenda” entre dente e gengiva, que a placa mais se acumula. Escove por <strong>2 minutos inteiros</strong> (use o cronômetro do celular uma vez para ver quanto tempo isso é de verdade).</p>
+  <h3>Checklist do dia 3</h3>
+  <ul class="check"><li>Língua de manhã e à noite</li><li>Fio ou escova interdental à noite, antes de escovar</li><li>Escovei 2 minutos, inclinado para a gengiva</li></ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>4</b></div><div><h2>Saliva e hidratação</h2><div class="sub">Ligar de novo o sistema de limpeza natural da sua boca.</div></div></div>
+  <p>A saliva lava a boca, neutraliza ácidos e traz oxigênio, que as bactérias do cheiro odeiam. Boca seca é um dos gatilhos mais subestimados, principalmente à tarde.</p>
+  <h3>As 6 ações de hoje</h3>
+  <ol class="steps">
+    <li><strong>Água ao longo do dia</strong>, não tudo de uma vez. Um gole a cada 30–60 minutos funciona melhor que dois copos grandes. Deixe a garrafinha à vista.</li>
+    <li><strong>Bocheche água depois de comer ou de tomar café</strong>, quando não der para escovar. Leva 10 segundos.</li>
+    <li><strong>Chiclete sem açúcar com xilitol</strong>, 5 a 10 minutos depois das refeições. Mastigar estimula a saliva. O xilitol não alimenta as bactérias da cárie. (Com moderação: em excesso, causa gases ou intestino solto.)</li>
+    <li><strong>Mastigue alimentos firmes:</strong> maçã, cenoura, pepino, salsão. Eles estimulam saliva e fazem uma “limpeza mecânica” leve.</li>
+    <li><strong>Diminua o que seca a boca:</strong> álcool, cigarro, excesso de café e enxaguantes com álcool.</li>
+    <li><strong>Repare na respiração.</strong> Se você acorda de boca seca ou respira pela boca durante o dia, pode haver nariz obstruído, rinite ou ronco. Vale falar com um médico.</li>
+  </ol>
+  <div class="box warn"><div class="t">Se você toma remédio contínuo</div><p>Centenas de medicamentos comuns reduzem a saliva. <strong>Nunca pare ou troque um remédio por conta própria.</strong> Conte ao seu médico que você sente boca seca: às vezes dá para ajustar horário ou dose, e existem géis e sprays de saliva artificial que ajudam muito.</p></div>
+  <h3>Como saber se está hidratado o suficiente</h3>
+  <p>Uma regra prática: urina clara a amarelo-clarinha durante o dia, e boca que não fica pegajosa à tarde. Quem trabalha falando muito (aulas, atendimento, vendas) precisa de mais água do que imagina.</p>
+  <h3>Checklist do dia 4</h3>
+  <ul class="check"><li>Língua manhã e noite + fio à noite</li><li>Garrafinha de água à vista o dia todo</li><li>Bochecho de água depois das refeições e do café</li><li>Chiclete sem açúcar depois de uma refeição</li></ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>5</b></div><div><h2>Alimentação a seu favor</h2><div class="sub">Não é cortar o que você gosta. É saber o que piora, o que ajuda e quando.</div></div></div>
+  <table>
+    <tr><th>Piora</th><th>Por quê</th><th>O que fazer</th></tr>
+    <tr><td>Alho, cebola crus</td><td>O cheiro sai pelo pulmão; escovar não resolve</td><td>Prefira cozidos; evite crus antes de compromissos importantes</td></tr>
+    <tr><td>Café</td><td>Seca a boca e deixa resíduo</td><td>Água ou bochecho depois de cada xícara</td></tr>
+    <tr><td>Álcool</td><td>Seca a boca e tem cheiro próprio</td><td>Um copo de água para cada dose</td></tr>
+    <tr><td>Muito açúcar</td><td>Alimenta as bactérias da placa</td><td>Concentre os doces nas refeições, não beliscando o dia todo</td></tr>
+    <tr><td>Queijos fortes, embutidos, peixe</td><td>Muita proteína, que vira “comida” das bactérias do cheiro</td><td>Bochecho + fio depois</td></tr>
+    <tr><td>Pular refeições, jejum longo</td><td>Menos saliva e cheiro do jejum</td><td>Água frequente; não fique muitas horas sem comer, se puder</td></tr>
+  </table>
+  <h3>O que ajuda</h3>
+  <ul>
+    <li><strong>Frutas e vegetais crocantes</strong> (maçã, pera, cenoura, pepino): saliva e limpeza mecânica.</li>
+    <li><strong>Iogurte natural sem açúcar:</strong> alguns estudos sugerem um efeito leve no equilíbrio das bactérias da boca. Não é milagre, mas é um bom lanche.</li>
+    <li><strong>Chás sem açúcar</strong> (verde, hortelã): hidratam e refrescam.</li>
+    <li><strong>Ervas frescas no fim da refeição</strong> (salsinha, hortelã, manjericão): mascaram por pouco tempo, e mastigar ajuda a saliva.</li>
+    <li><strong>Café da manhã:</strong> comer pela manhã “liga” a saliva e ajuda a acabar com o hálito da noite.</li>
+  </ul>
+  <div class="box note"><div class="t">Se você faz low carb, cetogênica ou jejum intermitente</div><p>O hálito diferente (adocicado, de acetona) é um efeito esperado dessas estratégias e não vem da boca. Mais água e a rotina deste método ajudam a parte que vem da boca. Se o cheiro te incomoda muito, converse com o nutricionista ou médico que acompanha sua dieta.</p></div>
+  <h3>Checklist do dia 5</h3>
+  <ul class="check"><li>Rotina completa (língua + fio + escovação + água)</li><li>Água ou bochecho depois de cada café</li><li>Um alimento crocante em um dos lanches</li><li>Não fiquei mais de 4–5 horas sem comer ou beber água</li></ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>6</b></div><div><h2>A rotina da noite</h2><div class="sub">É à noite que se decide como vai ser o hálito de amanhã.</div></div></div>
+  <p>Durante o sono a saliva quase para e as bactérias têm de 6 a 8 horas de “festa”. Quanto mais limpa a boca estiver ao deitar, menos cheiro ao acordar.</p>
+  <h3>A sequência noturna (5 minutos)</h3>
+  <ol class="steps">
+    <li><strong>Última refeição ou lanche</strong> pelo menos 30 minutos antes da higiene. Depois da higiene, só água.</li>
+    <li><strong>Fio dental ou escova interdental</strong> em todos os espaços.</li>
+    <li><strong>Escovação de 2 minutos</strong>, inclinando para a gengiva.</li>
+    <li><strong>Limpeza da língua</strong>, de 4 a 6 passadas.</li>
+    <li><strong>Cuspa o excesso de creme dental, mas não enxágue com muita água</strong>: o flúor que fica protege por mais tempo.</li>
+    <li>Opcional: <strong>enxaguante sem álcool</strong> (capítulo 5), em outro horário ou logo antes de deitar, conforme o rótulo.</li>
+    <li><strong>Um copo de água</strong> à mão na cabeceira.</li>
+  </ol>
+  <h3>A rotina da manhã (3 minutos)</h3>
+  <ol class="steps">
+    <li>Copo de água logo ao acordar.</li>
+    <li>Limpeza da língua.</li>
+    <li>Escovação (antes ou depois do café da manhã; se for depois de algo ácido, como suco de laranja, espere uns 30 minutos).</li>
+    <li>Tome café da manhã: comer ajuda a “ligar” a saliva.</li>
+  </ol>
+  <div class="box tip"><div class="t">Se você ronca ou dorme de boca aberta</div><p>Respirar pela boca a noite toda seca muito a boca e piora o hálito ao acordar. Se alguém comenta que você ronca, ou você acorda com a boca muito seca, vale conversar com um médico ou dentista: além do hálito, é uma questão de qualidade de sono.</p></div>
+  <h3>Checklist do dia 6</h3>
+  <ul class="check"><li>Sequência noturna completa</li><li>Nada além de água depois da higiene</li><li>Água na cabeceira</li><li>Rotina da manhã completa</li></ul>
+</section>
+
+<section class="page flow">
+  <div class="dayhead"><div class="daybadge"><small>DIA</small><b>7</b></div><div><h2>Reteste e rotina definitiva</h2><div class="sub">Medir o resultado e transformar os 7 dias em hábito.</div></div></div>
+  <ol class="steps">
+    <li><strong>Refaça os 3 testes</strong> no mesmo horário do dia 1 e anote na tabela do capítulo 2.</li>
+    <li><strong>Pergunte de novo à pessoa de confiança</strong>, usando o mesmo código de nota.</li>
+    <li><strong>Compare a foto da língua</strong> com a do dia 1.</li>
+  </ol>
+  <h3>Como ler o resultado</h3>
+  <table>
+    <tr><th>Resultado</th><th>O que fazer</th></tr>
+    <tr><td><strong>Melhorou bem</strong> (nota 0–1)</td><td>Ótimo. Mantenha a Rotina de 1 Página (pág. 47). Os primeiros 30 dias são os mais importantes para fixar o hábito.</td></tr>
+    <tr><td><strong>Melhorou um pouco</strong></td><td>Normal para quem tinha muita saburra ou gengiva inflamada. Siga mais 7 dias com atenção ao seu ponto fraco (veja o diagnóstico do capítulo 3).</td></tr>
+    <tr><td><strong>Não mudou nada</strong></td><td>Provavelmente existe uma causa que precisa de profissional: gengiva, cárie, amígdala, sinusite ou outra. Leia o capítulo 8 e marque uma consulta. Leve suas anotações: ajudam muito.</td></tr>
+  </table>
+  <div class="quote">O método não termina no dia 7. É no dia 7 que ele vira só “o jeito como você cuida da boca”.</div>
+  <h3>O que manter para sempre (o mínimo)</h3>
+  <ul class="check">
+    <li>Língua: manhã e noite</li>
+    <li>Fio ou interdental: 1x por dia, à noite</li>
+    <li>Escovação de 2 min: 2x por dia</li>
+    <li>Água ao longo do dia</li>
+    <li>Escova nova a cada 3 meses</li>
+    <li>Dentista para revisão e limpeza 1 a 2 vezes por ano</li>
+  </ul>
+</section>
+
+<!-- CAP 5 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">5</div>
+  <div class="kicker">Capítulo 5</div>
+  <h1>Enxaguantes, sprays e balas: o que funciona</h1>
+  <p>Como ler o rótulo para saber se o produto trata o problema ou só perfuma o hálito.</p>
+</section>
+
+<section class="page flow">
+  <h2>O enxaguante é o último passo, não o primeiro</h2>
+  <p>Enxaguante sem limpeza mecânica é como passar perfume sem tomar banho. Mas, <strong>em cima</strong> da rotina de língua + fio + escova, um bom enxaguante pode dar um empurrão extra. O segredo está nos ingredientes ativos, que aparecem na composição do rótulo.</p>
+  <table>
+    <tr><th>Ingrediente no rótulo</th><th>O que faz</th><th>Uso</th></tr>
+    <tr><td><strong>Cloreto de cetilpiridínio</strong> (CPC)</td><td>Antisséptico; reduz bactérias da placa e do hálito</td><td>Bom para uso diário</td></tr>
+    <tr><td><strong>Zinco</strong> (cloreto, lactato, citrato de zinco)</td><td>Neutraliza os gases com enxofre, que são o próprio cheiro</td><td>Bom para uso diário; muitas fórmulas “para hálito” combinam zinco e CPC</td></tr>
+    <tr><td><strong>Óleos essenciais</strong> (timol, eucaliptol, mentol)</td><td>Antissépticos com efeito moderado</td><td>Ok; muitas versões têm álcool, então prefira as sem álcool</td></tr>
+    <tr><td><strong>Clorexidina</strong></td><td>Antisséptico forte</td><td><strong>Só com indicação do dentista</strong> e por tempo curto: com uso prolongado mancha os dentes e altera o paladar</td></tr>
+    <tr><td><strong>Flúor</strong></td><td>Protege contra cárie</td><td>Bônus bem-vindo, mas não atua no hálito</td></tr>
+    <tr><td>Só aroma (menta, sem ativo)</td><td>Disfarça por 20–60 minutos</td><td>Não trata nada</td></tr>
+  </table>
+  <div class="box tip"><div class="t">Regra prática de compra</div><p>Procure <strong>“sem álcool”</strong> + <strong>CPC e/ou zinco</strong> na composição. Marca famosa não é garantia: leia o rótulo.</p></div>
+  <h3>Como usar o enxaguante</h3>
+  <ul>
+    <li>Siga a quantidade e o tempo do rótulo (geralmente 20 ml por 30 a 60 segundos).</li>
+    <li>Gargareje no fim, por alguns segundos, para alcançar o fundo da língua e a garganta.</li>
+    <li>Não beba nem coma nos 30 minutos seguintes.</li>
+    <li>Não dilua, a não ser que o rótulo mande.</li>
+    <li>Não é para crianças pequenas, que podem engolir. Para crianças, siga a orientação do dentista.</li>
+  </ul>
+  <h3>Sprays, balas e pastilhas</h3>
+  <p><strong>Spray bucal:</strong> útil para emergências. Os que têm zinco ou CPC duram um pouco mais que os que têm só aroma.</p>
+  <p><strong>Balas de menta com açúcar:</strong> pioram no médio prazo, porque alimentam as bactérias e aumentam o risco de cárie. Troque por <strong>chiclete ou pastilha sem açúcar com xilitol</strong>.</p>
+  <h3>E as receitas caseiras?</h3>
+  <table>
+    <tr><th>Receita</th><th>Veredito</th></tr>
+    <tr><td>Bicarbonato na escova</td><td>Pode ajudar de vez em quando, mas é abrasivo; não use todo dia nem esfregue com força</td></tr>
+    <tr><td>Água oxigenada para bochecho</td><td>Não faça sem orientação: pode irritar a boca</td></tr>
+    <tr><td>Vinagre ou limão</td><td><strong>Evite.</strong> São ácidos e desgastam o esmalte dos dentes</td></tr>
+    <tr><td>Bochecho com óleo de coco</td><td>A evidência é fraca; não substitui fio e raspador</td></tr>
+    <tr><td>Água morna com sal (gargarejo)</td><td>Ok e barato, principalmente para garganta e amígdalas</td></tr>
+  </table>
+</section>
+
+<!-- CAP 6 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">6</div>
+  <div class="kicker">Capítulo 6</div>
+  <h1>Casos especiais</h1>
+  <p>Aparelho, prótese, cigarro, gravidez, crianças, idosos e quem fala o dia todo. Ajustes rápidos no método para cada situação.</p>
+</section>
+
+<section class="page flow">
+  <h3>🦷 Aparelho ortodôntico fixo</h3>
+  <ul>
+    <li>Escova interdental para passar entre os fios e os bráquetes, todos os dias.</li>
+    <li>Passa-fio ou fio com ponta rígida para limpar entre os dentes.</li>
+    <li>O irrigador oral ajuda muito aqui.</li>
+    <li>Bocheche água depois de qualquer lanche, se não der para escovar.</li>
+  </ul>
+  <h3>😁 Alinhadores transparentes (placas)</h3>
+  <ul>
+    <li>Escove os dentes antes de recolocar a placa. Comida presa embaixo dela fica horas “fermentando”.</li>
+    <li>Lave a placa com escova macia e água fria (água quente pode deformar), de manhã e à noite.</li>
+    <li>Só água com a placa na boca.</li>
+  </ul>
+  <h3>👄 Dentadura e prótese removível</h3>
+  <ul>
+    <li><strong>Tire para dormir</strong>, sempre que o dentista não tiver orientado diferente. Deixe em um copo com água ou na solução própria.</li>
+    <li>Escove a prótese todo dia com escova própria e sabão neutro ou produto específico. Creme dental comum é abrasivo e cria riscos que acumulam cheiro.</li>
+    <li>Escove também a gengiva, o céu da boca e a língua com escova macia.</li>
+    <li>Uma prótese mal adaptada, que machuca ou balança, precisa de ajuste: procure o dentista.</li>
+  </ul>
+  <h3>🚬 Fumantes</h3>
+  <p>O cigarro dá um cheiro próprio, seca a boca e piora a gengiva (e ainda esconde o sangramento, o que atrasa o diagnóstico). O método ajuda na parte que vem da boca, mas o cheiro do cigarro só some de vez parando de fumar. O SUS oferece tratamento gratuito para parar de fumar: pergunte na sua Unidade Básica de Saúde.</p>
+  <h3>🤰 Gestantes</h3>
+  <p>As mudanças hormonais deixam a gengiva mais sensível e propensa a sangrar. Enjoo e vômito também pioram o hálito. Depois de vomitar, <strong>bocheche água ou água com uma pitada de bicarbonato e espere uns 30 minutos para escovar</strong> (o ácido amolece o esmalte). Consulte o dentista durante a gestação: o atendimento é seguro e recomendado.</p>
+  <h3>🧒 Crianças</h3>
+  <p>Criança com mau hálito frequente pode ter respiração pela boca, adenoide aumentada, amígdalas, comida presa ou cárie. Ensine a escovar a língua com escova macia. Se o cheiro for persistente, leve ao odontopediatra ou pediatra. Enxaguantes não são para crianças pequenas.</p>
+  <h3>👵 Idosos</h3>
+  <p>Mais remédios, menos saliva e, às vezes, mais dificuldade de coordenação. Prefira escova interdental ou fio com haste, escova de cabo grosso e muita água. Atenção à prótese (veja acima).</p>
+  <h3>🎤 Quem fala o dia todo</h3>
+  <p>Professores, vendedores, atendentes e operadores de telemarketing: a boca seca rápido. Garrafinha sempre por perto, um gole a cada intervalo de fala e chiclete sem açúcar nos intervalos.</p>
+</section>
+
+<!-- CAP 7 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">7</div>
+  <div class="kicker">Capítulo 7</div>
+  <h1>12 mitos e verdades</h1>
+  <p>O que você ouviu a vida inteira e o que a ciência diz de verdade.</p>
+</section>
+
+<section class="page flow">
+  <div class="mv"><div class="tag m">MITO</div><div><b>“Mau hálito vem do estômago.”</b><span>Na grande maioria dos casos o cheiro vem da boca. O estômago tem uma válvula que fica fechada; refluxo pode contribuir, mas é causa menos comum.</span></div></div>
+  <div class="mv"><div class="tag m">MITO</div><div><b>“Quem escova bem não tem mau hálito.”</b><span>A escova não alcança a língua nem os espaços entre os dentes, que são as duas maiores fontes.</span></div></div>
+  <div class="mv"><div class="tag v">VERDADE</div><div><b>“Limpar a língua faz diferença.”</b><span>É uma das medidas mais eficazes e baratas que existem contra o mau hálito.</span></div></div>
+  <div class="mv"><div class="tag m">MITO</div><div><b>“Dá para sentir o próprio hálito soprando na mão.”</b><span>O nariz se acostuma com o próprio cheiro. Use os testes do capítulo 2.</span></div></div>
+  <div class="mv"><div class="tag d">DEPENDE</div><div><b>“Enxaguante resolve.”</b><span>Sozinho, só disfarça. Com CPC ou zinco e junto com a limpeza mecânica, ajuda de verdade.</span></div></div>
+  <div class="mv"><div class="tag v">VERDADE</div><div><b>“Ficar muito tempo sem comer dá mau hálito.”</b><span>Menos mastigação significa menos saliva, e o jejum longo traz um cheiro próprio.</span></div></div>
+  <div class="mv"><div class="tag m">MITO</div><div><b>“Bala de menta resolve.”</b><span>Disfarça por minutos. Com açúcar, ainda piora a situação no médio prazo.</span></div></div>
+  <div class="mv"><div class="tag v">VERDADE</div><div><b>“Escovar não tira o cheiro de alho.”</b><span>Os compostos do alho caem no sangue e saem pelos pulmões. Só o tempo resolve.</span></div></div>
+  <div class="mv"><div class="tag m">MITO</div><div><b>“Mau hálito é falta de higiene.”</b><span>Muita gente caprichosa tem, porque limpa os lugares errados ou tem boca seca. Não é motivo de vergonha.</span></div></div>
+  <div class="mv"><div class="tag v">VERDADE</div><div><b>“Gengiva que sangra pode causar mau hálito.”</b><span>A inflamação cria bolsas onde as bactérias do cheiro vivem. Precisa de cuidado e, se persistir, de dentista.</span></div></div>
+  <div class="mv"><div class="tag d">DEPENDE</div><div><b>“Bicarbonato é ótimo para o hálito.”</b><span>De vez em quando, ok. Todo dia e com força, desgasta. Não substitui a rotina.</span></div></div>
+  <div class="mv"><div class="tag v">VERDADE</div><div><b>“Beber água ajuda.”</b><span>Hidratação mantém a saliva funcionando, e a saliva é a limpeza natural da boca.</span></div></div>
+</section>
+
+<!-- CAP 8 -->
+<section class="page opener">
+  <div class="blob"></div>
+  <div class="num">8</div>
+  <div class="kicker">Capítulo 8</div>
+  <h1>Quando procurar o dentista ou o médico</h1>
+  <p>O método resolve a maioria dos casos. Estes são os sinais de que você precisa de um profissional.</p>
+</section>
+
+<section class="page flow">
+  <h2>Procure um dentista se…</h2>
+  <ul class="check">
+    <li>o hálito não melhorou depois de 14 dias de rotina correta;</li>
+    <li>a gengiva continua sangrando depois de 2 semanas de fio diário;</li>
+    <li>a gengiva está vermelha, inchada, retraída ou com pus;</li>
+    <li>tem dente mole, dor, buraco visível ou restauração quebrada;</li>
+    <li>tem gosto ruim constante ou de metal na boca;</li>
+    <li>sente cheiro forte vindo de um ponto específico;</li>
+    <li>tem siso nascendo com dor ou gengiva inflamada em volta;</li>
+    <li>usa prótese que machuca, balança ou tem cheiro mesmo limpa.</li>
+  </ul>
+  <h2 style="margin-top:6mm">Procure um médico se…</h2>
+  <ul class="check">
+    <li>tem nariz entupido frequente, secreção, dor na face ou cheiro saindo pelo nariz (otorrinolaringologista);</li>
+    <li>tem bolinhas na amígdala frequentes, dor de garganta recorrente ou amígdalas muito grandes (otorrinolaringologista);</li>
+    <li>tem azia frequente, queimação ou regurgitação (clínico ou gastroenterologista);</li>
+    <li>tem boca muito seca e usa remédios contínuos (o médico que receitou);</li>
+    <li>sente um cheiro adocicado ou de fruta junto com muita sede, muita urina ou perda de peso sem motivo;</li>
+    <li>sente cheiro de amônia (de urina), ou tem pele ou olhos amarelados.</li>
+  </ul>
+  <div class="box warn"><div class="t">Urgente</div><p>Cheiro adocicado forte com <strong>náusea, vômito, respiração acelerada ou confusão</strong>, principalmente em quem tem diabetes, é motivo para procurar <strong>pronto-atendimento na hora</strong>.</p></div>
+  <h3>Como aproveitar a consulta</h3>
+  <ul>
+    <li>Leve as notas dos testes do dia 1 e do dia 7.</li>
+    <li>Leve a lista dos remédios que você toma.</li>
+    <li>Conte o que já fez e por quanto tempo.</li>
+    <li>Pergunte se precisa de limpeza profissional (raspagem) e em quanto tempo deve voltar.</li>
+  </ul>
+  <p class="small">Muitas faculdades de odontologia e Unidades Básicas de Saúde oferecem atendimento gratuito ou de baixo custo.</p>
+</section>
+
+<!-- ROTINA 1 PÁGINA -->
+<section class="page fixed">
+  <div class="kicker">Para imprimir e colar no espelho</div>
+  <h2>A Rotina de 1 Página</h2>
+  <div class="two">
+    <div class="summary-card">
+      <h3>☀️ Manhã · 3 min</h3>
+      <ol class="steps" style="margin:0">
+        <li>Copo de água</li>
+        <li>Língua: 4–6 passadas</li>
+        <li>Escovação: 2 min</li>
+        <li>Café da manhã</li>
+      </ol>
+    </div>
+    <div class="summary-card">
+      <h3>🌙 Noite · 5 min</h3>
+      <ol class="steps" style="margin:0">
+        <li>Fio ou interdental</li>
+        <li>Escovação: 2 min</li>
+        <li>Língua: 4–6 passadas</li>
+        <li>Cuspir, sem enxaguar</li>
+        <li>Depois, só água</li>
+      </ol>
+    </div>
+  </div>
+  <div class="summary-card" style="margin-top:4mm">
+    <h3>💧 Durante o dia</h3>
+    <ul class="check" style="margin:0">
+      <li>Gole de água a cada 30–60 min</li>
+      <li>Bochecho de água depois de café e lanches</li>
+      <li>Chiclete sem açúcar depois das refeições</li>
+      <li>Não ficar mais de 4–5 h sem comer ou beber</li>
+    </ul>
+  </div>
+  <div class="two" style="margin-top:4mm">
+    <div class="box tip" style="margin:0"><div class="t">A cada 3 meses</div><p>Escova nova e raspador conferido.</p></div>
+    <div class="box note" style="margin:0"><div class="t">1–2x por ano</div><p>Dentista: revisão e limpeza.</p></div>
+  </div>
+  <div class="folio"><span>Hálito Limpo em 7 Dias</span><span>39</span></div>
+</section>
+
+<!-- BÔNUS EMERGÊNCIA -->
+<section class="page opener" style="background:var(--mint)">
+  <div class="num" style="color:var(--navy);opacity:1">★</div>
+  <div class="kicker" style="color:var(--navy)">Bônus incluso</div>
+  <h1 style="color:var(--navy)">Hálito de Emergência</h1>
+  <p style="color:var(--navy)">12 truques para os próximos 10 minutos. Para a reunião, o encontro, a entrevista ou aquela conversa de perto que não pode esperar.</p>
+</section>
+
+<section class="page flow">
+  <div class="box note"><div class="t">Leia primeiro</div><p>Estes truques <strong>disfarçam e aliviam</strong> por um tempo. Eles não substituem o método. Use como “kit de primeiros socorros” enquanto a rotina faz o trabalho de verdade.</p></div>
+  <h3>Se você tem 1 minuto</h3>
+  <ol class="steps">
+    <li><strong>Bocheche água com força por 30 segundos</strong> e gargareje no final. Tira resíduos soltos e reidrata.</li>
+    <li><strong>Raspe a língua</strong> com o raspador de bolso (ou com a borda de uma colher limpa). É o truque mais eficaz desta lista.</li>
+    <li><strong>Spray bucal com zinco ou CPC</strong>: 2 borrifadas no fundo da língua.</li>
+  </ol>
+  <h3>Se você tem 5 minutos</h3>
+  <ol class="steps" start="4">
+    <li><strong>Mastigue chiclete sem açúcar com xilitol</strong> por 3 a 5 minutos e jogue fora antes de falar com alguém.</li>
+    <li><strong>Coma uma maçã ou algumas rodelas de pepino ou cenoura.</strong> Saliva mais limpeza mecânica.</li>
+    <li><strong>Passe fio dental nos dentes de trás</strong> (deixe um porta-fio na bolsa ou na gaveta).</li>
+    <li><strong>Mastigue folhas de hortelã ou salsinha</strong>, se tiver à mão.</li>
+  </ol>
+  <h3>Se você tem 10 minutos</h3>
+  <ol class="steps" start="8">
+    <li><strong>Escova de viagem + língua + fio</strong> no banheiro. É a rotina completa e resolve de verdade por algumas horas.</li>
+    <li><strong>Beba um copo grande de água</strong> devagar, em goles.</li>
+  </ol>
+  <h3>O que evitar antes do compromisso</h3>
+  <ol class="steps" start="10">
+    <li><strong>Café sem água depois</strong>: se tomar, bocheche.</li>
+    <li><strong>Alho e cebola crus</strong>, nas 12 a 24 horas antes de algo importante.</li>
+    <li><strong>Bala de menta com açúcar e enxaguante com álcool</strong>: o alívio dura pouco e a boca fica mais seca depois.</li>
+  </ol>
+  <div class="summary-card" style="margin-top:5mm">
+    <h3>🎒 Kit de bolso (cabe numa nécessaire)</h3>
+    <ul class="check" style="margin:0">
+      <li>Raspador de língua dobrável</li>
+      <li>Porta-fio ou escovinhas interdentais</li>
+      <li>Escova de viagem + creme dental pequeno</li>
+      <li>Spray com zinco ou CPC</li>
+      <li>Chiclete sem açúcar com xilitol</li>
+      <li>Garrafinha de água</li>
+    </ul>
+  </div>
+</section>
+
+<!-- FECHAMENTO -->
+<section class="page full" style="background:var(--navy);color:#fff;display:flex;flex-direction:column;justify-content:center">
+  <div class="kicker" style="color:var(--mint)">Para terminar</div>
+  <h1 style="color:#fff;margin-bottom:5mm">Agora é com você.</h1>
+  <p style="color:#BFD3D9;font-size:11pt">Mau hálito é muito mais comum do que parece, e quase sempre tem solução simples. Você agora sabe de onde ele vem, como testar, como resolver e quando procurar ajuda.</p>
+  <p style="color:#BFD3D9;font-size:11pt">Comece amanhã pelo dia 1. Em uma semana, você vai falar de perto sem pensar nisso.</p>
+  <div style="margin-top:10mm" class="brand"><i></i>Hálito Limpo</div>
+  <p class="small" style="color:#8FB0B8;margin-top:6mm">Conteúdo educativo, revisado por cirurgião-dentista. Não substitui consulta profissional. © 2026 Hálito Limpo. Todos os direitos reservados. Proibida a reprodução ou distribuição sem autorização.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap');
+
+@page { size: 148mm 210mm; margin: 14mm 0 16mm; }
+@page bleed { size: 148mm 210mm; margin: 0; }
+
+:root {
+  --mint: #2BB39A;
+  --mint-2: #DDF4EE;
+  --mint-3: #F2FBF8;
+  --navy: #0E2A3B;
+  --ink: #1D2B33;
+  --muted: #5C6B73;
+  --coral: #F06B57;
+  --coral-2: #FDE9E5;
+  --sun: #F5B53F;
+  --sun-2: #FDF3DC;
+  --line: #D9E3E1;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #fff; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--ink);
+  font-size: 10.2pt;
+  line-height: 1.55;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: 148mm;
+  padding: 0 14mm;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+  overflow: hidden;
+}
+.page.flow { overflow: visible; }
+.page.full { page: bleed; height: 210mm; padding: 16mm 14mm 18mm; }
+.page.fixed { height: 180mm; }
+
+/* folio agora vem do rodapé do PDF */
+.page .folio { display:none !important;
+  position: absolute; bottom: 8mm; left: 14mm; right: 14mm;
+  display: flex; justify-content: space-between;
+  font-size: 7pt; color: var(--muted); letter-spacing: .04em;
+  border-top: 1px solid var(--line); padding-top: 2.5mm;
+}
+
+h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; color: var(--navy); line-height: 1.12; }
+h1 { font-size: 24pt; font-weight: 800; }
+h2 { font-size: 16pt; font-weight: 700; margin: 0 0 4mm; }
+h3 { font-size: 11.5pt; font-weight: 700; margin: 5mm 0 2mm; }
+p { margin: 0 0 3mm; }
+strong { color: var(--navy); }
+ul, ol { margin: 0 0 3mm 5mm; }
+li { margin: 0 0 1.4mm; padding-left: 1mm; }
+.small { font-size: 8.5pt; color: var(--muted); }
+.kicker {
+  font-size: 7.5pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--mint); margin-bottom: 2mm;
+}
+.lead { font-size: 11pt; color: var(--muted); margin-bottom: 5mm; }
+
+/* Abertura de capítulo */
+.opener { page: bleed; height: 210mm; padding: 16mm 14mm 18mm; background: var(--navy); color: #fff; display: flex; flex-direction: column; justify-content: flex-end; }
+.opener .num {
+  font-family: 'Fraunces', serif; font-size: 120pt; font-weight: 800; line-height: .8;
+  color: var(--mint); opacity: .9; margin-bottom: 6mm;
+}
+.opener h1 { color: #fff; font-size: 26pt; margin-bottom: 4mm; }
+.opener p { color: #BFD3D9; font-size: 11pt; max-width: 105mm; }
+.opener .kicker { color: var(--sun); }
+.opener .blob {
+  position: absolute; top: -30mm; right: -30mm; width: 110mm; height: 110mm; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #1E4A5E, transparent 70%);
+}
+
+/* Caixas */
+.box { border-radius: 3mm; padding: 4mm 4.5mm; margin: 4mm 0; break-inside: avoid; }
+.box .t { font-weight: 700; font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1.5mm; }
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+.tip { background: var(--mint-2); }
+.tip .t { color: #138169; }
+.warn { background: var(--coral-2); }
+.warn .t { color: #C2412E; }
+.note { background: var(--sun-2); }
+.note .t { color: #9A6A0C; }
+.quote {
+  position: relative; padding: 1mm 0 1mm 9mm; margin: 4mm 0;
+  font-family: 'Fraunces', serif; font-size: 12pt; color: var(--navy);
+}
+
+/* Cartões de causa */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin: 3mm 0; }
+.card { border: 1px solid var(--line); border-radius: 3mm; padding: 3.5mm; break-inside: avoid; }
+.card .ic { font-size: 15pt; line-height: 1; margin-bottom: 1.5mm; }
+.card b { display: block; color: var(--navy); font-size: 9.5pt; margin-bottom: 1mm; }
+.card span { font-size: 8.5pt; color: var(--muted); line-height: 1.45; display: block; }
+
+/* Dia do método */
+.dayhead { display: flex; align-items: center; gap: 4mm; margin-bottom: 4mm; }
+.daybadge {
+  width: 18mm; height: 18mm; border-radius: 4mm; background: var(--mint); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.daybadge small { font-size: 6.5pt; letter-spacing: .14em; font-weight: 700; }
+.daybadge b { font-family: 'Fraunces', serif; font-size: 20pt; line-height: 1; }
+.dayhead h2 { margin: 0; }
+.dayhead .sub { font-size: 9pt; color: var(--muted); }
+
+.steps { list-style: none; margin: 0 0 3mm; counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; }
+.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: .2mm; width: 6mm; height: 6mm; border-radius: 50%;
+  background: var(--navy); color: #fff; font-size: 7.5pt; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.check { list-style: none; margin: 0 0 3mm; }
+.check li { padding-left: 7mm; position: relative; }
+.check li::before {
+  content: ''; position: absolute; left: 0; top: .9mm; width: 3.6mm; height: 3.6mm;
+  border: 1.4px solid var(--mint); border-radius: 1mm;
+}
+
+/* Tabelas */
+table { width: 100%; border-collapse: collapse; margin: 3mm 0 4mm; font-size: 8.6pt; break-inside: avoid; }
+th { text-align: left; background: var(--navy); color: #fff; padding: 2mm 2.5mm; font-weight: 600; font-size: 8pt; }
+td { padding: 2mm 2.5mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: var(--mint-3); }
+
+/* Mito / verdade */
+.mv { display: flex; gap: 3mm; margin: 0 0 3mm; break-inside: avoid; }
+.mv .tag { flex-shrink: 0; width: 17mm; text-align: center; border-radius: 2mm; font-size: 7pt; font-weight: 700; letter-spacing: .1em; padding: 1.5mm 0; height: fit-content; }
+.mv .tag.m { background: var(--coral-2); color: #C2412E; }
+.mv .tag.v { background: var(--mint-2); color: #138169; }
+.mv .tag.d { background: var(--sun-2); color: #9A6A0C; }
+.mv b { display: block; color: var(--navy); }
+.mv span { font-size: 9pt; color: var(--muted); }
+
+/* Sumário */
+.toc { list-style: none; margin: 0; }
+.toc li { display: flex; align-items: baseline; gap: 2mm; padding: 2.2mm 0; border-bottom: 1px dashed var(--line); margin: 0; }
+.toc .n { font-family: 'Fraunces', serif; font-weight: 800; color: var(--mint); width: 8mm; }
+.toc .x { flex: 1; }
+.toc .pg { color: var(--muted); font-size: 8.5pt; }
+
+/* Foto (com fallback) */
+.photo {
+  width: 100%; border-radius: 3mm; overflow: hidden; margin: 3mm 0 4mm;
+  background: linear-gradient(135deg, var(--mint-2), var(--mint-3));
+}
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+.quote::before { content: 'C'; position: absolute; left: 0; top: -3mm; font-size: 30pt; line-height: 1; color: var(--mint); }

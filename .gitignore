@@ -5,3 +5,6 @@ npm-debug.log*
 .vscode/
 
 public/mockups/
+
+# Hálito Limpo: PDFs pagos e artes geradas não vão para o GitHub
+produtos/halito-limpo/out/
