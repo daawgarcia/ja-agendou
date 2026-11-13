@@ -708,7 +708,7 @@ function showHalitoLimpo(req, res) {
 
 function showBruxismoSono(req, res) {
   // Link do checkout Hotmart (sem query). Enquanto não existir, os botões levam para a oferta.
-  const checkoutUrl = process.env.BRUXISMO_CHECKOUT_URL || 'https://pay.hotmart.com/Q108474127P?off=c60f24iz';
+  const checkoutUrl = process.env.BRUXISMO_CHECKOUT_URL || 'https://pay.hotmart.com/Q108474127P';
   // Pop-up de saída só aparece se houver cupom configurado na Hotmart (ex.: BRUXISMO_COUPON=BRUX30, BRUXISMO_COUPON_PRICE=147)
   const coupon = {
     code: process.env.BRUXISMO_COUPON || 'BRUX30',
