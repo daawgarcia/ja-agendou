@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bruxismo do Sono: Protocolo Clínico Completo para Dentistas</title>
+<meta name="description" content="O protocolo de consultório para diagnosticar, proteger e acompanhar o paciente com bruxismo do sono. Do consenso internacional à placa oclusal, com 6 fichas clínicas para imprimir.">
+<meta property="og:title" content="Bruxismo do Sono: Protocolo Clínico Completo">
+<meta property="og:description" content="Do consenso à placa oclusal: o guia premium para o cirurgião-dentista. Coleção Odontologia do Sono, Vol. II.">
+<meta property="og:image" content="/images/ebook-bruxismo/mockup.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,500;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+
+<%- include('../partials/tracking') %>
+
+<%
+  const PRICE = '197';
+  const PRICE_NUM = 197;
+  const hasCheckout = Boolean(checkoutUrl);
+  function cta(source, extra) {
+    if (!hasCheckout) return '#comprar';
+    const sep = checkoutUrl.includes('?') ? '&' : '?';
+    return checkoutUrl + sep + 'checkoutMode=10' + (extra || '') + '&utm_source=landing&utm_medium=cta&utm_campaign=ebook_bruxismo&utm_content=' + source;
+  }
+  const ext = hasCheckout ? 'target="_blank" rel="noopener"' : '';
+  const hasCoupon = hasCheckout && Boolean(coupon && coupon.code && coupon.price);
+%>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #07101e; --navy2: #0c1829; --navy3: #122238;
+  --gold: #c9a84c; --gold2: #e3c77a; --gold3: #f3e2b3;
+  --text: #c3d1df; --gray: #8b9cae; --white: #fff;
+  --line: rgba(201,168,76,.18);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', system-ui, sans-serif; color: var(--text); background: var(--navy); line-height: 1.6; overflow-x: hidden; }
+img { max-width: 100%; height: auto; display: block; }
+h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; color: #fff; line-height: 1.15; }
+h2 { font-size: clamp(27px, 4vw, 40px); font-weight: 800; margin-bottom: 18px; }
+h2 em, h1 em { color: var(--gold2); font-style: italic; font-weight: 500; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.narrow { max-width: 780px; margin: 0 auto; }
+.center { text-align: center; }
+.tag { display: inline-block; color: var(--gold2); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+.lead { color: var(--gray); font-size: 17px; line-height: 1.75; }
+section { padding: 88px 0; }
+
+/* botões */
+.btn { display: inline-block; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--navy); font-weight: 800; font-size: 18px; padding: 18px 44px; border-radius: 50px; text-decoration: none; box-shadow: 0 10px 36px rgba(201,168,76,.32); transition: transform .15s, box-shadow .15s; text-align: center; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 14px 44px rgba(201,168,76,.42); }
+.btn-full { display: block; width: 100%; }
+.micro { color: var(--gray); font-size: 13px; margin-top: 12px; }
+.micro b { color: rgba(255,255,255,.8); }
+
+/* topo */
+.top-bar { background: linear-gradient(90deg, #0c1829, #122238); border-bottom: 1px solid var(--gold); color: #fff; text-align: center; padding: 9px 16px; font-size: 13px; font-weight: 700; }
+.top-bar em { color: var(--gold2); font-style: normal; }
+nav { background: rgba(7,16,30,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100; }
+.nav-inner { max-width: 1100px; margin: 0 auto; padding: 13px 24px; display: flex; justify-content: space-between; align-items: center; }
+.nav-logo { color: #fff; font-size: 15px; font-weight: 800; text-decoration: none; }
+.nav-logo span { color: var(--gold2); }
+.nav-cta { background: var(--gold); color: var(--navy); font-size: 13px; font-weight: 800; padding: 8px 22px; border-radius: 30px; text-decoration: none; }
+
+/* hero */
+.hero { padding: 72px 0 56px; background: radial-gradient(ellipse 60% 60% at 75% 45%, rgba(201,168,76,.10), transparent 70%), linear-gradient(135deg, var(--navy) 0%, var(--navy2) 70%); }
+.hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+.hero-tag { display: inline-flex; gap: 8px; align-items: center; background: rgba(201,168,76,.10); border: 1px solid rgba(201,168,76,.35); color: var(--gold2); font-size: 11px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; padding: 6px 16px; border-radius: 30px; margin-bottom: 22px; }
+.hero h1 { font-size: clamp(32px, 4.8vw, 54px); font-weight: 800; margin-bottom: 18px; }
+.hero-sub { font-size: clamp(16px, 2vw, 18px); color: var(--gray); line-height: 1.7; margin-bottom: 30px; max-width: 500px; }
+.hero-price { color: #fff; font-size: 15px; font-weight: 700; margin-top: 14px; }
+.hero-price strong { color: var(--gold2); font-size: 19px; }
+.hero-img img { border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+
+/* faixa de prova logo abaixo do hero */
+.proof { background: var(--navy2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 26px 0; }
+.proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.proof-item { text-align: center; }
+.proof-item b { display: block; font-family: 'Playfair Display', serif; font-size: 34px; color: var(--gold2); line-height: 1; margin-bottom: 6px; }
+.proof-item span { font-size: 13px; color: var(--gray); line-height: 1.4; display: block; }
+
+/* problema */
+.problema { background: var(--navy); padding-top: 72px; }
+.prob-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 30px; }
+.prob-list li { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px 18px 50px; position: relative; color: rgba(255,255,255,.88); font-size: 15px; }
+.prob-list li::before { content: '!'; position: absolute; left: 18px; top: 17px; width: 22px; height: 22px; border-radius: 50%; background: rgba(201,168,76,.18); color: var(--gold2); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.turn { margin-top: 30px; font-family: 'Playfair Display', serif; font-size: 22px; color: #fff; line-height: 1.4; }
+.turn em { color: var(--gold2); }
+
+/* para quem */
+.paraquem { background: var(--navy2); }
+.pq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 40px; }
+.pq { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+.pq h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.pq p { font-size: 14px; color: var(--gray); }
+
+/* mini oferta antecipada */
+.mini { background: linear-gradient(135deg, rgba(201,168,76,.10), rgba(201,168,76,.03)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 56px 0; }
+.mini-box { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: 210px 1fr; gap: 36px; align-items: center; }
+.mini-box img { border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+.mini-price { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 800; color: #fff; line-height: 1; margin: 6px 0 4px; }
+.mini-price small { font-size: 22px; color: var(--gold2); margin-right: 4px; }
+.mini-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 22px; font-size: 14px; color: rgba(255,255,255,.85); }
+.mini-list li::before { content: '✓ '; color: var(--gold2); font-weight: 800; }
+
+/* aprender */
+.aprender { background: var(--navy); }
+.ap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 40px; text-align: left; }
+.ap { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 14px; padding: 22px 20px; }
+.ap .n { font-size: 11px; color: var(--gold2); font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 6px; }
+.ap h3 { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; line-height: 1.4; }
+
+.gal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+.gal figure { margin: 0; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
+.gal img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+.gal figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 16px 14px; background: linear-gradient(180deg, transparent, rgba(7,16,30,.92)); color: #fff; font-weight: 700; font-size: 14px; text-align: left; }
+.gal figcaption span { display: block; color: var(--gold2); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 2px; }
+/* prévia */
+.preview { background: var(--navy2); }
+.pv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; }
+.pv-grid img { border-radius: 10px; box-shadow: 0 14px 40px rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.06); }
+.pv-cap { margin-top: 18px; color: var(--gray); font-size: 14px; }
+
+/* capítulos */
+.capitulos { background: var(--navy); }
+.cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 40px; text-align: left; }
+.cap { display: flex; gap: 16px; align-items: flex-start; background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+.cap .n { font-family: 'Playfair Display', serif; font-style: italic; font-size: 22px; color: var(--gold2); width: 30px; flex-shrink: 0; line-height: 1.1; }
+.cap h3 { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.cap p { font-size: 13px; color: var(--gray); }
+
+/* bônus */
+.bonus { background: linear-gradient(180deg, var(--navy2), var(--navy)); border-top: 1px solid var(--line); }
+.bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
+.bonus-grid img { border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+.fichas { list-style: none; margin-top: 20px; }
+.fichas li { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; gap: 14px; color: rgba(255,255,255,.88); font-size: 15px; }
+.fichas li b { color: var(--gold2); font-family: 'Playfair Display', serif; font-size: 18px; width: 22px; flex-shrink: 0; }
+
+/* oferta */
+.oferta { background: var(--navy2); }
+.of-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 56px; align-items: center; }
+.of-box { background: rgba(255,255,255,.04); border: 1.5px solid rgba(201,168,76,.45); border-radius: 24px; padding: 40px 36px; }
+.of-incl { list-style: none; margin: 18px 0 26px; }
+.of-incl li { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 15px; color: rgba(255,255,255,.88); }
+.of-incl li::before { content: '✓'; color: var(--gold2); font-weight: 800; }
+.of-price { font-family: 'Playfair Display', serif; font-size: clamp(60px, 9vw, 80px); font-weight: 800; color: #fff; line-height: 1; }
+.of-price small { font-size: 28px; color: var(--gold2); vertical-align: top; position: relative; top: 12px; margin-right: 6px; }
+.of-note { color: var(--gray); font-size: 14px; margin: 6px 0 24px; }
+.pending { margin-top: 14px; font-size: 13px; color: #f0a99f; text-align: center; font-weight: 700; }
+
+/* garantia */
+.garantia { background: var(--navy); }
+.g-box { max-width: 820px; margin: 0 auto; display: flex; gap: 36px; align-items: center; border: 1px solid var(--line); border-radius: 22px; padding: 34px; }
+.seal { width: 130px; height: 130px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 35% 30%, #ecd28c, #c9a84c 60%, #9c7c2c); color: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; text-align: center; line-height: 1.05; }
+.seal b { font-family: 'Playfair Display', serif; font-size: 48px; }
+.seal small { font-size: 11px; letter-spacing: 1.4px; }
+
+/* faq */
+.faq { background: var(--navy2); }
+.faq-item { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.faq-q { width: 100%; text-align: left; background: none; border: 0; font: inherit; padding: 19px 22px; font-weight: 700; color: #fff; font-size: 15.5px; cursor: pointer; display: flex; justify-content: space-between; gap: 16px; }
+.faq-q::after { content: '+'; color: var(--gold2); font-size: 22px; line-height: 1; }
+.faq-item.open .faq-q::after { content: '−'; }
+.faq-a { display: none; padding: 0 22px 20px; color: var(--gray); font-size: 14.5px; line-height: 1.8; }
+.faq-item.open .faq-a { display: block; }
+
+/* final */
+.final { background: linear-gradient(180deg, rgba(7,16,30,.55), rgba(7,16,30,.92)), url('/images/ebook-bruxismo/foto-noite.webp') center/cover; text-align: center; padding: 120px 0; }
+footer { background: #030a14; color: var(--gray); text-align: center; padding: 28px 20px; font-size: 13px; }
+footer a { color: var(--gray); }
+footer p { margin-bottom: 6px; }
+
+.sticky { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,16,30,.96); border-top: 1px solid var(--line); transform: translateY(110%); transition: transform .25s; }
+.sticky.show { transform: none; }
+.sticky a { display: block; text-align: center; background: linear-gradient(135deg, var(--gold), var(--gold2)); color: var(--navy); font-weight: 800; font-size: 16px; padding: 14px; border-radius: 50px; text-decoration: none; }
+
+/* pop-up de saída (só intenção real) */
+.exit-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3,8,16,.82); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity .25s; }
+.exit-overlay.open { display: flex; }
+.exit-overlay.visible { opacity: 1; }
+.exit-card { position: relative; width: 100%; max-width: 420px; background: linear-gradient(160deg, var(--navy2), var(--navy3)); border: 1px solid rgba(201,168,76,.45); border-radius: 22px; padding: 34px 26px 26px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.exit-close { position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--gray); font-size: 26px; cursor: pointer; }
+.exit-title { font-family: 'Playfair Display', serif; color: #fff; font-size: 26px; font-weight: 800; line-height: 1.2; margin: 6px 0 8px; }
+.exit-price { display: flex; align-items: baseline; justify-content: center; gap: 12px; margin: 14px 0 4px; }
+.exit-price s { color: var(--gray); font-size: 20px; }
+.exit-price strong { color: var(--gold2); font-size: 46px; font-family: 'Playfair Display', serif; line-height: 1; }
+.exit-coupon { display: inline-block; border: 2px dashed rgba(201,168,76,.6); color: var(--gold2); font-weight: 800; letter-spacing: 2px; padding: 8px 18px; border-radius: 10px; margin: 12px 0 18px; }
+.exit-dismiss { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer; }
+
+@media (max-width: 860px) {
+  section { padding: 60px 0; }
+  .hero { padding: 26px 0 30px; }
+  .hero-grid { grid-template-columns: 1fr; gap: 22px; }
+  .hero-img { order: -1; max-width: 185px; margin: 0 auto; }
+  .hero-grid { gap: 16px; }
+  .hero-tag { margin-bottom: 14px; font-size: 10px; }
+  .hero h1 { font-size: 31px; margin-bottom: 12px; }
+  .hero-sub { font-size: 15.5px; margin-bottom: 18px; }
+  .hero .btn { display: block; padding: 17px 20px; }
+  .proof { padding: 20px 0; }
+  .proof-grid { grid-template-columns: repeat(2, 1fr); gap: 16px 10px; }
+  .proof-item b { font-size: 28px; }
+  .problema { padding-top: 44px; }
+  .prob-list { grid-template-columns: 1fr; }
+  .mini-box { grid-template-columns: 1fr; text-align: center; gap: 20px; }
+  .mini-box img { max-width: 150px; margin: 0 auto; }
+  .mini-list { justify-content: center; }
+  .pv-grid { grid-template-columns: 1fr 1fr; }
+  .gal { grid-template-columns: 1fr; }
+  .final { padding: 80px 0; }
+  .bonus-grid, .of-grid { grid-template-columns: 1fr; gap: 30px; }
+  .of-box { padding: 30px 22px; text-align: center; }
+  .of-incl { text-align: left; }
+  .g-box { flex-direction: column; text-align: center; padding: 26px; }
+  .nav-cta { display: none; }
+  .sticky { display: block; }
+  body { padding-bottom: 76px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">🦷 <em>Coleção Odontologia do Sono</em> · Volume II · Acesso imediato + 6 fichas clínicas</div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://jaagendou.app" class="nav-logo">🦷 jaagendou<span>.app</span></a>
+    <a href="<%= cta('nav_cta') %>" class="nav-cta" <%- ext %> data-checkout-source="nav_cta">Garantir acesso →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-tag">◆ Protocolo clínico · Edição 2026</div>
+      <h1>Bruxismo do sono: <em>do diagnóstico à placa</em>, com protocolo de consultório</h1>
+      <p class="hero-sub">O guia premium para identificar, classificar, proteger e acompanhar o paciente que range os dentes, sem cair nos mitos que ainda circulam na odontologia.</p>
+      <a href="<%= cta('hero_cta') %>" class="btn" <%- ext %> data-checkout-source="hero_cta">Quero o protocolo completo →</a>
+      <div class="hero-price">R$ <strong><%= PRICE %></strong> ou em até 12x · 7 dias de garantia</div>
+      <div class="micro">🔒 <b>Compra segura via Hotmart</b> · Pix, cartão ou boleto</div>
+    </div>
+    <div class="hero-img">
+      <img src="/images/ebook-bruxismo/mockup.webp" alt="Ebook Bruxismo do Sono com as fichas clínicas" width="600" height="600" loading="eager">
+    </div>
+  </div>
+</section>
+
+<!-- Faixa de prova logo abaixo do hero: encurta a ponte até o "problema" -->
+<div class="proof">
+  <div class="wrap proof-grid">
+    <div class="proof-item"><b>14</b><span>capítulos, do consenso à reabilitação</span></div>
+    <div class="proof-item"><b>6</b><span>fichas clínicas prontas para imprimir</span></div>
+    <div class="proof-item"><b>≈13%</b><span>dos adultos relatam bruxismo do sono</span></div>
+    <div class="proof-item"><b>13</b><span>referências científicas atuais</span></div>
+  </div>
+</div>
+
+<section class="problema">
+  <div class="wrap narrow">
+    <div class="tag">O problema</div>
+    <h2>A “plaquinha” não resolve. <em>E o paciente percebe.</em></h2>
+    <p class="lead">Você conhece este paciente. A conduta mais comum ainda é uma placa feita às pressas, sem triagem e sem plano de acompanhamento.</p>
+    <ul class="prob-list">
+      <li>Acorda com a face cansada e pergunta se “bruxismo tem cura”</li>
+      <li>Quebrou duas restaurações no mesmo ano, e a placa antiga está esquecida na gaveta</li>
+      <li>Ronca, está sonolento, e ninguém investigou a respiração antes da placa</li>
+      <li>Começou um antidepressivo há meses e ninguém ligou os pontos</li>
+    </ul>
+    <p class="turn">Os consensos internacionais mudaram a forma de entender o bruxismo. <em>Quem domina o novo protocolo atende melhor e é valorizado por isso.</em></p>
+  </div>
+</section>
+
+<section class="paraquem">
+  <div class="wrap center">
+    <div class="tag">Para quem é</div>
+    <h2>Feito para o cirurgião-dentista que…</h2>
+    <div class="pq-grid" style="text-align:left">
+      <div class="pq"><h3>Quer segurança no diagnóstico</h3><p>Saber o que perguntar, o que examinar e como registrar o nível de certeza e o grau de desgaste.</p></div>
+      <div class="pq"><h3>Confecciona placas oclusais</h3><p>E quer um passo a passo de indicação, desenho, ajuste e controles, analógico e digital.</p></div>
+      <div class="pq"><h3>Reabilita pacientes bruxômanos</h3><p>Escolha de materiais, desenho oclusal e cuidados com implantes para o trabalho durar.</p></div>
+      <div class="pq"><h3>Quer atuar em odontologia do sono</h3><p>Triagem de apneia, encaminhamentos e acompanhamento conjunto com o médico.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Oferta antecipada: preço, garantia e CTA antes dos capítulos -->
+<section class="mini">
+  <div class="wrap">
+    <div class="mini-box">
+      <img src="/images/ebook-bruxismo/capa.webp" alt="Capa do ebook Bruxismo do Sono" width="210" height="297" loading="lazy">
+      <div>
+        <div class="tag" style="margin-bottom:4px">Acesso imediato</div>
+        <div class="mini-price"><small>R$</small><%= PRICE %></div>
+        <div class="micro" style="margin-top:0">ou em até 12x no cartão · pagamento único</div>
+        <ul class="mini-list">
+          <li>Ebook de 68 páginas</li>
+          <li>6 fichas clínicas</li>
+          <li>Garantia de 7 dias</li>
+        </ul>
+        <a href="<%= cta('mini_cta') %>" class="btn" <%- ext %> data-checkout-source="mini_cta">Quero acessar agora →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="aprender">
+  <div class="wrap center">
+    <div class="tag">O que você vai dominar</div>
+    <h2>Um protocolo, <em>do início ao fim</em></h2>
+    <div class="gal">
+      <figure><img src="/images/ebook-bruxismo/foto-exame.webp" alt="Dentista palpando o masseter de uma paciente" width="1000" height="563" loading="lazy"><figcaption><span>Diagnosticar</span>Anamnese, exame e graduação do desgaste</figcaption></figure>
+      <figure><img src="/images/ebook-bruxismo/foto-placas.webp" alt="Três tipos de placas oclusais" width="1000" height="563" loading="lazy"><figcaption><span>Proteger</span>A placa certa para cada paciente</figcaption></figure>
+      <figure><img src="/images/ebook-bruxismo/foto-digital.webp" alt="Scanner intraoral e modelo digital" width="1000" height="563" loading="lazy"><figcaption><span>Executar</span>Fluxo analógico e digital, passo a passo</figcaption></figure>
+    </div>
+    <div class="ap-grid">
+      <div class="ap"><div class="n">Diagnóstico</div><h3>Possível, provável ou definitivo: o sistema dos consensos de 2013 e 2018 e a STAB (2024)</h3></div>
+      <div class="ap"><div class="n">Exame</div><h3>Graduação do desgaste de 0 a 4 por sextante e protocolo fotográfico de monitoramento</h3></div>
+      <div class="ap"><div class="n">Via aérea</div><h3>Triagem de apneia com STOP-Bang e Epworth antes de qualquer placa</h3></div>
+      <div class="ap"><div class="n">Medicamentos</div><h3>Antidepressivos, estimulantes e outros: como identificar e comunicar ao médico</h3></div>
+      <div class="ap"><div class="n">Placas</div><h3>Qual escolher, quando não usar e confecção passo a passo, analógica e digital</h3></div>
+      <div class="ap"><div class="n">Controles</div><h3>Entrega, ajuste e o calendário de retornos que mantém o resultado</h3></div>
+      <div class="ap"><div class="n">Reabilitação</div><h3>Materiais monolíticos, implantes e dimensão vertical no paciente bruxômano</h3></div>
+      <div class="ap"><div class="n">Consultório</div><h3>Roteiro de conversa, objeções, termo de consentimento e precificação</h3></div>
+    </div>
+  </div>
+</section>
+
+<section class="preview">
+  <div class="wrap center">
+    <div class="tag">Por dentro</div>
+    <h2>Padrão editorial <em>premium</em></h2>
+    <div class="pv-grid">
+      <img src="/images/ebook-bruxismo/pagina-1.webp" alt="Abertura do capítulo 1" width="909" height="1286" loading="lazy">
+      <img src="/images/ebook-bruxismo/pagina-2.webp" alt="Escala de graduação do desgaste" width="909" height="1286" loading="lazy">
+      <img src="/images/ebook-bruxismo/pagina-3.webp" alt="Página de exames complementares" width="909" height="1286" loading="lazy">
+      <img src="/images/ebook-bruxismo/pagina-4.webp" alt="Protocolo analógico passo a passo" width="909" height="1286" loading="lazy">
+      <img src="/images/ebook-bruxismo/pagina-5.webp" alt="Protocolo de bolso" width="909" height="1286" loading="lazy">
+      <img src="/images/ebook-bruxismo/pagina-6.webp" alt="Ficha de anamnese" width="909" height="1286" loading="lazy">
+    </div>
+    <p class="pv-cap">Páginas reais do ebook</p>
+  </div>
+</section>
+
+<section class="capitulos">
+  <div class="wrap center">
+    <div class="tag">Conteúdo</div>
+    <h2>14 capítulos. <em>Do consenso à cadeira.</em></h2>
+    <div class="cap-grid">
+      <div class="cap"><div class="n">01</div><div><h3>O bruxismo hoje</h3><p>O que mudou com os consensos e os mitos a desmontar</p></div></div>
+      <div class="cap"><div class="n">02</div><div><h3>Fisiopatologia</h3><p>Microdespertares e por que a placa protege, mas não cura</p></div></div>
+      <div class="cap"><div class="n">03</div><div><h3>Fatores de risco</h3><p>Medicamentos, substâncias, apneia, refluxo e estresse</p></div></div>
+      <div class="cap"><div class="n">04</div><div><h3>Diagnóstico clínico</h3><p>Anamnese, exame sinal por sinal e graduação do desgaste</p></div></div>
+      <div class="cap"><div class="n">05</div><div><h3>Exames complementares</h3><p>Polissonografia, EMG portátil e triagem de apneia</p></div></div>
+      <div class="cap"><div class="n">06</div><div><h3>Diagnóstico diferencial</h3><p>Atrito × erosão × abrasão e sinais de alerta</p></div></div>
+      <div class="cap"><div class="n">07</div><div><h3>Manejo multidisciplinar</h3><p>Escada de manejo, toxina botulínica e farmacologia</p></div></div>
+      <div class="cap"><div class="n">08</div><div><h3>Placas oclusais</h3><p>Tipos, desenho e confecção analógica e digital</p></div></div>
+      <div class="cap"><div class="n">09</div><div><h3>Entrega e controles</h3><p>Roteiro de ajuste e calendário de retornos</p></div></div>
+      <div class="cap"><div class="n">10</div><div><h3>Reabilitação</h3><p>Materiais, implantes e dimensão vertical</p></div></div>
+      <div class="cap"><div class="n">11</div><div><h3>Bruxismo infantil</h3><p>Quando tranquilizar e quando investigar a respiração</p></div></div>
+      <div class="cap"><div class="n">12</div><div><h3>Comunicação e precificação</h3><p>Roteiro, objeções, consentimento e valor do tratamento</p></div></div>
+      <div class="cap"><div class="n">13</div><div><h3>Casos didáticos</h3><p>4 casos comentados com o raciocínio do protocolo</p></div></div>
+      <div class="cap"><div class="n">14</div><div><h3>Protocolo de bolso</h3><p>Tudo em uma página, mais as referências</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="bonus">
+  <div class="wrap bonus-grid">
+    <img src="/images/ebook-bruxismo/mockup-fichas.webp" alt="As 6 fichas clínicas" width="600" height="600" loading="lazy">
+    <div>
+      <div class="tag">Bônus incluso</div>
+      <h2>6 fichas clínicas <em>para imprimir</em></h2>
+      <p class="lead">Use desde a próxima consulta. Cada ficha também vem em PDF separado.</p>
+      <ul class="fichas">
+        <li><b>1</b>Anamnese com triagem de apneia (STOP-Bang e Epworth)</li>
+        <li><b>2</b>Exame clínico e graduação do desgaste por sextante</li>
+        <li><b>3</b>Checklist de entrega e ajuste da placa</li>
+        <li><b>4</b>Termo de consentimento da placa oclusal</li>
+        <li><b>5</b>Orientações ao paciente: cuidados com a placa</li>
+        <li><b>6</b>Carta de encaminhamento (sono, prescritor, neurologia)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="oferta" id="comprar">
+  <div class="wrap of-grid">
+    <img src="/images/ebook-bruxismo/mockup.webp" alt="Ebook Bruxismo do Sono" width="600" height="600" loading="lazy" style="border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.5)">
+    <div class="of-box">
+      <div class="tag">Coleção Odontologia do Sono · Vol. II</div>
+      <h2 style="font-size:30px">Bruxismo do Sono: <em>Protocolo Clínico Completo</em></h2>
+      <ul class="of-incl">
+        <li>Ebook premium de 68 páginas, 14 capítulos</li>
+        <li>Protocolos de placa analógico e digital</li>
+        <li>4 casos clínicos didáticos comentados</li>
+        <li>Protocolo de bolso e 13 referências</li>
+        <li>Bônus: 6 fichas clínicas para imprimir</li>
+      </ul>
+      <div class="of-price"><small>R$</small><%= PRICE %></div>
+      <div class="of-note">ou em até 12x no cartão · pagamento único · acesso imediato</div>
+      <a href="<%= cta('offer_cta') %>" class="btn btn-full" <%- ext %> data-checkout-source="offer_cta">Quero o protocolo completo →</a>
+      <p class="micro" style="text-align:center">🔒 Compra segura pela Hotmart · Pix, cartão ou boleto</p>
+      <% if (!hasCheckout) { %><p class="pending">Checkout em configuração. Volte em breve.</p><% } %>
+    </div>
+  </div>
+</section>
+
+<section class="garantia">
+  <div class="wrap">
+    <div class="g-box">
+      <div class="seal"><b>7</b><small>DIAS DE<br>GARANTIA</small></div>
+      <div>
+        <h2 style="font-size:28px;margin-bottom:10px">Leia, aplique e decida</h2>
+        <p class="lead" style="font-size:16px">Se em até 7 dias você achar que o material não vale o investimento, peça o reembolso pela própria Hotmart e receba 100% do valor, sem perguntas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap narrow">
+    <h2 class="center">Perguntas <em>frequentes</em></h2>
+    <div class="faq-item"><button class="faq-q" type="button">Para quem é este material?</button><div class="faq-a">Para cirurgiões-dentistas, de clínicos gerais a especialistas, e estudantes de odontologia que querem conduzir o bruxismo do sono com um protocolo atualizado.</div></div>
+    <div class="faq-item"><button class="faq-q" type="button">Como recebo o acesso?</button><div class="faq-a">Logo após a confirmação do pagamento, você recebe por e-mail o acesso ao ebook e às 6 fichas em PDF. No Pix e no cartão é imediato.</div></div>
+    <div class="faq-item"><button class="faq-q" type="button">Preciso ter scanner intraoral?</button><div class="faq-a">Não. O guia traz o protocolo de placa completo no fluxo analógico, com moldagem, registro e articulador, e também no fluxo digital para quem já usa scanner.</div></div>
+    <div class="faq-item"><button class="faq-q" type="button">O conteúdo é baseado em evidência?</button><div class="faq-a">Sim. É organizado a partir dos consensos internacionais sobre bruxismo (2013, 2018 e a ferramenta STAB de 2024) e traz 13 referências científicas. Quando a evidência é fraca, isso é dito com clareza.</div></div>
+    <div class="faq-item"><button class="faq-q" type="button">Tem relação com o ebook de Ronco e Apneia?</button><div class="faq-a">É o Volume II da mesma coleção. Os dois se complementam: sempre que o bruxismo encontra a apneia, o guia indica a triagem e o momento de encaminhar. Mas este volume funciona sozinho.</div></div>
+    <div class="faq-item"><button class="faq-q" type="button">E se eu não gostar?</button><div class="faq-a">Você tem 7 dias de garantia incondicional pela Hotmart.</div></div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap narrow">
+    <h2>O bruxismo não tem cura. <em>O seu paciente tem você.</em></h2>
+    <p class="lead" style="margin-bottom:30px">Diagnóstico com nível de certeza, triagem da via aérea, proteção bem ajustada e acompanhamento de verdade.</p>
+    <a href="<%= cta('final_cta') %>" class="btn" <%- ext %> data-checkout-source="final_cta">Quero o protocolo completo · R$ <%= PRICE %> →</a>
+  </div>
+</section>
+
+<footer>
+  <p>Coleção Odontologia do Sono · jaagendou.app · Produto digital vendido e entregue pela Hotmart.</p>
+  <p>Conteúdo educacional para cirurgiões-dentistas. Não substitui o julgamento clínico nem a formação específica.</p>
+  <p><a href="/politica-privacidade">Política de privacidade</a> · <a href="/termos-de-uso">Termos de uso</a></p>
+</footer>
+
+<div class="sticky" id="sticky">
+  <a href="<%= cta('sticky_cta') %>" <%- ext %> data-checkout-source="sticky_cta">Quero o protocolo · R$ <%= PRICE %> →</a>
+</div>
+
+<% if (hasCoupon) { %>
+<div class="exit-overlay" id="exitPopup" role="dialog" aria-modal="true" aria-labelledby="exitTitle" aria-hidden="true">
+  <div class="exit-card">
+    <button type="button" class="exit-close" id="exitClose" aria-label="Fechar">×</button>
+    <div class="tag" style="margin:0">Antes de você sair</div>
+    <div class="exit-title" id="exitTitle">Liberamos um desconto para você</div>
+    <p style="font-size:15px">Bruxismo do Sono: Protocolo Clínico Completo + 6 fichas clínicas.</p>
+    <div class="exit-price"><s>R$ <%= PRICE %></s><strong>R$ <%= coupon.price %></strong></div>
+    <div class="exit-coupon">CUPOM <%= coupon.code %></div>
+    <a href="<%= cta('exit_popup', '&offDiscount=' + coupon.code) %>" class="btn btn-full" target="_blank" rel="noopener" data-checkout-source="exit_popup" data-checkout-value="<%= coupon.price.replace(',', '.') %>">Quero meu desconto →</a>
+    <button type="button" class="exit-dismiss" id="exitDismiss">Agora não</button>
+  </div>
+</div>
+<% } %>
+
+<script>
+(function () {
+  var PRODUCT = 'ebook_bruxismo';
+  var CONTENT_NAME = 'Ebook Bruxismo do Sono';
+  var VALUE = <%= PRICE_NUM %>;
+  var HAS_CHECKOUT = <%= hasCheckout ? 'true' : 'false' %>;
+  var checkoutClicked = false;
+
+  document.querySelectorAll('.faq-q').forEach(function (q) {
+    q.addEventListener('click', function () {
+      var item = q.parentElement, wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // CTA fixo no celular: aparece depois do hero e some quando a oferta está na tela
+  var sticky = document.getElementById('sticky'), hero = document.querySelector('.hero'), offer = document.getElementById('comprar');
+  if ('IntersectionObserver' in window && sticky) {
+    var heroGone = false, offerVisible = false;
+    var upd = function () { sticky.classList.toggle('show', heroGone && !offerVisible); };
+    new IntersectionObserver(function (e) { heroGone = !e[0].isIntersecting; upd(); }).observe(hero);
+    new IntersectionObserver(function (e) { offerVisible = e[0].isIntersecting; upd(); }).observe(offer);
+  }
+
+  if (typeof window.fbq === 'function') window.fbq('track', 'ViewContent', { content_name: CONTENT_NAME, content_type: 'product', value: VALUE, currency: 'BRL' });
+
+  // Leva a origem do anúncio para o checkout (src/sck nos relatórios da Hotmart)
+  if (HAS_CHECKOUT) {
+    var qs = new URLSearchParams(location.search);
+    var src = (qs.get('utm_source') || qs.get('src') || (document.referrer ? 'referral' : 'direto')).slice(0, 30);
+    var sck = [qs.get('utm_campaign'), qs.get('utm_content')].filter(Boolean).join('|').slice(0, 60);
+    document.querySelectorAll('a[data-checkout-source]').forEach(function (a) {
+      try { var u = new URL(a.href); u.searchParams.set('src', src); if (sck) u.searchParams.set('sck', sck); a.href = u.toString(); } catch (e) {}
+    });
+  }
+
+  function readCookie(n) { var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; }
+
+  document.querySelectorAll('a[data-checkout-source]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (!HAS_CHECKOUT) return;
+      checkoutClicked = true;
+      var source = link.getAttribute('data-checkout-source') || 'checkout_unknown';
+      var value = Number(link.getAttribute('data-checkout-value')) || VALUE;
+      if (typeof window.fbq === 'function') window.fbq('track', 'InitiateCheckout', { content_name: CONTENT_NAME, value: value, currency: 'BRL', source: source });
+      try {
+        var body = JSON.stringify({ fbp: readCookie('_fbp'), fbc: readCookie('_fbc'), source: source, value: value, contentName: CONTENT_NAME, eventSourceUrl: location.href });
+        if (navigator.sendBeacon) navigator.sendBeacon('/api/track/checkout-click', new Blob([body], { type: 'application/json' }));
+        else fetch('/api/track/checkout-click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true });
+      } catch (e) {}
+      if (typeof window.gtag === 'function') window.gtag('event', 'begin_checkout', { currency: 'BRL', value: value, items: [{ item_name: CONTENT_NAME, price: value, quantity: 1 }], source: source });
+      if (window.posthog) window.posthog.capture('checkout_click', { source: source, value: value, currency: 'BRL', product: PRODUCT });
+    });
+  });
+
+  if (window.posthog && 'IntersectionObserver' in window) {
+    var secs = Array.prototype.slice.call(document.querySelectorAll('body > section, body > .proof, body > footer'));
+    var so = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        so.unobserve(en.target);
+        window.posthog.capture('section_viewed', { section: en.target.classList[0] || en.target.tagName.toLowerCase(), position: secs.indexOf(en.target) + 1, total_sections: secs.length, product: PRODUCT });
+      });
+    }, { rootMargin: '0px 0px -50% 0px' });
+    secs.forEach(function (s) { so.observe(s); });
+  }
+
+  // Pop-up de saída: SÓ por intenção real de sair (sem gatilho por tempo ocioso)
+  var overlay = document.getElementById('exitPopup');
+  if (!overlay) return;
+  var KEY = 'bruxismo_exit_popup_shown', shown = false, maxScroll = 0, backArmed = false;
+  function seen() { try { return !!localStorage.getItem(KEY); } catch (e) { return false; } }
+  function engaged() { return maxScroll >= 0.2; } // leu pelo menos 20% da página
+  window.addEventListener('scroll', function () {
+    var h = document.documentElement.scrollHeight - innerHeight;
+    if (h > 0) maxScroll = Math.max(maxScroll, scrollY / h);
+  }, { passive: true });
+  function show(trigger) {
+    if (shown || checkoutClicked || seen()) return false;
+    shown = true;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    overlay.classList.add('open'); overlay.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function () { overlay.classList.add('visible'); });
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'ExitPopupShown', { trigger: trigger });
+    if (window.posthog) window.posthog.capture('exit_popup_shown', { trigger: trigger, product: PRODUCT, max_scroll: Math.round(maxScroll * 100) });
+    return true;
+  }
+  function hide() { overlay.classList.remove('visible'); overlay.setAttribute('aria-hidden', 'true'); setTimeout(function () { overlay.classList.remove('open'); }, 250); }
+  document.getElementById('exitClose').addEventListener('click', hide);
+  document.getElementById('exitDismiss').addEventListener('click', hide);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) hide(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+
+  // Desktop: mouse saindo pelo topo
+  document.addEventListener('mouseout', function (e) { if (!e.relatedTarget && e.clientY <= 0 && engaged()) show('mouse_exit'); });
+  // Celular: botão voltar
+  function arm() { if (backArmed || seen()) return; backArmed = true; history.pushState({ exitTrap: true }, '', location.href); }
+  ['touchstart', 'scroll', 'click'].forEach(function (ev) { window.addEventListener(ev, arm, { once: true, passive: true }); });
+  window.addEventListener('popstate', function () { if (!backArmed) return; backArmed = false; if (!(engaged() && show('back_button'))) history.back(); });
+  // Celular: rolagem rápida para cima, só depois de ter lido parte da página
+  var lastY = scrollY, lastT = Date.now();
+  window.addEventListener('scroll', function () {
+    var y = scrollY, t = Date.now(), dt = t - lastT;
+    if (dt > 0 && dt < 300 && lastY - y > 450 && y > 200 && engaged()) show('fast_scroll_up');
+    if (dt >= 120) { lastY = y; lastT = t; }
+  }, { passive: true });
+  // Voltou para a aba depois de sair
+  var hiddenAt = null;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt >= 4000 && engaged()) show('returned_to_tab');
+    hiddenAt = null;
+  });
+})();
+</script>
+</body>
+</html>

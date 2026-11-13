@@ -148,6 +148,12 @@ async function receive(req, res) {
     if (productKey.includes('halito')) {
       return res.status(200).json({ ok: true, message: 'Produto do público final: entrega pela Hotmart.' });
     }
+    // Este e-mail é do Destrave o Alinhador. Outros ebooks (Ronco, Bruxismo...) têm entrega pela Hotmart.
+    const productId = normalizeValue(readNested(payload, ['product.id', 'purchase.product.id', 'data.product.id']));
+    const isDestrave = /alinhador|destrave/.test(productKey) || (productId && EBOOK_PRODUCT_HOTMART_IDS.has(productId));
+    if (!isDestrave) {
+      return res.status(200).json({ ok: true, message: 'Produto sem entrega por este webhook.' });
+    }
 
     const [rows] = await pool.execute(
       'SELECT id, email_sent FROM ebook_purchases WHERE transaction_code = ? LIMIT 1',

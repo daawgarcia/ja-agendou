@@ -26,6 +26,9 @@ router.get('/destrave-alinhador/obrigado', publicController.showDestraveAlinhado
 // Ebook público final: Hálito Limpo em 7 Dias
 router.get('/halito-limpo', publicController.showHalitoLimpo);
 
+// Ebook dentistas: Bruxismo do Sono (Coleção Odontologia do Sono, Vol. II)
+router.get('/bruxismo-do-sono', publicController.showBruxismoSono);
+
 // Páginas legais
 router.get('/politica-privacidade', publicController.showPoliticaPrivacidade);
 router.get('/termos-de-uso', publicController.showTermosUso);
