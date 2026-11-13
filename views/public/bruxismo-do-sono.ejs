@@ -15,8 +15,9 @@
 <%- include('../partials/tracking') %>
 
 <%
-  const PRICE = '197';
-  const PRICE_NUM = 197;
+  const PRICE = '67';
+  const PRICE_NUM = 67;
+  const PRICE_FROM = '197';
   const hasCheckout = Boolean(checkoutUrl);
   function cta(source, extra) {
     if (!hasCheckout) return '#comprar';
@@ -149,6 +150,8 @@ nav { background: rgba(7,16,30,.95); backdrop-filter: blur(12px); border-bottom:
 .of-price { font-family: 'Playfair Display', serif; font-size: clamp(60px, 9vw, 80px); font-weight: 800; color: #fff; line-height: 1; }
 .of-price small { font-size: 28px; color: var(--gold2); vertical-align: top; position: relative; top: 12px; margin-right: 6px; }
 .of-note { color: var(--gray); font-size: 14px; margin: 6px 0 24px; }
+.from { color: var(--gray); font-size: 16px; font-weight: 700; }
+.from s { color: var(--gray); }
 .pending { margin-top: 14px; font-size: 13px; color: #f0a99f; text-align: center; font-weight: 700; }
 
 /* garantia */
@@ -223,7 +226,7 @@ footer p { margin-bottom: 6px; }
 </head>
 <body>
 
-<div class="top-bar">🦷 <em>Coleção Odontologia do Sono</em> · Volume II · Acesso imediato + 6 fichas clínicas</div>
+<div class="top-bar">🦷 <em>Preço de lançamento:</em> de R$ <%= PRICE_FROM %> por <em>R$ <%= PRICE %></em> · Acesso imediato + 6 fichas clínicas</div>
 
 <nav>
   <div class="nav-inner">
@@ -239,7 +242,7 @@ footer p { margin-bottom: 6px; }
       <h1>Bruxismo do sono: <em>do diagnóstico à placa</em>, com protocolo de consultório</h1>
       <p class="hero-sub">O guia premium para identificar, classificar, proteger e acompanhar o paciente que range os dentes, sem cair nos mitos que ainda circulam na odontologia.</p>
       <a href="<%= cta('hero_cta') %>" class="btn" <%- ext %> data-checkout-source="hero_cta">Quero o protocolo completo →</a>
-      <div class="hero-price">R$ <strong><%= PRICE %></strong> ou em até 12x · 7 dias de garantia</div>
+      <div class="hero-price"><s style="color:var(--gray);font-weight:400">De R$ <%= PRICE_FROM %></s> por <strong>R$ <%= PRICE %></strong> · preço de lançamento · 7 dias de garantia</div>
       <div class="micro">🔒 <b>Compra segura via Hotmart</b> · Pix, cartão ou boleto</div>
     </div>
     <div class="hero-img">
@@ -292,9 +295,10 @@ footer p { margin-bottom: 6px; }
     <div class="mini-box">
       <img src="/images/ebook-bruxismo/capa.webp" alt="Capa do ebook Bruxismo do Sono" width="210" height="297" loading="lazy">
       <div>
-        <div class="tag" style="margin-bottom:4px">Acesso imediato</div>
+        <div class="tag" style="margin-bottom:4px">Preço de lançamento</div>
+        <div class="from">De <s>R$ <%= PRICE_FROM %></s> por</div>
         <div class="mini-price"><small>R$</small><%= PRICE %></div>
-        <div class="micro" style="margin-top:0">ou em até 12x no cartão · pagamento único</div>
+        <div class="micro" style="margin-top:0">pagamento único · Pix, cartão ou boleto</div>
         <ul class="mini-list">
           <li>Ebook de 68 páginas</li>
           <li>6 fichas clínicas</li>
@@ -399,8 +403,9 @@ footer p { margin-bottom: 6px; }
         <li>Protocolo de bolso e 13 referências</li>
         <li>Bônus: 6 fichas clínicas para imprimir</li>
       </ul>
+      <div class="from">De <s>R$ <%= PRICE_FROM %></s> por</div>
       <div class="of-price"><small>R$</small><%= PRICE %></div>
-      <div class="of-note">ou em até 12x no cartão · pagamento único · acesso imediato</div>
+      <div class="of-note">preço de lançamento · pagamento único · acesso imediato</div>
       <a href="<%= cta('offer_cta') %>" class="btn btn-full" <%- ext %> data-checkout-source="offer_cta">Quero o protocolo completo →</a>
       <p class="micro" style="text-align:center">🔒 Compra segura pela Hotmart · Pix, cartão ou boleto</p>
       <% if (!hasCheckout) { %><p class="pending">Checkout em configuração. Volte em breve.</p><% } %>
